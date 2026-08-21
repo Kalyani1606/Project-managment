@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id              String           @id @default(uuid())
+  name            String
+  email           String           @unique
+  passwordHash    String
+  role            String           @default("STUDENT") // STUDENT, TEACHER, HOD
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  studentProfile  StudentProfile?
+  teacherProfile  TeacherProfile?
+  createdTeams    Team[]           @relation("TeamCreator")
+  teamMembers     TeamMember[]
+  sentInvites     TeamInvitation[] @relation("InviteSender")
+  receivedInvites TeamInvitation[] @relation("InviteReceiver")
+  guideRequests   GuideRequest[]   @relation("StudentGuideRequests")
+  notifications   Notification[]
+  sentEmails      EmailLog[]
+}
+
+model StudentProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rollNumber     String   @unique // e.g. 1MS21CS045 / USN
+  semester       Int      @default(5)
+  department     String   @default("Computer Science & Engineering")
+  bio            String?
+  github         String?
+  linkedin       String?
+  skills         String   @default("[]") // JSON string of skills array
+  profilePicture String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TeacherProfile {
+  id               String         @id @default(uuid())
+  userId           String         @unique
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department       String
+  designation      String         // Professor, Associate Professor, Assistant Professor, etc.
+  areasOfExpertise String         // JSON string or comma-separated list
+  maxProjects      Int            @default(5)
+  guideRequests    GuideRequest[]
+}
+
+model Team {
+  id          String           @id @default(uuid())
+  teamName    String
+  semester    Int
+  creatorId   String
+  creator     User             @relation("TeamCreator", fields: [creatorId], references: [id])
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  members     TeamMember[]
+  invitations TeamInvitation[]
+  projects    Project[]
+}
+
+model TeamMember {
+  id        String   @id @default(uuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String   @default("Team Member") // "Team Creator" | "Team Member"
+  status    String   @default("ACCEPTED")   // "ACCEPTED" | "PENDING"
+  joinedAt  DateTime @default(now())
+
+  @@unique([teamId, userId])
+}
+
+model TeamInvitation {
+  id          String   @id @default(uuid())
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User     @relation("InviteSender", fields: [senderId], references: [id])
+  receiverId  String
+  receiver    User     @relation("InviteReceiver", fields: [receiverId], references: [id])
+  semester    Int
+  status      String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id               String         @id @default(uuid())
+  teamId           String
+  team             Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  semester         Int
+  projectTitle     String
+  problemStatement String
+  description      String
+  domain           String
+  technologies     String         @default("[]") // JSON string of technologies
+  status           String         @default("PROJECT_CREATED") // PROJECT_CREATED, PROPOSAL_SUBMITTED, UNDER_REVIEW, IN_DEVELOPMENT, PROGRESS_REVIEW, FINAL_REVIEW, COMPLETED
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  guideRequests    GuideRequest[]
+}
+
+model GuideRequest {
+  id            String         @id @default(uuid())
+  projectId     String
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  teacherId     String
+  teacher       TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  requestedById String
+  requestedBy   User           @relation("StudentGuideRequests", fields: [requestedById], references: [id])
+  roleType      String         @default("Lead Guide") // "Lead Guide" | "Co-Guide"
+  status        String         @default("PENDING")    // "PENDING" | "ACCEPTED" | "REJECTED"
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String   // "TEAM_INVITE", "INVITE_ACCEPTED", "INVITE_REJECTED", "GUIDE_REQUEST", "PROJECT_CREATED", "SYSTEM"
+  title       String
+  message     String
+  link        String?
+  metadata    String?  // JSON string for teamId, inviteId, projectId, etc.
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model EmailLog {
+  id          String   @id @default(uuid())
+  recipientId String?
+  recipient   User?    @relation(fields: [recipientId], references: [id], onDelete: SetNull)
+  toEmail     String
+  subject     String
+  htmlBody    String
+  textBody    String
+  sentAt      DateTime @default(now())
+}
