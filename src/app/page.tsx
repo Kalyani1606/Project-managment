@@ -29,9 +29,6 @@ export default function SingleHeroLandingPage() {
             <span className="text-2xl font-black tracking-tight text-[#111827] flex items-center">
               PROJECT HUB<span className="text-[#FF5F38] text-3xl font-black leading-none">.</span>
             </span>
-            <span className="ml-1 text-[10px] font-extrabold tracking-wider bg-[#FF5F38]/15 text-[#FF5F38] px-2.5 py-0.5 rounded-full uppercase">
-              ACADEMIC
-            </span>
           </Link>
 
           {/* Nav Links */}
