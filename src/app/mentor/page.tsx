@@ -1,12 +1,12 @@
 "use client";
 import React from "react";
 import { AppProvider } from "@/context/AppContext";
-import StudentPortal from "@/components/portals/StudentPortal";
+import MentorPortal from "@/components/portals/MentorPortal";
 
 export default function Page() {
   return (
     <AppProvider>
-      <StudentPortal />
+      <MentorPortal />
     </AppProvider>
   );
 }

@@ -3,34 +3,42 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useNotification } from "@/context/NotificationContext";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Home,
-  FolderGit2,
-  UserCheck,
-  Bell,
+  User,
   LogOut,
-  Menu,
-  X,
+  Bell,
   Mail,
   PlusCircle,
-  Calendar,
-  Sparkles,
-  User
+  Menu,
+  X,
+  Users,
+  Award,
+  ShieldCheck,
+  BookOpen,
+  FolderGit2
 } from "lucide-react";
 import { NotificationDrawer } from "@/components/common/NotificationDrawer";
+import { DevMailboxModal } from "@/components/common/DevMailboxModal";
 
-export default function StudentLayout({ children }: { children: React.ReactNode }) {
+export default function AppPortalLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { user, loading, logout } = useAuth();
-  const { unreadCount, openDevMailbox, showToast, refreshNotifications } = useNotification();
-  const router = useRouter();
+  const { notifications, refreshNotifications, showToast } = useNotification();
   const pathname = usePathname();
+  const router = useRouter();
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMailboxOpen, setIsMailboxOpen] = useState(false);
 
-  // Authentication guard
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
   useEffect(() => {
     if (!loading && !user) {
       router.push("/");
@@ -61,7 +69,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     return (
       <div className="min-h-screen bg-[#FAF2EC] flex flex-col items-center justify-center text-[#111827]">
         <div className="w-10 h-10 border-3 border-[#0B2E26]/30 border-t-[#0B2E26] rounded-full animate-spin mb-4" />
-        <p className="text-sm font-semibold text-slate-600">Loading Student Dashboard...</p>
+        <p className="text-sm font-semibold text-slate-600">Loading Academic Portal...</p>
       </div>
     );
   }
@@ -70,57 +78,55 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     return null;
   }
 
-  const navItems = [
+  const portalItems = [
     {
-      name: "Home",
+      name: "Student Portal",
       href: "/student",
       icon: <Home className="w-4 h-4" />,
-      exact: true,
     },
     {
-      name: "Projects & Events",
-      href: "/student/projects",
-      icon: <FolderGit2 className="w-4 h-4" />,
-      exact: false,
+      name: "Mentor Portal",
+      href: "/mentor",
+      icon: <Users className="w-4 h-4" />,
     },
     {
-      name: "Profile",
-      href: "/student/profile",
-      icon: <User className="w-4 h-4" />,
-      exact: true,
+      name: "Reviewer Portal",
+      href: "/reviewer",
+      icon: <Award className="w-4 h-4" />,
+    },
+    {
+      name: "Coordinator Portal",
+      href: "/coordinator",
+      icon: <ShieldCheck className="w-4 h-4" />,
     },
   ];
 
   return (
     <div className="min-h-screen bg-[#FAF2EC] text-[#111827] font-sans selection:bg-[#FF5F38] selection:text-white flex flex-col">
-      {/* ========================================================================= */}
-      {/* HEADER NAVBAR (MATCHING LANDING PAGE THEME)                               */}
-      {/* ========================================================================= */}
+      {/* HEADER NAVBAR */}
       <header className="sticky top-0 z-40 bg-[#FAF2EC]/95 backdrop-blur-md border-b border-[#EADBD0] py-4 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           
           {/* Brand Logo */}
-          <Link href="/student" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <span className="text-2xl font-black tracking-tight text-[#111827] flex items-center">
               PROJECT HUB<span className="text-[#FF5F38] text-3xl font-black leading-none">.</span>
             </span>
             <span className="ml-1 text-[10px] font-extrabold tracking-wider bg-[#FF5F38]/15 text-[#FF5F38] px-2.5 py-0.5 rounded-full uppercase">
-              STUDENT PORTAL
+              ACADEMIC PORTALS
             </span>
           </Link>
 
-          {/* Navigation Links with Icons (Unified Segmented Pill Bar) */}
-          <nav className="hidden md:flex items-center gap-1.5 p-1.5 bg-white/80 border border-[#EADBD0] rounded-full shadow-sm">
-            {navItems.map((item) => {
-              const isActive = item.exact
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
+          {/* Navigation Links for 4 Portals */}
+          <nav className="hidden lg:flex items-center gap-1.5 p-1.5 bg-white/80 border border-[#EADBD0] rounded-full shadow-sm">
+            {portalItems.map((item) => {
+              const isActive = pathname === item.href || (item.href !== "/student" && pathname.startsWith(item.href));
 
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition duration-200 ${
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition duration-200 ${
                     isActive
                       ? "bg-[#0B2E26] text-white shadow-md"
                       : "text-slate-700 hover:text-[#FF5F38] hover:bg-[#FAF2EC]"
@@ -135,27 +141,18 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             })}
           </nav>
 
-          {/* Right Actions (Notifications, Mailbox, User Profile, Logout) */}
+          {/* Right Actions */}
           <div className="flex items-center gap-3">
-            {/* Create Team CTA */}
-            <Link
-              href="/student/projects/new"
-              className="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold text-xs rounded-full shadow-md transition"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>+ Create Team</span>
-            </Link>
-
             {/* Dev Mailbox Button */}
             <button
-              onClick={openDevMailbox}
+              onClick={() => setIsMailboxOpen(true)}
               className="p-2.5 rounded-full bg-white hover:bg-slate-100 border border-[#EADBD0] text-slate-700 transition shadow-sm"
               title="Dev Mailbox"
             >
               <Mail className="w-4 h-4 text-[#0B2E26]" />
             </button>
 
-            {/* Notification Bell Drawer */}
+            {/* Notification Bell */}
             <div className="relative">
               <button
                 onClick={() => setNotificationDrawerOpen(!notificationDrawerOpen)}
@@ -178,6 +175,12 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               />
             </div>
 
+            {/* User Badge */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#EADBD0] text-xs font-bold text-slate-800">
+              <User className="w-3.5 h-3.5 text-[#FF5F38]" />
+              <span>{user.name.split(" ")[0]}</span>
+            </div>
+
             {/* Sign Out Button */}
             <button
               onClick={logout}
@@ -190,7 +193,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-slate-700 rounded-lg hover:bg-slate-200/60"
+              className="lg:hidden p-2 text-slate-700 rounded-lg hover:bg-slate-200/60"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -199,11 +202,9 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
         {/* Mobile Nav Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-4 pt-4 border-t border-[#EADBD0] space-y-2 animate-fadeIn">
-            {navItems.map((item) => {
-              const isActive = item.exact
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
+          <div className="lg:hidden mt-4 pt-4 border-t border-[#EADBD0] space-y-2 animate-fadeIn">
+            {portalItems.map((item) => {
+              const isActive = pathname === item.href;
 
               return (
                 <Link
@@ -219,14 +220,6 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
                 </Link>
               );
             })}
-            <Link
-              href="/student/projects/new"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#FF5F38] text-white"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>+ Create Team</span>
-            </Link>
           </div>
         )}
       </header>
@@ -235,6 +228,8 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8">
         {children}
       </main>
+
+      <DevMailboxModal isOpen={isMailboxOpen} onClose={() => setIsMailboxOpen(false)} />
     </div>
   );
 }
