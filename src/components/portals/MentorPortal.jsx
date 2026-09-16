@@ -60,14 +60,14 @@ export default function MentorPortal() {
     <div className="space-y-6">
       
       {/* Navigation Sub-header */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+      <div className="flex items-center justify-between border-b border-[#EADBD0] pb-3">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'dashboard'
                 ? 'bg-teal-600 text-white shadow-md shadow-teal-500/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                : 'bg-white text-slate-600 border border-[#EADBD0] hover:bg-slate-100'
             }`}
           >
             🏠 Mentor Dashboard
@@ -77,7 +77,7 @@ export default function MentorPortal() {
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'diary'
                 ? 'bg-teal-600 text-white shadow-md shadow-teal-500/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                : 'bg-white text-slate-600 border border-[#EADBD0] hover:bg-slate-100'
             }`}
           >
             📖 Private Project Diary
@@ -87,7 +87,7 @@ export default function MentorPortal() {
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'requests'
                 ? 'bg-teal-600 text-white shadow-md shadow-teal-500/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                : 'bg-white text-slate-600 border border-[#EADBD0] hover:bg-slate-100'
             }`}
           >
             Pending Requests ({pendingRequests.length})
@@ -97,7 +97,7 @@ export default function MentorPortal() {
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'profile'
                 ? 'bg-teal-600 text-white shadow-md shadow-teal-500/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                : 'bg-white text-slate-600 border border-[#EADBD0] hover:bg-slate-100'
             }`}
           >
             👨‍🏫 Mentor Profile
@@ -115,29 +115,29 @@ export default function MentorPortal() {
       {activeTab === 'dashboard' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="glass-panel p-4 rounded-2xl border border-slate-200 bg-white flex items-center gap-3">
+            <div className="bg-white border border-[#EADBD0] shadow-sm p-4 rounded-2xl border border-[#EADBD0] bg-white flex items-center gap-3">
               <div className="p-3 rounded-xl bg-teal-100 text-teal-700">
                 <Users className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs text-slate-500 font-medium">Assigned Teams</div>
-                <div className="text-xl font-extrabold text-slate-900 font-mono">{assignedTeams.length}</div>
+                <div className="text-xl font-extrabold text-[#111827] font-mono">{assignedTeams.length}</div>
               </div>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl border border-slate-200 bg-white flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-blue-100 text-blue-700">
+            <div className="bg-white border border-[#EADBD0] shadow-sm p-4 rounded-2xl border border-[#EADBD0] bg-white flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-blue-100 text-[#FF5F38]">
                 <User className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs text-slate-500 font-medium">Total Students</div>
-                <div className="text-xl font-extrabold text-slate-900 font-mono">
+                <div className="text-xl font-extrabold text-[#111827] font-mono">
                   {assignedTeams.reduce((acc, t) => acc + t.members.length, 0)}
                 </div>
               </div>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl border border-slate-200 bg-white flex items-center gap-3">
+            <div className="bg-white border border-[#EADBD0] shadow-sm p-4 rounded-2xl border border-[#EADBD0] bg-white flex items-center gap-3">
               <div className="p-3 rounded-xl bg-amber-100 text-amber-700">
                 <Clock className="w-5 h-5" />
               </div>
@@ -147,30 +147,30 @@ export default function MentorPortal() {
               </div>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl border border-slate-200 bg-white flex items-center gap-3">
+            <div className="bg-white border border-[#EADBD0] shadow-sm p-4 rounded-2xl border border-[#EADBD0] bg-white flex items-center gap-3">
               <div className="p-3 rounded-xl bg-purple-100 text-purple-700">
                 <Calendar className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs text-slate-500 font-medium">Upcoming Reviews</div>
-                <div className="text-xl font-extrabold text-slate-900 font-mono">3</div>
+                <div className="text-xl font-extrabold text-[#111827] font-mono">3</div>
               </div>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl border border-slate-200 bg-white flex items-center gap-3">
+            <div className="bg-white border border-[#EADBD0] shadow-sm p-4 rounded-2xl border border-[#EADBD0] bg-white flex items-center gap-3">
               <div className="p-3 rounded-xl bg-sky-100 text-sky-700">
                 <BookOpen className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs text-slate-500 font-medium">Diary Entries</div>
-                <div className="text-xl font-extrabold text-slate-900 font-mono">{data.projectDiary.length}</div>
+                <div className="text-xl font-extrabold text-[#111827] font-mono">{data.projectDiary.length}</div>
               </div>
             </div>
           </div>
 
-          <div className="glass-panel p-6 rounded-3xl border border-slate-200 bg-white space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <div className="p-6 rounded-3xl border border-[#EADBD0] bg-white shadow-md space-y-4">
+            <div className="flex items-center justify-between border-b border-[#EADBD0] pb-3">
+              <h2 className="text-sm font-bold text-[#111827] flex items-center gap-2">
                 <Users className="w-4 h-4 text-teal-600" /> Assigned Project Teams
               </h2>
               <span className="text-xs text-slate-500 font-mono">{assignedTeams.length} Active Teams</span>
@@ -178,11 +178,11 @@ export default function MentorPortal() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {assignedTeams.map(team => (
-                <div key={team.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div key={team.id} className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs text-teal-700 font-mono font-bold">{team.id}</span>
-                      <h3 className="text-sm font-bold text-slate-900">{team.name}</h3>
+                      <h3 className="text-sm font-bold text-[#111827]">{team.name}</h3>
                     </div>
                     <span className="badge badge-success">{team.domain || 'Domain Set'}</span>
                   </div>
@@ -191,7 +191,7 @@ export default function MentorPortal() {
                     <strong className="text-slate-500">Topic:</strong> {team.projectTitle || 'Topic pending'}
                   </p>
 
-                  <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                  <div className="pt-2 border-t border-[#EADBD0] flex items-center justify-between text-xs text-slate-500">
                     <span>{team.members.length} Members</span>
                     <button
                       onClick={() => {
@@ -224,8 +224,8 @@ export default function MentorPortal() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <div className="glass-panel p-5 rounded-3xl border border-slate-200 bg-white space-y-4">
-              <h3 className="text-sm font-bold text-slate-900">Select Team for Diary Record</h3>
+            <div className="bg-white border border-[#EADBD0] shadow-sm p-5 rounded-3xl border border-[#EADBD0] bg-white space-y-4">
+              <h3 className="text-sm font-bold text-[#111827]">Select Team for Diary Record</h3>
               <div className="space-y-2">
                 {assignedTeams.map(t => {
                   const isSelected = selectedTeamObj?.id === t.id;
@@ -236,7 +236,7 @@ export default function MentorPortal() {
                       className={`w-full text-left p-3 rounded-2xl border transition-all text-xs ${
                         isSelected
                           ? 'bg-teal-600 text-white border-teal-600 font-bold shadow-md shadow-teal-500/20'
-                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                          : 'bg-[#FAF2EC] border-[#EADBD0] text-slate-700 hover:bg-slate-100'
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -252,11 +252,11 @@ export default function MentorPortal() {
 
             <div className="md:col-span-2 space-y-6">
               
-              <div className="glass-panel p-6 rounded-3xl border border-slate-200 bg-white space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <div className="p-6 rounded-3xl border border-[#EADBD0] bg-white shadow-md space-y-4">
+                <div className="flex items-center justify-between border-b border-[#EADBD0] pb-3">
+                  <h3 className="text-sm font-bold text-[#111827] flex items-center gap-2">
                     <PlusCircle className="w-4 h-4 text-teal-600" /> Record Guidance Meeting
-                    <span className="text-xs text-blue-700 font-mono">({selectedTeamObj?.name})</span>
+                    <span className="text-xs text-[#FF5F38] font-mono">({selectedTeamObj?.name})</span>
                   </h3>
                   <span className="text-[10px] bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-1 font-mono font-bold">
                     <Lock className="w-3 h-3" /> Private Diary
@@ -331,15 +331,15 @@ export default function MentorPortal() {
                   </div>
 
                   <div className="flex justify-end">
-                    <button type="submit" className="btn-success py-2 text-xs">
+                    <button type="submit" className="px-4 py-2 bg-[#0B2E26] hover:bg-[#071f1a] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer py-2 text-xs">
                       Save Guidance Record
                     </button>
                   </div>
                 </form>
               </div>
 
-              <div className="glass-panel p-6 rounded-3xl border border-slate-200 bg-white space-y-4">
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <div className="p-6 rounded-3xl border border-[#EADBD0] bg-white shadow-md space-y-4">
+                <h3 className="text-sm font-bold text-[#111827] flex items-center gap-2">
                   📖 Guidance History Records for {selectedTeamObj?.name}
                 </h3>
 
@@ -347,13 +347,13 @@ export default function MentorPortal() {
                   {data.projectDiary
                     .filter(d => d.teamId === selectedTeamObj?.id)
                     .map(entry => (
-                      <div key={entry.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                        <div className="flex items-center justify-between text-xs border-b border-slate-200 pb-2">
+                      <div key={entry.id} className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] space-y-2">
+                        <div className="flex items-center justify-between text-xs border-b border-[#EADBD0] pb-2">
                           <span className="font-bold text-teal-700 font-mono">Date: {entry.date}</span>
                           <span className="text-[10px] text-slate-500">Mentor: {entry.mentorName}</span>
                         </div>
                         <div className="text-xs text-slate-800">
-                          <strong className="text-blue-700">Discussion:</strong> {entry.discussion}
+                          <strong className="text-[#FF5F38]">Discussion:</strong> {entry.discussion}
                         </div>
                         <div className="text-xs text-slate-800">
                           <strong className="text-teal-700">Guidance Given:</strong> {entry.guidanceGiven}
@@ -361,9 +361,9 @@ export default function MentorPortal() {
                         <div className="text-xs text-slate-800">
                           <strong className="text-amber-800">Work Assigned:</strong> {entry.workAssigned}
                         </div>
-                        <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
+                        <div className="pt-2 border-t border-[#EADBD0] flex items-center justify-between text-[11px] text-slate-500">
                           <span>Present: {entry.studentsPresent?.join(', ')}</span>
-                          <span className="font-mono text-blue-700">Next Meeting: {entry.nextMeetingDate}</span>
+                          <span className="font-mono text-[#FF5F38]">Next Meeting: {entry.nextMeetingDate}</span>
                         </div>
                       </div>
                     ))}
@@ -379,8 +379,8 @@ export default function MentorPortal() {
 
       {/* PENDING REQUESTS TAB */}
       {activeTab === 'requests' && (
-        <div className="glass-panel p-6 rounded-3xl border border-slate-200 bg-white space-y-4 max-w-4xl mx-auto">
-          <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+        <div className="p-6 rounded-3xl border border-[#EADBD0] bg-white shadow-md space-y-4 max-w-4xl mx-auto">
+          <h2 className="text-sm font-bold text-[#111827] flex items-center gap-2">
             🔔 Pending Mentor Supervision Requests ({pendingRequests.length})
           </h2>
 
@@ -389,10 +389,10 @@ export default function MentorPortal() {
               <div className="text-center py-10 text-slate-400 text-sm">No pending mentor requests right now.</div>
             ) : (
               pendingRequests.map(team => (
-                <div key={team.id} className="p-4 rounded-2xl bg-slate-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div key={team.id} className="p-4 rounded-2xl bg-[#FAF2EC] border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <span className="text-xs font-mono text-amber-800 font-bold">{team.id}</span>
-                    <h3 className="text-sm font-bold text-slate-900">{team.name}</h3>
+                    <h3 className="text-sm font-bold text-[#111827]">{team.name}</h3>
                     <p className="text-xs text-slate-600 mt-1">Domain: {team.domain || 'Not Specified'}</p>
                     <p className="text-xs text-slate-500">Members: {team.members.map(m => m.name).join(', ')}</p>
                   </div>
@@ -400,7 +400,7 @@ export default function MentorPortal() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => respondToMentorRequest(team.id, true)}
-                      className="btn-success py-1.5 text-xs"
+                      className="px-4 py-2 bg-[#0B2E26] hover:bg-[#071f1a] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer py-1.5 text-xs"
                     >
                       <CheckCircle2 className="w-4 h-4" /> Accept Request
                     </button>
@@ -420,16 +420,16 @@ export default function MentorPortal() {
 
       {/* PROFILE TAB */}
       {activeTab === 'profile' && (
-        <div className="glass-panel p-6 rounded-3xl border border-slate-200 bg-white max-w-2xl mx-auto space-y-4">
-          <h2 className="text-lg font-bold text-slate-900 border-b border-slate-200 pb-3">Mentor Profile Information</h2>
+        <div className="p-6 rounded-3xl border border-[#EADBD0] bg-white shadow-md max-w-2xl mx-auto space-y-4">
+          <h2 className="text-lg font-bold text-[#111827] border-b border-[#EADBD0] pb-3">Mentor Profile Information</h2>
           <div className="grid grid-cols-2 gap-4 text-xs">
             <div>
               <span className="text-slate-500">Full Name</span>
-              <p className="font-bold text-slate-900 text-sm mt-0.5">{profile.fullName}</p>
+              <p className="font-bold text-[#111827] text-sm mt-0.5">{profile.fullName}</p>
             </div>
             <div>
               <span className="text-slate-500">Employee ID</span>
-              <p className="font-mono font-bold text-blue-700 text-sm mt-0.5">{profile.employeeId}</p>
+              <p className="font-mono font-bold text-[#FF5F38] text-sm mt-0.5">{profile.employeeId}</p>
             </div>
             <div>
               <span className="text-slate-500">Email Address</span>

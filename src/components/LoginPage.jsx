@@ -65,18 +65,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between p-4 md:p-8">
+    <div className="min-h-screen bg-[#FAF2EC] flex flex-col justify-between p-4 md:p-8">
       
       {/* Top University Branding Bar */}
-      <div className="max-w-6xl mx-auto w-full flex items-center justify-between py-4 border-b border-slate-200">
+      <div className="max-w-6xl mx-auto w-full flex items-center justify-between py-4 border-b border-[#EADBD0]">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-sky-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <h1 className="text-xl font-bold text-[#111827] tracking-tight flex items-center gap-2">
               University Academic Project Hub
-              <span className="text-xs bg-blue-100 text-blue-700 font-semibold px-2.5 py-0.5 rounded-full border border-blue-200">
+              <span className="text-xs bg-blue-100 text-[#FF5F38] font-semibold px-2.5 py-0.5 rounded-full border border-blue-200">
                 Official Portal v2.0
               </span>
             </h1>
@@ -96,10 +96,10 @@ export default function LoginPage() {
         {/* Left Side: Select Portal & Features */}
         <div className="lg:col-span-7 space-y-6 flex flex-col justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Multi-Portal Authentication
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF5F38]/10 border border-blue-200 text-[#FF5F38] text-xs font-bold mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-[#FF5F38]" /> Multi-Portal Authentication
             </div>
-            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-3xl font-extrabold text-[#111827] tracking-tight">
               Select Your Academic Portal Role
             </h2>
             <p className="text-sm text-slate-600 mt-2">
@@ -119,7 +119,7 @@ export default function LoginPage() {
                   className={`cursor-pointer p-4 rounded-2xl border transition-all duration-200 relative overflow-hidden ${
                     isSelected
                       ? 'bg-white border-blue-600 ring-2 ring-blue-500/20 shadow-xl shadow-blue-500/10 scale-[1.02]'
-                      : 'bg-white/80 border-slate-200 hover:border-slate-300 hover:bg-white'
+                      : 'bg-white/80 border-[#EADBD0] hover:border-[#EADBD0] hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -127,13 +127,13 @@ export default function LoginPage() {
                       <Icon className="w-5 h-5" />
                     </div>
                     {isSelected && (
-                      <span className="text-xs font-bold text-blue-600 flex items-center gap-1 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                      <span className="text-xs font-bold text-[#FF5F38] flex items-center gap-1 bg-[#FF5F38]/10 px-2 py-0.5 rounded-full border border-blue-200">
                         <CheckCircle2 className="w-3.5 h-3.5" /> Active
                       </span>
                     )}
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-900">{r.title}</h3>
+                  <h3 className="text-base font-bold text-[#111827]">{r.title}</h3>
                   <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
                     {r.description}
                   </p>
@@ -149,14 +149,14 @@ export default function LoginPage() {
 
           {/* Demo Login Quick Access Buttons */}
           <div className="p-5 rounded-2xl bg-white border border-blue-100 shadow-sm space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-blue-700 flex items-center gap-2">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#FF5F38] flex items-center gap-2">
               <KeyRound className="w-4 h-4" /> 🚀 Instant One-Click Demo Logins
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button
                 type="button"
                 onClick={() => demoLogin('student')}
-                className="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200 text-center transition-colors"
+                className="px-3 py-2 rounded-xl bg-[#FF5F38]/10 hover:bg-blue-100 text-[#FF5F38] text-xs font-bold border border-blue-200 text-center transition-colors"
               >
                 👨‍🎓 Student Portal
               </button>
@@ -177,7 +177,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => demoLogin('coordinator')}
-                className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-bold border border-slate-300 text-center transition-colors"
+                className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#111827] text-xs font-bold border border-[#EADBD0] text-center transition-colors"
               >
                 👨‍💼 Coordinator
               </button>
@@ -186,11 +186,11 @@ export default function LoginPage() {
         </div>
 
         {/* Right Side: Login Form Card */}
-        <div className="lg:col-span-5 bg-white p-8 rounded-3xl border border-slate-200 shadow-xl shadow-blue-500/5 flex flex-col justify-between">
+        <div className="lg:col-span-5 bg-white p-8 rounded-3xl border border-[#EADBD0] shadow-xl shadow-blue-500/5 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-xl font-bold text-slate-900">Sign In to Account</h3>
+                <h3 className="text-xl font-bold text-[#111827]">Sign In to Account</h3>
                 <p className="text-xs text-slate-500 mt-1">Enter your credentials for the selected portal</p>
               </div>
               <span className="badge badge-primary font-mono capitalize">
@@ -220,7 +220,7 @@ export default function LoginPage() {
               <div>
                 <label className="form-label flex items-center justify-between">
                   Password
-                  <a href="#" className="text-[11px] text-blue-600 hover:underline">Forgot?</a>
+                  <a href="#" className="text-[11px] text-[#FF5F38] hover:underline">Forgot?</a>
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
@@ -236,14 +236,14 @@ export default function LoginPage() {
 
               <div className="flex items-center justify-between text-xs text-slate-600 pt-1">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="rounded text-blue-600 focus:ring-blue-500" defaultChecked />
+                  <input type="checkbox" className="rounded text-[#FF5F38] focus:ring-blue-500" defaultChecked />
                   Remember this device
                 </label>
               </div>
 
               <button
                 type="submit"
-                className="btn-primary w-full justify-center py-3 text-sm font-bold shadow-lg shadow-blue-500/25 mt-4"
+                className="px-5 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer w-full justify-center py-3 text-sm font-bold shadow-lg shadow-blue-500/25 mt-4"
               >
                 Log In to {roles.find(r => r.id === selectedRole)?.title} <ArrowRight className="w-4 h-4" />
               </button>
@@ -258,7 +258,7 @@ export default function LoginPage() {
       </div>
 
       {/* Footer */}
-      <div className="text-center text-xs text-slate-400 py-4 border-t border-slate-200 max-w-6xl mx-auto w-full">
+      <div className="text-center text-xs text-slate-400 py-4 border-t border-[#EADBD0] max-w-6xl mx-auto w-full">
         © 2025-2026 Department of Computer Applications • Final Year Project Portal System
       </div>
 

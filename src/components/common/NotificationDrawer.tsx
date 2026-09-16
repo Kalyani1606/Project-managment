@@ -33,14 +33,14 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
   };
 
   return (
-    <div className="absolute right-0 top-12 w-80 sm:w-96 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fadeIn">
+    <div className="absolute right-0 top-12 w-80 sm:w-96 bg-[#FAF2EC] border border-slate-700/80 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fadeIn">
       {/* Header */}
-      <div className="p-4 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+      <div className="p-4 bg-white/80 border-b border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Bell className="w-4 h-4 text-blue-400" />
           <h4 className="text-sm font-bold text-white">Notifications</h4>
           {unreadCount > 0 && (
-            <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-600 text-white rounded-full">
+            <span className="px-2 py-0.5 text-[10px] font-bold bg-[#FF5F38] text-white rounded-full">
               {unreadCount} new
             </span>
           )}
@@ -71,12 +71,12 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
               onClick={() => !n.read && markAsRead(n.id)}
               className={`p-3.5 rounded-xl transition ${
                 n.read
-                  ? "bg-transparent opacity-80 hover:bg-slate-800/40"
+                  ? "bg-transparent opacity-80 hover:bg-white/40"
                   : "bg-blue-950/30 border-l-2 border-blue-500 hover:bg-blue-950/50"
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-slate-800/80 shrink-0 mt-0.5">
+                <div className="p-2 rounded-lg bg-white/80 shrink-0 mt-0.5">
                   {getIcon(n.type)}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -101,7 +101,7 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
                           onRespondInvite(n.metadata.invitationId, "ACCEPT");
                           markAsRead(n.id);
                         }}
-                        className="px-2.5 py-1 text-[11px] font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition"
+                        className="px-2.5 py-1 text-[11px] font-semibold bg-[#FF5F38] hover:bg-[#FF5F38] text-white rounded-lg transition"
                       >
                         Accept
                       </button>
@@ -111,7 +111,7 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
                           onRespondInvite(n.metadata.invitationId, "REJECT");
                           markAsRead(n.id);
                         }}
-                        className="px-2.5 py-1 text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition"
+                        className="px-2.5 py-1 text-[11px] font-semibold bg-white hover:bg-slate-700 text-slate-300 rounded-lg transition"
                       >
                         Reject
                       </button>

@@ -46,11 +46,11 @@ export function DevMailboxModal() {
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden z-10 my-6 flex flex-col max-h-[88vh]">
+      <div className="relative w-full max-w-4xl bg-[#FAF2EC] border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden z-10 my-6 flex flex-col max-h-[88vh]">
         {/* Header */}
         <div className="p-5 bg-gradient-to-r from-blue-950/80 to-slate-900 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-10 h-10 rounded-xl bg-[#FF5F38]/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
               <Mail className="w-5 h-5" />
             </div>
             <div>
@@ -70,14 +70,14 @@ export function DevMailboxModal() {
             <button
               onClick={fetchEmails}
               disabled={loading}
-              className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+              className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white transition"
               title="Refresh Mailbox"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button
               onClick={closeDevMailbox}
-              className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+              className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white transition"
             >
               <X className="w-5 h-5" />
             </button>
@@ -87,7 +87,7 @@ export function DevMailboxModal() {
         {/* Content - 2 column layout: Email List & Email Viewer */}
         <div className="grid grid-cols-1 md:grid-cols-12 flex-1 overflow-hidden min-h-[450px]">
           {/* Left Email List */}
-          <div className="md:col-span-5 border-r border-slate-800 bg-slate-950/50 overflow-y-auto p-3 space-y-2">
+          <div className="md:col-span-5 border-r border-slate-800 bg-white/50 overflow-y-auto p-3 space-y-2">
             {emails.length === 0 ? (
               <div className="text-center py-12 text-slate-500 text-xs">
                 <Mail className="w-8 h-8 mx-auto mb-2 opacity-40" />
@@ -103,7 +103,7 @@ export function DevMailboxModal() {
                     className={`w-full text-left p-3 rounded-xl border transition ${
                       isSelected
                         ? "bg-blue-950/60 border-blue-500 text-white"
-                        : "bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-700"
+                        : "bg-[#FAF2EC]/60 border-slate-800 text-slate-300 hover:border-slate-700"
                     }`}
                   >
                     <div className="flex items-center justify-between text-xs mb-1">
@@ -124,7 +124,7 @@ export function DevMailboxModal() {
           </div>
 
           {/* Right Email Preview */}
-          <div className="md:col-span-7 bg-slate-900 overflow-y-auto p-5">
+          <div className="md:col-span-7 bg-[#FAF2EC] overflow-y-auto p-5">
             {selectedEmail ? (
               <div className="space-y-4">
                 <div className="pb-3 border-b border-slate-800">
@@ -143,7 +143,7 @@ export function DevMailboxModal() {
 
                 {/* Render HTML or text */}
                 <div
-                  className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs overflow-x-auto"
+                  className="bg-white p-4 rounded-xl border border-slate-800 text-xs overflow-x-auto"
                   dangerouslySetInnerHTML={{ __html: selectedEmail.htmlBody || selectedEmail.textBody }}
                 />
               </div>
@@ -156,14 +156,14 @@ export function DevMailboxModal() {
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+        <div className="p-3 bg-white border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
           <div className="flex items-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
             <span>Secure TLS Email Delivery Simulator</span>
           </div>
           <button
             onClick={closeDevMailbox}
-            className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition"
+            className="px-3 py-1 bg-white hover:bg-slate-700 text-white rounded-lg transition"
           >
             Close
           </button>

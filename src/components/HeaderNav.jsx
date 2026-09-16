@@ -24,7 +24,7 @@ export default function HeaderNav() {
   const unreadCount = data.notifications.filter(n => !n.read && n.role === activeRole).length;
 
   const rolesList = [
-    { id: 'student', label: 'Student Portal', icon: GraduationCap, color: 'text-blue-600' },
+    { id: 'student', label: 'Student Portal', icon: GraduationCap, color: 'text-[#FF5F38]' },
     { id: 'mentor', label: 'Mentor Portal', icon: UserCheck, color: 'text-teal-600' },
     { id: 'reviewer', label: 'Reviewer Portal', icon: ClipboardList, color: 'text-indigo-600' },
     { id: 'coordinator', label: 'Coordinator Portal', icon: ShieldCheck, color: 'text-slate-800' }
@@ -42,7 +42,7 @@ export default function HeaderNav() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/90 border-b border-slate-200 shadow-sm px-4 py-3 mb-6 backdrop-blur-xl no-print">
+    <header className="sticky top-0 z-40 w-full bg-white/90 border-b border-[#EADBD0] shadow-sm px-4 py-3 mb-6 backdrop-blur-xl no-print">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         
         {/* Left Branding */}
@@ -51,9 +51,9 @@ export default function HeaderNav() {
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <h1 className="text-lg font-bold text-[#111827] tracking-tight flex items-center gap-2">
               Academic Project Hub
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FF5F38]/10 text-[#FF5F38] border border-blue-200">
                 v2.0
               </span>
             </h1>
@@ -62,7 +62,7 @@ export default function HeaderNav() {
         </div>
 
         {/* Middle Portal Role Switcher */}
-        <div className="flex items-center bg-slate-100 p-1.5 rounded-xl border border-slate-200 overflow-x-auto max-w-full">
+        <div className="flex items-center bg-slate-100 p-1.5 rounded-xl border border-[#EADBD0] overflow-x-auto max-w-full">
           {rolesList.map(r => {
             const Icon = r.icon;
             const isActive = activeRole === r.id;
@@ -72,8 +72,8 @@ export default function HeaderNav() {
                 onClick={() => setRole(r.id)}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 scale-[1.02]'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                    ? 'bg-[#FF5F38] text-white shadow-md shadow-blue-500/20 scale-[1.02]'
+                    : 'text-slate-600 hover:text-[#111827] hover:bg-slate-200/60'
                 }`}
               >
                 <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : r.color}`} />
@@ -89,7 +89,7 @@ export default function HeaderNav() {
           {/* Notice Board Button */}
           <button
             onClick={() => setShowNoticeBoard(true)}
-            className="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 transition-colors"
+            className="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-[#EADBD0] text-slate-700 transition-colors"
             title="Important Announcements"
           >
             <Megaphone className="w-4 h-4 text-amber-600" />
@@ -102,26 +102,26 @@ export default function HeaderNav() {
           {/* Notifications Drawer Toggle */}
           <button
             onClick={() => setShowNotifications(true)}
-            className="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 transition-colors"
+            className="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-[#EADBD0] text-slate-700 transition-colors"
             title="System Alerts"
           >
-            <Bell className="w-4 h-4 text-blue-600" />
+            <Bell className="w-4 h-4 text-[#FF5F38]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow animate-pulse">
+              <span className="absolute -top-1.5 -right-1.5 bg-[#FF5F38] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow animate-pulse">
                 {unreadCount}
               </span>
             )}
           </button>
 
           {/* User Profile Info & Logout */}
-          <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
+          <div className="flex items-center gap-3 pl-3 border-l border-[#EADBD0]">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-blue-100 border border-blue-300 flex items-center justify-center text-blue-700 font-bold text-xs">
+              <div className="w-8 h-8 rounded-full bg-blue-100 border border-blue-300 flex items-center justify-center text-[#FF5F38] font-bold text-xs">
                 {getProfileName().charAt(0)}
               </div>
               <div className="hidden sm:block text-left">
-                <div className="text-xs font-bold text-slate-900 leading-tight">{getProfileName()}</div>
-                <div className="text-[10px] text-blue-600 font-semibold capitalize">{activeRole}</div>
+                <div className="text-xs font-bold text-[#111827] leading-tight">{getProfileName()}</div>
+                <div className="text-[10px] text-[#FF5F38] font-semibold capitalize">{activeRole}</div>
               </div>
             </div>
 

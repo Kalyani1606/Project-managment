@@ -55,28 +55,28 @@ export default function ReportGenerator() {
     <div className="space-y-6">
       
       {/* Control Panel Card */}
-      <div className="glass-panel p-6 rounded-3xl border border-blue-200 bg-white no-print">
+      <div className="bg-white border border-[#EADBD0] shadow-sm p-6 rounded-3xl border border-blue-200 bg-white no-print">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-bold text-[#111827] flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-[#FF5F38]" />
               Academic Report Generator & Export Engine
             </h2>
             <p className="text-xs text-slate-500">Generate filterable official project reports, marks sheets, and programme analytics</p>
           </div>
 
           <div className="flex items-center gap-2">
-            <button onClick={handleExportCSV} className="btn-secondary py-2 text-xs">
+            <button onClick={handleExportCSV} className="px-4 py-2 bg-white hover:bg-slate-100 text-[#0B2E26] font-bold text-xs rounded-xl border border-[#EADBD0] shadow-sm transition-all cursor-pointer py-2 text-xs">
               <FileSpreadsheet className="w-4 h-4 text-emerald-600" /> Export CSV Data
             </button>
-            <button onClick={handlePrint} className="btn-primary py-2 text-xs">
+            <button onClick={handlePrint} className="px-5 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer py-2 text-xs">
               <Printer className="w-4 h-4" /> Print PDF Report
             </button>
           </div>
         </div>
 
         {/* Filters Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 pt-4 border-t border-slate-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 pt-4 border-t border-[#EADBD0]">
           <div>
             <label className="form-label">Report Type</label>
             <select
@@ -146,14 +146,14 @@ export default function ReportGenerator() {
       </div>
 
       {/* Generated Report Display */}
-      <div className="glass-panel p-8 rounded-3xl border border-slate-200 bg-white print:p-0 print:border-none">
+      <div className="bg-white border border-[#EADBD0] shadow-sm p-8 rounded-3xl border border-[#EADBD0] bg-white print:p-0 print:border-none">
         
         {/* Header */}
-        <div className="text-center pb-6 mb-6 border-b border-slate-200">
-          <h1 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">
+        <div className="text-center pb-6 mb-6 border-b border-[#EADBD0]">
+          <h1 className="text-xl font-extrabold text-[#111827] uppercase tracking-tight">
             UNIVERSITY DEPARTMENT OF COMPUTER APPLICATIONS
           </h1>
-          <p className="text-xs text-blue-600 font-semibold mt-0.5">
+          <p className="text-xs text-[#FF5F38] font-semibold mt-0.5">
             Academic Project Assessment & Tracking Official Record
           </p>
           <div className="flex items-center justify-center gap-4 text-[11px] text-slate-500 mt-2 font-mono">
@@ -168,16 +168,16 @@ export default function ReportGenerator() {
         {/* REPORT TYPE 1: Student Project Report */}
         {reportType === 'student' && (
           <div className="space-y-6">
-            <h3 className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">
+            <h3 className="text-xs font-bold text-[#FF5F38] uppercase tracking-wider mb-2">
               📊 Detailed Student Project Report ({filteredTeams.length} Teams Loaded)
             </h3>
 
             {filteredTeams.map((team, idx) => (
-              <div key={team.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2">
+              <div key={team.id} className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EADBD0] pb-2">
                   <div>
-                    <span className="text-xs font-mono text-blue-600 font-bold mr-2">#{idx + 1}</span>
-                    <span className="text-sm font-bold text-slate-900">{team.name} ({team.id})</span>
+                    <span className="text-xs font-mono text-[#FF5F38] font-bold mr-2">#{idx + 1}</span>
+                    <span className="text-sm font-bold text-[#111827]">{team.name} ({team.id})</span>
                     <span className="ml-2 text-xs text-slate-500">Mentor: {team.mentorName || 'Unassigned'}</span>
                   </div>
                   <span className="text-xs font-bold text-emerald-700 font-mono">
@@ -188,11 +188,11 @@ export default function ReportGenerator() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                   <div>
                     <span className="text-slate-500 font-medium">Domain:</span>
-                    <p className="text-slate-900 font-semibold">{team.domain || 'N/A'}</p>
+                    <p className="text-[#111827] font-semibold">{team.domain || 'N/A'}</p>
                   </div>
                   <div>
                     <span className="text-slate-500 font-medium">Project Title:</span>
-                    <p className="text-slate-900 font-semibold">{team.projectTitle || 'N/A'}</p>
+                    <p className="text-[#111827] font-semibold">{team.projectTitle || 'N/A'}</p>
                   </div>
                 </div>
 
@@ -200,8 +200,8 @@ export default function ReportGenerator() {
                   <div className="text-[11px] font-bold text-slate-500 mb-1 uppercase">Registered Members</div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {team.members.map((m, mIdx) => (
-                      <div key={mIdx} className="p-2 rounded-xl bg-white border border-slate-200 flex items-center justify-between text-xs">
-                        <span className="font-medium text-slate-900">{m.name} ({m.role})</span>
+                      <div key={mIdx} className="p-2 rounded-xl bg-white border border-[#EADBD0] flex items-center justify-between text-xs">
+                        <span className="font-medium text-[#111827]">{m.name} ({m.role})</span>
                         <span className="font-mono text-slate-500 text-[11px]">{m.regNo}</span>
                       </div>
                     ))}
@@ -222,7 +222,7 @@ export default function ReportGenerator() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200 text-slate-500">
+                  <tr className="border-b border-[#EADBD0] text-slate-500">
                     <th className="py-2 px-3">Reg. No</th>
                     <th className="py-2 px-3">Student Name</th>
                     <th className="py-2 px-3">Team Name</th>
@@ -236,12 +236,12 @@ export default function ReportGenerator() {
                   {filteredTeams.flatMap(team =>
                     team.members.map(m => (
                       <tr key={m.regNo}>
-                        <td className="py-2.5 px-3 font-mono font-bold text-blue-600">{m.regNo}</td>
-                        <td className="py-2.5 px-3 font-bold text-slate-900">{m.name}</td>
+                        <td className="py-2.5 px-3 font-mono font-bold text-[#FF5F38]">{m.regNo}</td>
+                        <td className="py-2.5 px-3 font-bold text-[#111827]">{m.name}</td>
                         <td className="py-2.5 px-3 text-slate-700">{team.name}</td>
                         <td className="py-2.5 px-3 text-center font-mono text-emerald-700 font-bold">{team.marks?.cia?.total || 0}</td>
                         <td className="py-2.5 px-3 text-center font-mono text-indigo-700 font-bold">{team.marks?.endSem?.total || 0}</td>
-                        <td className="py-2.5 px-3 text-center font-mono text-slate-900 font-extrabold text-sm">{team.marks?.totalMarks || 0}</td>
+                        <td className="py-2.5 px-3 text-center font-mono text-[#111827] font-extrabold text-sm">{team.marks?.totalMarks || 0}</td>
                         <td className="py-2.5 px-3 text-right">
                           <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
                             team.marks?.status === 'Finalized' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
@@ -266,34 +266,34 @@ export default function ReportGenerator() {
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+              <div className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] text-center">
                 <div className="text-xs text-slate-500">Total Registered Students</div>
-                <div className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">240</div>
+                <div className="text-2xl font-extrabold text-[#111827] mt-1 font-mono">240</div>
               </div>
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+              <div className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] text-center">
                 <div className="text-xs text-slate-500">Total Project Teams</div>
-                <div className="text-2xl font-extrabold text-blue-600 mt-1 font-mono">60</div>
+                <div className="text-2xl font-extrabold text-[#FF5F38] mt-1 font-mono">60</div>
               </div>
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+              <div className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] text-center">
                 <div className="text-xs text-slate-500">Assigned Mentors</div>
                 <div className="text-2xl font-extrabold text-emerald-600 mt-1 font-mono">20</div>
               </div>
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+              <div className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] text-center">
                 <div className="text-xs text-slate-500">Programme Average Score</div>
                 <div className="text-2xl font-extrabold text-amber-700 mt-1 font-mono">43.5 / 50</div>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200">
-              <h4 className="text-xs font-bold text-slate-900 uppercase mb-3">Domain Distribution Breakdown</h4>
+            <div className="p-5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0]">
+              <h4 className="text-xs font-bold text-[#111827] uppercase mb-3">Domain Distribution Breakdown</h4>
               <div className="space-y-3 text-xs">
                 <div>
                   <div className="flex justify-between text-slate-700 mb-1">
                     <span>Artificial Intelligence & Machine Learning</span>
-                    <span className="font-mono text-blue-700 font-bold">24 Teams (40%)</span>
+                    <span className="font-mono text-[#FF5F38] font-bold">24 Teams (40%)</span>
                   </div>
                   <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                    <div className="bg-blue-600 h-full w-[40%]" />
+                    <div className="bg-[#FF5F38] h-full w-[40%]" />
                   </div>
                 </div>
 

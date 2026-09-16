@@ -202,7 +202,7 @@ export function AnimatedAuthCard({
                           placeholder="Alex Morgan"
                           value={regName}
                           onChange={(e) => setRegName(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
+                          className="w-full px-4 py-2.5 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
                         />
                         <User className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
@@ -219,7 +219,7 @@ export function AnimatedAuthCard({
                           placeholder="student@college.edu"
                           value={regEmail}
                           onChange={(e) => setRegEmail(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
+                          className="w-full px-4 py-2.5 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
                         />
                         <Mail className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
@@ -236,7 +236,7 @@ export function AnimatedAuthCard({
                           placeholder="1MS21CS045"
                           value={regRoll}
                           onChange={(e) => setRegRoll(e.target.value.toUpperCase())}
-                          className="w-full px-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-900 text-sm uppercase placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
+                          className="w-full px-4 py-2.5 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm uppercase placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
                         />
                         <IdCard className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
@@ -253,7 +253,7 @@ export function AnimatedAuthCard({
                           placeholder="Use 8 characters or more."
                           value={regPassword}
                           onChange={(e) => setRegPassword(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
+                          className="w-full px-4 py-2.5 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
                         />
                         <button
                           type="button"
@@ -313,7 +313,7 @@ export function AnimatedAuthCard({
                           placeholder="student@college.edu"
                           value={loginEmail}
                           onChange={(e) => setLoginEmail(e.target.value)}
-                          className="w-full px-4 py-3 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
+                          className="w-full px-4 py-3 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
                         />
                         <User className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
@@ -330,7 +330,7 @@ export function AnimatedAuthCard({
                           placeholder="Enter password"
                           value={loginPassword}
                           onChange={(e) => setLoginPassword(e.target.value)}
-                          className="w-full px-4 py-3 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
+                          className="w-full px-4 py-3 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
                         />
                         <button
                           type="button"
@@ -348,7 +348,7 @@ export function AnimatedAuthCard({
                           type="checkbox"
                           checked={keepSignedIn}
                           onChange={(e) => setKeepSignedIn(e.target.checked)}
-                          className="w-4 h-4 rounded border-slate-300 accent-[#0B2E26] text-[#0B2E26] focus:ring-[#0B2E26] cursor-pointer"
+                          className="w-4 h-4 rounded border-[#EADBD0] accent-[#0B2E26] text-[#0B2E26] focus:ring-[#0B2E26] cursor-pointer"
                         />
                         <span className="text-xs font-medium text-slate-600">Keep me signed in</span>
                       </label>

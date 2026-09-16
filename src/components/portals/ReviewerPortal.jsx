@@ -50,14 +50,14 @@ export default function ReviewerPortal() {
     <div className="space-y-6">
       
       {/* Navigation Sub-header */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+      <div className="flex items-center justify-between border-b border-[#EADBD0] pb-3">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'dashboard'
                 ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                : 'bg-white text-slate-600 border border-[#EADBD0] hover:bg-slate-100'
             }`}
           >
             🏠 Reviewer Dashboard
@@ -67,7 +67,7 @@ export default function ReviewerPortal() {
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'evaluate'
                 ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                : 'bg-white text-slate-600 border border-[#EADBD0] hover:bg-slate-100'
             }`}
           >
             ⭐ Marks Evaluation Panel
@@ -77,7 +77,7 @@ export default function ReviewerPortal() {
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'diary'
                 ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                : 'bg-white text-slate-600 border border-[#EADBD0] hover:bg-slate-100'
             }`}
           >
             📖 Mentor Diary Inspector (Read-Only)
@@ -95,27 +95,27 @@ export default function ReviewerPortal() {
       {activeTab === 'dashboard' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="glass-panel p-4 rounded-2xl border border-slate-200 bg-white flex items-center gap-3">
+            <div className="bg-white border border-[#EADBD0] shadow-sm p-4 rounded-2xl border border-[#EADBD0] bg-white flex items-center gap-3">
               <div className="p-3 rounded-xl bg-indigo-100 text-indigo-700">
                 <Users className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs text-slate-500 font-medium">Assigned Teams</div>
-                <div className="text-xl font-extrabold text-slate-900 font-mono">{data.teams.length}</div>
+                <div className="text-xl font-extrabold text-[#111827] font-mono">{data.teams.length}</div>
               </div>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl border border-slate-200 bg-white flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-blue-100 text-blue-700">
+            <div className="bg-white border border-[#EADBD0] shadow-sm p-4 rounded-2xl border border-[#EADBD0] bg-white flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-blue-100 text-[#FF5F38]">
                 <Calendar className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs text-slate-500 font-medium">Upcoming Reviews</div>
-                <div className="text-xl font-extrabold text-slate-900 font-mono">2</div>
+                <div className="text-xl font-extrabold text-[#111827] font-mono">2</div>
               </div>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl border border-slate-200 bg-white flex items-center gap-3">
+            <div className="bg-white border border-[#EADBD0] shadow-sm p-4 rounded-2xl border border-[#EADBD0] bg-white flex items-center gap-3">
               <div className="p-3 rounded-xl bg-emerald-100 text-emerald-700">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
@@ -125,7 +125,7 @@ export default function ReviewerPortal() {
               </div>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl border border-slate-200 bg-white flex items-center gap-3">
+            <div className="bg-white border border-[#EADBD0] shadow-sm p-4 rounded-2xl border border-[#EADBD0] bg-white flex items-center gap-3">
               <div className="p-3 rounded-xl bg-amber-100 text-amber-700">
                 <Star className="w-5 h-5" />
               </div>
@@ -138,18 +138,18 @@ export default function ReviewerPortal() {
             </div>
           </div>
 
-          <div className="glass-panel p-6 rounded-3xl border border-slate-200 bg-white space-y-4">
-            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <div className="p-6 rounded-3xl border border-[#EADBD0] bg-white shadow-md space-y-4">
+            <h2 className="text-sm font-bold text-[#111827] flex items-center gap-2">
               <ClipboardList className="w-4 h-4 text-indigo-600" /> Target Teams for Assessment
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {data.teams.map(team => (
-                <div key={team.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div key={team.id} className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs font-mono text-indigo-700 font-bold">{team.id}</span>
-                      <h3 className="text-sm font-bold text-slate-900">{team.name}</h3>
+                      <h3 className="text-sm font-bold text-[#111827]">{team.name}</h3>
                     </div>
                     <span className="badge badge-info">{team.currentSemester}</span>
                   </div>
@@ -159,22 +159,22 @@ export default function ReviewerPortal() {
                   </p>
                   <p className="text-xs text-slate-500">Mentor: {team.mentorName || 'Unassigned'}</p>
 
-                  <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
+                  <div className="pt-2 border-t border-[#EADBD0] flex items-center justify-between">
                     <button
                       onClick={() => {
                         setSelectedTeamId(team.id);
                         setActiveTab('diary');
                       }}
-                      className="btn-secondary py-1 text-xs"
+                      className="px-4 py-2 bg-white hover:bg-slate-100 text-[#0B2E26] font-bold text-xs rounded-xl border border-[#EADBD0] shadow-sm transition-all cursor-pointer py-1 text-xs"
                     >
-                      <Eye className="w-3.5 h-3.5 text-blue-600" /> View Mentor Diary
+                      <Eye className="w-3.5 h-3.5 text-[#FF5F38]" /> View Mentor Diary
                     </button>
                     <button
                       onClick={() => {
                         setSelectedTeamId(team.id);
                         setActiveTab('evaluate');
                       }}
-                      className="btn-primary py-1 text-xs"
+                      className="px-5 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer py-1 text-xs"
                     >
                       Grade Team <Star className="w-3.5 h-3.5" />
                     </button>
@@ -188,17 +188,17 @@ export default function ReviewerPortal() {
 
       {/* MARKS EVALUATION PANEL */}
       {activeTab === 'evaluate' && (
-        <div className="glass-panel p-6 rounded-3xl border border-slate-200 bg-white max-w-4xl mx-auto space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="p-6 rounded-3xl border border-[#EADBD0] bg-white shadow-md max-w-4xl mx-auto space-y-6">
+          <div className="flex items-center justify-between border-b border-[#EADBD0] pb-4">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-lg font-bold text-[#111827] flex items-center gap-2">
                 <Star className="w-5 h-5 text-indigo-600" /> Rubric Marks Evaluation Form
               </h2>
               <p className="text-xs text-slate-500">Grade team or individual students across 5 evaluation parameters</p>
             </div>
             <div className="text-right">
               <span className="text-xs text-slate-500 block uppercase">Total Score</span>
-              <span className="text-xl font-extrabold text-blue-700 font-mono">{totalEvaluatedScore} / 50</span>
+              <span className="text-xl font-extrabold text-[#FF5F38] font-mono">{totalEvaluatedScore} / 50</span>
             </div>
           </div>
 
@@ -229,16 +229,16 @@ export default function ReviewerPortal() {
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <div className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-700">
                 Evaluation Parameters (Configurable Rubric)
               </h3>
 
               <div className="space-y-4">
                 {data.rubricParameters.map(param => (
-                  <div key={param.key} className="p-3 rounded-xl bg-white border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+                  <div key={param.key} className="p-3 rounded-xl bg-white border border-[#EADBD0] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
                     <div>
-                      <div className="text-xs font-bold text-slate-900">{param.label}</div>
+                      <div className="text-xs font-bold text-[#111827]">{param.label}</div>
                       <div className="text-[10px] text-slate-500">Maximum score: {param.maxMarks} Points</div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -256,7 +256,7 @@ export default function ReviewerPortal() {
                         max={param.maxMarks}
                         value={scores[param.key] || 0}
                         onChange={(e) => handleScoreChange(param.key, e.target.value)}
-                        className="form-input w-16 text-center font-mono font-bold text-blue-700 text-xs py-1"
+                        className="form-input w-16 text-center font-mono font-bold text-[#FF5F38] text-xs py-1"
                       />
                     </div>
                   </div>
@@ -276,7 +276,7 @@ export default function ReviewerPortal() {
             </div>
 
             <div className="flex justify-end">
-              <button type="submit" className="btn-primary py-2 text-xs">
+              <button type="submit" className="px-5 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer py-2 text-xs">
                 <Save className="w-4 h-4" /> Save Evaluation Marks
               </button>
             </div>
@@ -286,11 +286,11 @@ export default function ReviewerPortal() {
 
       {/* READ-ONLY MENTOR DIARY INSPECTOR */}
       {activeTab === 'diary' && (
-        <div className="glass-panel p-6 rounded-3xl border border-slate-200 bg-white space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="p-6 rounded-3xl border border-[#EADBD0] bg-white shadow-md space-y-6">
+          <div className="flex items-center justify-between border-b border-[#EADBD0] pb-4">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-blue-600" /> Mentor Project Diary Inspection (Read-Only)
+              <h2 className="text-lg font-bold text-[#111827] flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#FF5F38]" /> Mentor Project Diary Inspection (Read-Only)
               </h2>
               <p className="text-xs text-slate-500">Inspect mentor guidance frequency and meeting notes</p>
             </div>
@@ -312,13 +312,13 @@ export default function ReviewerPortal() {
               data.projectDiary
                 .filter(d => d.teamId === selectedTeamObj?.id)
                 .map(entry => (
-                  <div key={entry.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                    <div className="flex items-center justify-between text-xs border-b border-slate-200 pb-2">
+                  <div key={entry.id} className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] space-y-2">
+                    <div className="flex items-center justify-between text-xs border-b border-[#EADBD0] pb-2">
                       <span className="font-bold text-teal-700 font-mono">Date: {entry.date}</span>
                       <span className="text-[10px] text-slate-500">Mentor: {entry.mentorName}</span>
                     </div>
                     <div className="text-xs text-slate-800">
-                      <strong className="text-blue-700">Discussion:</strong> {entry.discussion}
+                      <strong className="text-[#FF5F38]">Discussion:</strong> {entry.discussion}
                     </div>
                     <div className="text-xs text-slate-800">
                       <strong className="text-teal-700">Guidance Given:</strong> {entry.guidanceGiven}
