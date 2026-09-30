@@ -162,6 +162,18 @@ async function main() {
       skills: JSON.stringify(["LangChain", "LLMs", "Llama3", "Transformers", "Python", "RAG Systems"]),
       profilePicture: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80",
     },
+    {
+      name: "Fresh Student",
+      email: "fresh.student@engg.college.edu",
+      rollNumber: "1MS21CS999",
+      semester: 6,
+      department: "Computer Science & Engineering",
+      bio: "Engineering student ready to start their project journey.",
+      github: "",
+      linkedin: "",
+      skills: JSON.stringify(["C++", "Java"]),
+      profilePicture: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&auto=format&fit=crop&q=80",
+    },
   ];
 
   const createdStudents = [];
