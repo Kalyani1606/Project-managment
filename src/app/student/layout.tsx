@@ -54,8 +54,7 @@ export default function AppPortalLayout({
     } else if (user && user.studentProfile && !loading) {
       if (
         !user.studentProfile.github ||
-        !user.studentProfile.linkedin ||
-        user.studentProfile.bio?.startsWith("Engineering student")
+        !user.studentProfile.linkedin
       ) {
         setProfileComplete(false);
       } else {
@@ -241,7 +240,7 @@ export default function AppPortalLayout({
                  <div className="text-xs font-semibold text-slate-500">
                     {isMentor ? (user?.teacherProfile?.designation || "Faculty Mentor") : `${user?.studentProfile?.semester || 6}th Semester`}
                   </div>
-                 {!profileComplete && (
+                 {!profileComplete && pathname !== "/student/profile" && (
                    <Link href="/student/profile" className="text-[10px] bg-[#FF5F38] text-white px-2 py-0.5 rounded-full font-bold mt-1 inline-block hover:bg-[#E54D26] transition-colors shadow-sm">
                      Complete Profile
                    </Link>

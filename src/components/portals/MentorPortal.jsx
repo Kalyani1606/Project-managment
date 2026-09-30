@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useAuth } from '@/context/AuthContext';
 import {
   User,
   Users,
@@ -62,7 +63,14 @@ export default function MentorPortal() {
     updateMentorProfile
   } = useApp();
 
-  const profile = data.mentorProfile;
+  const { user, logout } = useAuth();
+  const profile = {
+    ...data.mentorProfile,
+    fullName: user?.name || data.mentorProfile.fullName,
+    department: user?.teacherProfile?.department || data.mentorProfile.department,
+    designation: user?.teacherProfile?.designation || data.mentorProfile.designation,
+    employeeId: user?.teacherProfile?.designation || data.mentorProfile.employeeId,
+  };
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedTeamId, setSelectedTeamId] = useState(data.teams[0]?.id || '');
@@ -245,11 +253,11 @@ export default function MentorPortal() {
         
         {/* Brand & Mobile Close */}
         <div className="p-6 flex items-center justify-between border-b border-[#EADBD0]">
-          <div>
-            <span className="text-2xl font-black tracking-tight text-[#111827] flex items-center">
-              PROJECT HUB<span className="text-[#FF5F38] text-3xl font-black leading-none">.</span>
+          <div className="flex flex-col gap-1">
+            <span className="text-3xl font-black tracking-tight text-[#111827] leading-none">
+              PROJECT<br />HUB<span className="text-[#FF5F38]">.</span>
             </span>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#0B2E26] text-white px-2.5 py-0.5 rounded-full mt-1.5 inline-block">
+            <span className="text-[10px] sm:text-xs font-extrabold tracking-wider bg-[#FF5F38]/15 text-[#FF5F38] px-3 py-1 rounded-full mt-3 self-start">
               Mentor Portal
             </span>
           </div>
@@ -274,7 +282,7 @@ export default function MentorPortal() {
         </div>
 
         {/* Sidebar Navigation Items */}
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto">
           {sidebarNavItems.map(item => {
             const Icon = item.icon;
             const isSelected = activeTab === item.id;
@@ -285,14 +293,14 @@ export default function MentorPortal() {
                   setActiveTab(item.id);
                   setMobileSidebarOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-[#0B2E26] text-white shadow-md shadow-[#0B2E26]/20'
-                    : 'text-slate-700 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'
+                    ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20'
+                    : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isSelected ? 'text-[#FF5F38]' : 'text-slate-500'}`} />
+                  <Icon className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-slate-400'}`} />
                   <span>{item.name}</span>
                 </div>
 
@@ -300,7 +308,7 @@ export default function MentorPortal() {
                   <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
                     isSelected
                       ? 'bg-white/20 text-white'
-                      : item.badgeColor || 'bg-slate-200 text-slate-700'
+                      : 'bg-[#FF5F38]/15 text-[#FF5F38]'
                   }`}>
                     {item.count}
                   </span>
@@ -311,8 +319,17 @@ export default function MentorPortal() {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-[#EADBD0] text-[11px] text-slate-500 font-mono text-center">
-          Project Supervision System v2.4
+        <div className="p-4 border-t border-[#EADBD0] flex flex-col gap-2">
+          <button
+            onClick={logout}
+            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors w-full cursor-pointer"
+          >
+            <LogOut className="w-4 h-4 text-slate-400" />
+            <span>Logout</span>
+          </button>
+          <div className="text-[10px] text-slate-400 font-mono text-center">
+            Project Supervision System v2.4
+          </div>
         </div>
       </aside>
 
