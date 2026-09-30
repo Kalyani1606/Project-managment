@@ -139,21 +139,16 @@ export default function AppPortalLayout({
             <User className={`w-5 h-5 ${pathname === '/student/profile' ? 'text-white' : 'text-slate-400'}`} /> My Profile
           </Link>
           
+          <Link href="/student/events" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/events' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
+            <Calendar className={`w-5 h-5 ${pathname === '/student/events' ? 'text-white' : 'text-slate-400'}`} /> Events & Tasks
+          </Link>
+          
           <Link href="/student/team" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/team' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
             <Users className={`w-5 h-5 ${pathname === '/student/team' ? 'text-white' : 'text-slate-400'}`} /> My Team
           </Link>
 
-          <Link href="/student/mentor" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/mentor' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-            <UserCheck className={`w-5 h-5 ${pathname === '/student/mentor' ? 'text-white' : 'text-slate-400'}`} /> Mentor
-          </Link>
 
-          <Link href="/student/progress" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/progress' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-            <Award className={`w-5 h-5 ${pathname === '/student/progress' ? 'text-white' : 'text-slate-400'}`} /> Semester Progress
-          </Link>
 
-          <Link href="/student/events" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/events' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-            <Calendar className={`w-5 h-5 ${pathname === '/student/events' ? 'text-white' : 'text-slate-400'}`} /> Events & Tasks
-          </Link>
 
           <Link href="/student/domain" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/domain' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
             <Lightbulb className={`w-5 h-5 ${pathname === '/student/domain' ? 'text-white' : 'text-slate-400'}`} /> Domain & Topic
@@ -167,9 +162,7 @@ export default function AppPortalLayout({
             <FileText className={`w-5 h-5 ${pathname === '/student/reports' ? 'text-white' : 'text-slate-400'}`} /> Report & Marks
           </Link>
 
-          <Link href="/student/notices" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/notices' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-            <Bell className={`w-5 h-5 ${pathname === '/student/notices' ? 'text-white' : 'text-slate-400'}`} /> Notices
-          </Link>
+
         </nav>
 
         <div className="p-6 mt-auto">
@@ -235,6 +228,11 @@ export default function AppPortalLayout({
                <div className="hidden sm:block text-right">
                  <div className="text-sm font-bold text-[#111827]">{user.name}</div>
                  <div className="text-xs font-semibold text-slate-500">6th Semester</div>
+                 {!profileComplete && (
+                   <Link href="/student/profile" className="text-[10px] bg-[#FF5F38] text-white px-2 py-0.5 rounded-full font-bold mt-1 inline-block hover:bg-[#E54D26] transition-colors shadow-sm">
+                     Complete Profile
+                   </Link>
+                 )}
                </div>
              </div>
           </div>
@@ -256,11 +254,11 @@ export default function AppPortalLayout({
               <Link href="/student/profile" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-4 rounded-3xl text-base font-bold ${pathname === '/student/profile' ? 'bg-[#FF5F38] text-white shadow-md' : 'text-slate-600 bg-white shadow-sm'}`}>
                 <User className="w-5 h-5" /> My Profile
               </Link>
+              <Link href="/student/events" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-4 rounded-3xl text-base font-bold ${pathname === '/student/events' ? 'bg-[#FF5F38] text-white shadow-md' : 'text-slate-600 bg-white shadow-sm'}`}>
+                <Calendar className="w-5 h-5" /> Events & Tasks
+              </Link>
               <Link href="/student/team" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-4 rounded-3xl text-base font-bold ${pathname === '/student/team' ? 'bg-[#FF5F38] text-white shadow-md' : 'text-slate-600 bg-white shadow-sm'}`}>
                 <Users className="w-5 h-5" /> My Team
-              </Link>
-               <Link href="/student/events" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-4 rounded-3xl text-base font-bold ${pathname === '/student/events' ? 'bg-[#FF5F38] text-white shadow-md' : 'text-slate-600 bg-white shadow-sm'}`}>
-                <Calendar className="w-5 h-5" /> Events & Tasks
               </Link>
             </nav>
           </div>
