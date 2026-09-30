@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
 
@@ -20,7 +20,7 @@ export const initialData = {
     course: 'Project Work & Viva-Voce',
     semester: '6th Semester',
     academicYear: '2025 - 2026',
-    teamId: 'TEAM-01'
+    teamId: null
   },
 
   mentorProfile: {
@@ -49,104 +49,7 @@ export const initialData = {
   },
 
   // Teams list
-  teams: [
-    {
-      id: 'TEAM-01',
-      name: 'Team Alpha',
-      leaderEmail: 'alex.vance@university.edu',
-      status: 'Approved',
-      mentorId: 'MENTOR-01',
-      mentorName: 'Dr. Sarah Jenkins',
-      mentorStatus: 'Accepted',
-      domain: 'Artificial Intelligence',
-      domainReason: 'Intense interest in automated medical image diagnosis and healthcare AI accessibility.',
-      projectTitle: 'Explainable AI for Diabetic Retinopathy Screening',
-      problemStatement: 'Early detection of diabetic retinopathy is critical to prevent vision loss. Existing deep learning models lack explainability for clinicians.',
-      shortDescription: 'Developing a novel Grad-CAM augmented CNN model that highlights subtle retinal lesions while providing confidence scores for ophthalmologists.',
-      currentSemester: '6th Semester',
-      members: [
-        { name: 'Alex Vance', email: 'alex.vance@university.edu', regNo: '21BCA042', role: 'Team Leader', status: 'Accepted' },
-        { name: 'David Miller', email: 'david.m@university.edu', regNo: '21BCA043', role: 'Member', status: 'Accepted' },
-        { name: 'Elena Rostova', email: 'elena.r@university.edu', regNo: '21BCA045', role: 'Member', status: 'Accepted' },
-        { name: 'Siddharth Rao', email: 'siddharth.r@university.edu', regNo: '21BCA048', role: 'Member', status: 'Accepted' }
-      ],
-      invitations: [],
-      researchPapers: [
-        { id: 1, title: 'Deep Residual Learning for Image Recognition', authors: 'He, K., Zhang, X., Ren, S., & Sun, J.', publication: 'IEEE CVPR', year: '2016' },
-        { id: 2, title: 'Grad-CAM: Visual Explanations from Deep Networks', authors: 'Selvaraju, R. R., et al.', publication: 'IEEE ICCV', year: '2017' },
-        { id: 3, title: 'Deep Learning for Detection of Diabetic Retinopathy', authors: 'Gulshan, V., Rajan, R. P., et al.', publication: 'JAMA Journal', year: '2016' },
-        { id: 4, title: 'Attention Is All You Need in Medical Vision Transformers', authors: 'Vaswani, A., & Dosovitskiy, A.', publication: 'NeurIPS', year: '2021' },
-        { id: 5, title: 'Explainable AI in Clinical Decision Support: A Review', authors: 'Amann, J., et al.', publication: 'BMC Medical Informatics', year: '2020' }
-      ],
-      marks: {
-        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 },
-        endSem: { presentation: 9, finalReport: 14, total: 23 },
-        totalMarks: 48,
-        status: 'Verified'
-      }
-    },
-    {
-      id: 'TEAM-02',
-      name: 'Team CyberShield',
-      leaderEmail: 'priya.s@university.edu',
-      status: 'Approved',
-      mentorId: 'MENTOR-02',
-      mentorName: 'Prof. Alan Turing',
-      mentorStatus: 'Accepted',
-      domain: 'Cybersecurity',
-      domainReason: 'Addressing zero-day IoT vulnerability threats in smart home networks.',
-      projectTitle: 'AI-Powered Anomaly Detection System for IoT Traffic',
-      problemStatement: 'IoT devices lack standard hardware encryption and are vulnerable to botnet amplification attacks.',
-      shortDescription: 'Implementing lightweight eBPF packet capture with isolation forest machine learning.',
-      currentSemester: '6th Semester',
-      members: [
-        { name: 'Priya Sharma', email: 'priya.s@university.edu', regNo: '21BCA012', role: 'Team Leader', status: 'Accepted' },
-        { name: 'Kevin Durant', email: 'kevin.d@university.edu', regNo: '21BCA015', role: 'Member', status: 'Accepted' },
-        { name: 'Ananya Roy', email: 'ananya.r@university.edu', regNo: '21BCA019', role: 'Member', status: 'Accepted' }
-      ],
-      invitations: [],
-      researchPapers: [
-        { id: 1, title: 'eBPF-Based Network Packet Inspection', authors: 'Smith, J.', publication: 'ACM SIGCOMM', year: '2022' },
-        { id: 2, title: 'IoT Security Challenges and Machine Learning Defense', authors: 'Zheng, C.', publication: 'IEEE IoT Journal', year: '2021' },
-        { id: 3, title: 'Isolation Forest for High-Dimensional Network Intrusion', authors: 'Liu, F. T.', publication: 'IEEE ICDM', year: '2008' },
-        { id: 4, title: 'Zero-Day Vulnerability Mitigation in Edge Networks', authors: 'Kumar, A.', publication: 'IEEE Access', year: '2023' },
-        { id: 5, title: 'Mirai Botnet Architecture & Remediation Strategies', authors: 'Antonakakis, M.', publication: 'USENIX Security', year: '2017' }
-      ],
-      marks: {
-        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 4, problemIdentification: 5, researchReview: 4, total: 23 },
-        endSem: { presentation: 8, finalReport: 13, total: 21 },
-        totalMarks: 44,
-        status: 'Draft'
-      }
-    },
-    {
-      id: 'TEAM-03',
-      name: 'Team Nexus',
-      leaderEmail: 'rohan.k@university.edu',
-      status: 'Pending Approval',
-      mentorId: 'MENTOR-01',
-      mentorName: 'Dr. Sarah Jenkins',
-      mentorStatus: 'Pending',
-      domain: 'Cloud Computing',
-      domainReason: 'Optimizing microservices container orchestration and serverless auto-scaling costs.',
-      projectTitle: 'Intelligent Kubernetes Auto-Scaler Using Predictive Workload Metrics',
-      problemStatement: 'Reactive Kubernetes HPA scales too late during unexpected flash traffic surges.',
-      shortDescription: 'Using LSTM time-series forecasting to proactively scale pods prior to predicted traffic spikes.',
-      currentSemester: '6th Semester',
-      members: [
-        { name: 'Rohan Kapoor', email: 'rohan.k@university.edu', regNo: '21BCA088', role: 'Team Leader', status: 'Accepted' },
-        { name: 'Meera Nair', email: 'meera.n@university.edu', regNo: '21BCA090', role: 'Member', status: 'Accepted' }
-      ],
-      invitations: [{ email: 'samuel.t@university.edu', status: 'Pending' }],
-      researchPapers: [],
-      marks: {
-        cia: { teamFormation: 4, mentorSelection: 0, domainSelection: 4, problemIdentification: 3, researchReview: 0, total: 11 },
-        endSem: { presentation: 0, finalReport: 0, total: 0 },
-        totalMarks: 11,
-        status: 'Draft'
-      }
-    }
-  ],
+  teams: [],
 
   // Mentors list
   mentors: [
@@ -163,44 +66,7 @@ export const initialData = {
   ],
 
   // Private Project Diary entries
-  projectDiary: [
-    {
-      id: 'DIARY-101',
-      teamId: 'TEAM-01',
-      teamName: 'Team Alpha',
-      date: '2025-09-02',
-      mentorName: 'Dr. Sarah Jenkins',
-      studentsPresent: ['Alex Vance', 'David Miller', 'Elena Rostova', 'Siddharth Rao'],
-      discussion: 'Reviewed problem statement and initial literature survey of 5 research papers.',
-      guidanceGiven: 'Refine the Grad-CAM visualization pipeline. Focus on Kaggle Diabetic Retinopathy dataset pre-processing.',
-      workAssigned: 'Complete dataset preprocessing and execute baseline ResNet50 model training.',
-      nextMeetingDate: '2025-09-16'
-    },
-    {
-      id: 'DIARY-102',
-      teamId: 'TEAM-01',
-      teamName: 'Team Alpha',
-      date: '2025-08-20',
-      mentorName: 'Dr. Sarah Jenkins',
-      studentsPresent: ['Alex Vance', 'Elena Rostova'],
-      discussion: 'Initial project domain identification and scope discussion.',
-      guidanceGiven: 'Approved AI domain selection. Suggested narrowing focus to healthcare diagnostics.',
-      workAssigned: 'Draft problem statement and identify 5 high-impact peer-reviewed journals.',
-      nextMeetingDate: '2025-09-02'
-    },
-    {
-      id: 'DIARY-103',
-      teamId: 'TEAM-02',
-      teamName: 'Team CyberShield',
-      date: '2025-08-28',
-      mentorName: 'Prof. Alan Turing',
-      studentsPresent: ['Priya Sharma', 'Kevin Durant', 'Ananya Roy'],
-      discussion: 'eBPF kernel module implementation overview and setup environment test.',
-      guidanceGiven: 'Ensure Linux kernel compatibility (v5.15+). Use BCC toolkit for rapid prototyping.',
-      workAssigned: 'Set up virtualized testbed for IoT packet capture.',
-      nextMeetingDate: '2025-09-12'
-    }
-  ],
+  projectDiary: [],
 
   // Review Evaluation Rubric Parameters
   rubricParameters: [
@@ -212,24 +78,10 @@ export const initialData = {
   ],
 
   // Evaluation Marks recorded by Reviewers
-  evaluations: [
-    {
-      id: 'EVAL-01',
-      teamId: 'TEAM-01',
-      reviewerName: 'Prof. Robert Langford',
-      reviewName: '6th Semester Mid-Term Review',
-      reviewDate: '2025-09-10',
-      scores: { problemUnderstanding: 9, literatureReview: 10, technicalKnowledge: 9, progress: 8, presentation: 9 },
-      totalScore: 45,
-      comments: 'Exceptional clarity in literature review. Grad-CAM methodology design is very well grounded.'
-    }
-  ],
+  evaluations: [],
 
   // Scheduled Reviews
-  reviews: [
-    { id: 'REV-EVENT-01', semester: '6th Semester', reviewName: '6th Semester CIA Review & Viva', date: '2025-10-20', time: '10:00 AM - 01:00 PM', venue: 'Seminar Hall 2, Science Block', assignedReviewer: 'Prof. Robert Langford', teamsAssigned: ['TEAM-01', 'TEAM-02'] },
-    { id: 'REV-EVENT-02', semester: '7th Semester', reviewName: '7th Semester Prototype Demo', date: '2025-11-15', time: '02:00 PM - 05:00 PM', venue: 'Project Lab 4, IT Wing', assignedReviewer: 'Dr. Emily Watson', teamsAssigned: ['TEAM-03'] }
-  ],
+  reviews: [],
 
   // Coordinator Notice Board
   notices: [
@@ -239,13 +91,7 @@ export const initialData = {
   ],
 
   // System Notifications
-  notifications: [
-    { id: 'N-01', text: '🔔 Your team (Team Alpha) mentor request was accepted by Dr. Sarah Jenkins.', time: '2 hours ago', read: false, role: 'student' },
-    { id: 'N-02', text: '🔔 6th Semester CIA Review scheduled on Oct 20 at Seminar Hall 2.', time: '1 day ago', read: false, role: 'student' },
-    { id: 'N-03', text: '🔔 New Mentor Request from Team Nexus awaiting your response.', time: '3 hours ago', read: false, role: 'mentor' },
-    { id: 'N-04', text: '🔔 Assigned to evaluate 2 teams for 6th Semester CIA Review.', time: '1 day ago', read: false, role: 'reviewer' },
-    { id: 'N-05', text: '🔔 5 teams have pending registration approvals.', time: '4 hours ago', read: false, role: 'coordinator' }
-  ],
+  notifications: [],
 
   // Official Templates
   templates: [
@@ -256,6 +102,25 @@ export const initialData = {
 
 export const AppProvider = ({ children }) => {
   const [data, setData] = useState(initialData);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('nexus_academic_data_save');
+    if (saved) {
+      try {
+        setData(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse saved data", e);
+      }
+    }
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('nexus_academic_data_save', JSON.stringify(data));
+    }
+  }, [data, isLoaded]);
 
   // Authentication Actions
   const login = (role, email, password) => {
@@ -408,7 +273,11 @@ export const AppProvider = ({ children }) => {
       teams: prev.teams.map(t => t.id === teamId ? {
         ...t, domain, domainReason, projectTitle, problemStatement, shortDescription,
         marks: { ...t.marks, cia: { ...t.marks.cia, domainSelection: 5, problemIdentification: 5 } }
-      } : t)
+      } : t),
+      notifications: [
+        { id: `N-${Date.now()}`, text: `💾 Domain & Topic configuration securely saved!`, time: 'Just now', read: false, role: 'student' },
+        ...prev.notifications
+      ]
     }));
   };
 
