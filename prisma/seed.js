@@ -164,7 +164,7 @@ async function main() {
     },
     {
       name: "Fresh Student",
-      email: "fresh.student@engg.college.edu",
+      email: "kalyani.test@engg.college.edu",
       rollNumber: "1MS21CS999",
       semester: 6,
       department: "Computer Science & Engineering",

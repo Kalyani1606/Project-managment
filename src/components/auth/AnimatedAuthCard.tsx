@@ -15,7 +15,9 @@ import {
   ArrowRight,
   ShieldCheck,
   IdCard,
-  GraduationCap
+  GraduationCap,
+  Award,
+  Briefcase
 } from "lucide-react";
 
 interface AnimatedAuthCardProps {
@@ -34,6 +36,7 @@ export function AnimatedAuthCard({
   const { showToast } = useNotification();
 
   const [tab, setTab] = useState<"login" | "register" | "forgot">(initialTab);
+  const [role, setRole] = useState<"STUDENT" | "MENTOR">("STUDENT");
   const [showPassword, setShowPassword] = useState(false);
 
   // Form states
@@ -44,6 +47,8 @@ export function AnimatedAuthCard({
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regRoll, setRegRoll] = useState("");
+  const [regDept, setRegDept] = useState("Computer Science & Engineering");
+  const [regDesignation, setRegDesignation] = useState("Assistant Professor");
   const [regPassword, setRegPassword] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
@@ -62,7 +67,11 @@ export function AnimatedAuthCard({
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+        body: JSON.stringify({
+          email: loginEmail,
+          password: loginPassword,
+          selectedRole: role,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Invalid credentials. Please try again.");
@@ -70,7 +79,11 @@ export function AnimatedAuthCard({
       showToast(`Welcome back, ${data.user.name}!`, "success");
       login(data.user);
       if (onCloseModal) onCloseModal();
-      router.push("/student");
+      if (data.user.role === "TEACHER" || data.user.role === "HOD" || role === "MENTOR") {
+        router.push("/mentor");
+      } else {
+        router.push("/student");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -84,17 +97,27 @@ export function AnimatedAuthCard({
     setIsLoading(true);
 
     try {
+      const payload = role === "STUDENT" ? {
+        role: "STUDENT",
+        name: regName || "Student User",
+        rollNumber: regRoll || `USN-${Math.floor(1000 + Math.random() * 9000)}`,
+        semester: 6,
+        department: "Computer Science & Engineering",
+        collegeEmail: regEmail,
+        password: regPassword || undefined,
+      } : {
+        role: "MENTOR",
+        name: regName || "Faculty Mentor",
+        department: regDept || "Computer Science & Engineering",
+        designation: regDesignation || "Assistant Professor",
+        collegeEmail: regEmail,
+        password: regPassword || undefined,
+      };
+
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: regName || "Student User",
-          rollNumber: regRoll || `USN-${Math.floor(1000 + Math.random() * 9000)}`,
-          semester: 6,
-          department: "Computer Science & Engineering",
-          collegeEmail: regEmail,
-          password: regPassword || undefined,
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed. Please check details.");
@@ -180,13 +203,43 @@ export function AnimatedAuthCard({
                     transition={{ duration: 0.25 }}
                     className="space-y-3.5"
                   >
-                    <div className="mb-3">
+                    <div className="mb-2">
                       <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight mb-1">
                         Create account
                       </h2>
                       <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                        Register your student details to get started.
+                        {role === "STUDENT"
+                          ? "Register your student details to get started."
+                          : "Register your faculty mentor details to get started."}
                       </p>
+                    </div>
+
+                    {/* Role Selector Tabs (Student vs Mentor) */}
+                    <div className="flex p-1 bg-[#EADBD0]/60 rounded-xl mb-3 border border-[#EADBD0]">
+                      <button
+                        type="button"
+                        onClick={() => { setRole("STUDENT"); setError(null); }}
+                        className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                          role === "STUDENT"
+                            ? "bg-white text-[#111827] shadow-sm border border-black/5"
+                            : "text-slate-600 hover:text-[#111827]"
+                        }`}
+                      >
+                        <GraduationCap className={`w-4 h-4 ${role === "STUDENT" ? "text-[#FF5F38]" : "text-slate-400"}`} />
+                        <span>Student</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setRole("MENTOR"); setError(null); }}
+                        className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                          role === "MENTOR"
+                            ? "bg-white text-[#111827] shadow-sm border border-black/5"
+                            : "text-slate-600 hover:text-[#111827]"
+                        }`}
+                      >
+                        <Award className={`w-4 h-4 ${role === "MENTOR" ? "text-[#FF5F38]" : "text-slate-400"}`} />
+                        <span>Faculty Mentor</span>
+                      </button>
                     </div>
 
                     {error && (
@@ -205,7 +258,7 @@ export function AnimatedAuthCard({
                           <input
                             type="text"
                             required
-                            placeholder="Alex Morgan"
+                            placeholder={role === "STUDENT" ? "Alex Morgan" : "Dr. Aris Thorne"}
                             value={regName}
                             onChange={(e) => setRegName(e.target.value)}
                             className="w-full px-4 py-2.5 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
@@ -216,13 +269,13 @@ export function AnimatedAuthCard({
 
                       <div>
                         <label className="block text-xs font-semibold text-[#111827] mb-1">
-                          Email address
+                          {role === "STUDENT" ? "College email address" : "Faculty email address"}
                         </label>
                         <div className="relative">
                           <input
                             type="email"
                             required
-                            placeholder="student@college.edu"
+                            placeholder={role === "STUDENT" ? "student@college.edu" : "dr.aris@engg.college.edu"}
                             value={regEmail}
                             onChange={(e) => setRegEmail(e.target.value)}
                             className="w-full px-4 py-2.5 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
@@ -231,22 +284,55 @@ export function AnimatedAuthCard({
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-[#111827] mb-1">
-                          USN / Roll Number
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            required
-                            placeholder="1MS21CS045"
-                            value={regRoll}
-                            onChange={(e) => setRegRoll(e.target.value.toUpperCase())}
-                            className="w-full px-4 py-2.5 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm uppercase placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
-                          />
-                          <IdCard className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      {role === "STUDENT" ? (
+                        <div>
+                          <label className="block text-xs font-semibold text-[#111827] mb-1">
+                            USN / Roll Number
+                          </label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              required
+                              placeholder="1MS21CS045"
+                              value={regRoll}
+                              onChange={(e) => setRegRoll(e.target.value.toUpperCase())}
+                              className="w-full px-4 py-2.5 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm uppercase placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
+                            />
+                            <IdCard className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs font-semibold text-[#111827] mb-1">
+                              Department
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="Computer Science"
+                              value={regDept}
+                              onChange={(e) => setRegDept(e.target.value)}
+                              className="w-full px-3 py-2.5 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-xs placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-[#111827] mb-1">
+                              Designation
+                            </label>
+                            <select
+                              value={regDesignation}
+                              onChange={(e) => setRegDesignation(e.target.value)}
+                              className="w-full px-3 py-2.5 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-xs focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs cursor-pointer"
+                            >
+                              <option value="Professor">Professor</option>
+                              <option value="Associate Professor">Associate Professor</option>
+                              <option value="Assistant Professor">Assistant Professor</option>
+                              <option value="Head of Dept (HOD)">Head of Dept (HOD)</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
 
                       <div>
                         <label className="block text-xs font-semibold text-[#111827] mb-1">
@@ -276,7 +362,13 @@ export function AnimatedAuthCard({
                         disabled={isLoading}
                         className="w-full py-3.5 mt-2 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold rounded-xl text-sm shadow-md hover:shadow-lg shadow-[#FF5F38]/25 transition duration-200 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                       >
-                        <span>{isLoading ? "Creating account..." : "Create account"}</span>
+                        <span>
+                          {isLoading
+                            ? "Creating account..."
+                            : role === "STUDENT"
+                            ? "Create student account"
+                            : "Create mentor account"}
+                        </span>
                         {!isLoading && <ArrowRight className="w-4 h-4 text-white" />}
                       </button>
                     </form>
@@ -291,13 +383,43 @@ export function AnimatedAuthCard({
                     transition={{ duration: 0.25 }}
                     className="space-y-4"
                   >
-                    <div className="mb-4">
+                    <div className="mb-3">
                       <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight mb-1.5">
                         Sign in
                       </h2>
                       <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                        Enter your college email & password to log in.
+                        {role === "STUDENT"
+                          ? "Enter your student email & password to log in."
+                          : "Enter your faculty mentor email & password to log in."}
                       </p>
+                    </div>
+
+                    {/* Role Selector Tabs (Student vs Mentor) */}
+                    <div className="flex p-1 bg-[#EADBD0]/60 rounded-xl mb-3 border border-[#EADBD0]">
+                      <button
+                        type="button"
+                        onClick={() => { setRole("STUDENT"); setError(null); }}
+                        className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                          role === "STUDENT"
+                            ? "bg-white text-[#111827] shadow-sm border border-black/5"
+                            : "text-slate-600 hover:text-[#111827]"
+                        }`}
+                      >
+                        <GraduationCap className={`w-4 h-4 ${role === "STUDENT" ? "text-[#FF5F38]" : "text-slate-400"}`} />
+                        <span>Student</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setRole("MENTOR"); setError(null); }}
+                        className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                          role === "MENTOR"
+                            ? "bg-white text-[#111827] shadow-sm border border-black/5"
+                            : "text-slate-600 hover:text-[#111827]"
+                        }`}
+                      >
+                        <Award className={`w-4 h-4 ${role === "MENTOR" ? "text-[#FF5F38]" : "text-slate-400"}`} />
+                        <span>Faculty Mentor</span>
+                      </button>
                     </div>
 
                     {error && (
@@ -310,13 +432,13 @@ export function AnimatedAuthCard({
                     <form onSubmit={handleLoginSubmit} className="space-y-4">
                       <div>
                         <label className="block text-xs font-semibold text-[#111827] mb-1">
-                          Username or email
+                          {role === "STUDENT" ? "Student email address" : "Faculty email address"}
                         </label>
                         <div className="relative">
                           <input
                             type="email"
                             required
-                            placeholder="student@college.edu"
+                            placeholder={role === "STUDENT" ? "student@college.edu" : "dr.aris@engg.college.edu"}
                             value={loginEmail}
                             onChange={(e) => setLoginEmail(e.target.value)}
                             className="w-full px-4 py-3 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
@@ -372,7 +494,13 @@ export function AnimatedAuthCard({
                         disabled={isLoading}
                         className="w-full py-3.5 mt-3 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold rounded-xl text-sm shadow-md hover:shadow-lg shadow-[#FF5F38]/25 transition duration-200 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                       >
-                        <span>{isLoading ? "Signing in..." : "Sign in"}</span>
+                        <span>
+                          {isLoading
+                            ? "Signing in..."
+                            : role === "STUDENT"
+                            ? "Sign in as Student"
+                            : "Sign in as Mentor"}
+                        </span>
                         {!isLoading && <ArrowRight className="w-4 h-4 text-white" />}
                       </button>
                     </form>

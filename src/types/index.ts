@@ -15,6 +15,13 @@ export interface SafeUser {
     skills: string[];
     profilePicture: string | null;
   } | null;
+  teacherProfile?: {
+    id: string;
+    department: string;
+    designation: string;
+    areasOfExpertise: string[];
+    maxProjects: number;
+  } | null;
 }
 
 export interface StudentCardInfo {

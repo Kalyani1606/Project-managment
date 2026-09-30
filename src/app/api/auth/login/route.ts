@@ -5,7 +5,7 @@ import { comparePassword, signToken, AUTH_COOKIE_NAME } from "@/lib/auth";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, selectedRole } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -21,6 +21,7 @@ export async function POST(request: Request) {
       where: { email: trimmedEmail },
       include: {
         studentProfile: true,
+        teacherProfile: true,
       },
     });
 
@@ -40,11 +41,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Ensure role is STUDENT (Phase 1 rule)
-    if (user.role !== "STUDENT") {
+    // 3. Validate against selected role if provided
+    if (selectedRole === "STUDENT" && user.role !== "STUDENT") {
       return NextResponse.json(
-        { error: "This portal is currently dedicated for student access. Faculty portal will be enabled in Phase 2." },
-        { status: 403 }
+        { error: "This email is registered as a Faculty Mentor account. Please select 'Faculty Mentor' above to sign in." },
+        { status: 400 }
+      );
+    }
+
+    if ((selectedRole === "MENTOR" || selectedRole === "TEACHER") && user.role === "STUDENT") {
+      return NextResponse.json(
+        { error: "This email is registered as a Student account. Please select 'Student' above to sign in." },
+        { status: 400 }
       );
     }
 
@@ -69,6 +77,12 @@ export async function POST(request: Request) {
           ? {
               ...user.studentProfile,
               skills: JSON.parse(user.studentProfile.skills || "[]"),
+            }
+          : null,
+        teacherProfile: user.teacherProfile
+          ? {
+              ...user.teacherProfile,
+              areasOfExpertise: JSON.parse(user.teacherProfile.areasOfExpertise || "[]"),
             }
           : null,
       },
