@@ -33,6 +33,7 @@ export default function StudentProfilePage() {
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkillInput, setNewSkillInput] = useState("");
   const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Sync form state when user changes
   useEffect(() => {
@@ -45,6 +46,11 @@ export default function StudentProfilePage() {
         setGithub(user.studentProfile.github || "");
         setLinkedin(user.studentProfile.linkedin || "");
         setSkills(user.studentProfile.skills || []);
+
+        const complete = user.studentProfile.github && user.studentProfile.linkedin;
+        setIsEditing(!complete);
+      } else {
+        setIsEditing(true);
       }
     }
   }, [user]);
@@ -84,6 +90,7 @@ export default function StudentProfilePage() {
       if (res.ok) {
         showToast("Profile successfully updated and synced!", "success");
         await refreshUser();
+        setIsEditing(false);
       } else {
         showToast(data.error || "Failed to update profile", "error");
       }
@@ -136,7 +143,15 @@ export default function StudentProfilePage() {
         </div>
       </div>
 
-      {/* Main Profile Form */}
+      {!isEditing && (
+        <div className="flex justify-end -mt-4">
+          <button onClick={() => setIsEditing(true)} className="px-5 py-2 hover:bg-slate-100 border border-slate-200 bg-white text-slate-700 font-bold rounded-xl text-sm transition shadow-sm flex items-center gap-2">
+             Edit Profile
+          </button>
+        </div>
+      )}
+
+      {isEditing ? (
       <form onSubmit={handleSaveProfile} className="space-y-6">
         {/* Section 1: Basic Academic Information */}
         <div className="p-6 bg-white border border-slate-200 rounded-3xl space-y-5 shadow-sm">
@@ -422,6 +437,43 @@ export default function StudentProfilePage() {
           </button>
         </div>
       </form>
+      ) : (
+        <div className="space-y-6">
+           <div className="p-8 bg-white border border-slate-200 rounded-3xl shadow-sm text-center relative overflow-hidden">
+             
+             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-blue-100 to-[#5044e4]/10 rounded-t-3xl" />
+             
+             <div className="w-28 h-28 mx-auto bg-slate-200 rounded-full overflow-hidden border-4 border-white shadow-md mb-4 relative z-10 mt-6">
+               <img src={user?.studentProfile?.profilePicture || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80"} alt="Profile" className="w-full h-full object-cover" />
+             </div>
+             
+             <h2 className="text-2xl font-black text-slate-900 relative z-10">{name}</h2>
+             <p className="text-[#5044e4] font-bold mt-1 text-sm relative z-10">{department} &bull; Semester {semester}</p>
+             <p className="text-slate-500 font-medium text-xs mt-1 relative z-10">{user?.studentProfile?.rollNumber} &bull; {user?.email}</p>
+             
+             <div className="mt-8 flex items-center justify-center gap-4 relative z-10">
+               {github && <a href={github.startsWith('http') ? github : `https://${github}`} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-50 hover:-translate-y-0.5 border border-slate-200 rounded-2xl text-slate-700 hover:bg-[#5044e4] hover:border-[#5044e4] hover:text-white transition-all shadow-sm text-sm font-bold w-40"><Github className="w-4 h-4"/> GitHub</a>}
+               {linkedin && <a href={linkedin.startsWith('http') ? linkedin : `https://${linkedin}`} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-50 hover:-translate-y-0.5 border border-slate-200 rounded-2xl text-slate-700 hover:bg-[#5044e4] hover:border-[#5044e4] hover:text-white transition-all shadow-sm text-sm font-bold w-40"><Linkedin className="w-4 h-4"/> LinkedIn</a>}
+             </div>
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+             <div className="md:col-span-2 p-6 bg-white border border-slate-200 rounded-3xl shadow-sm">
+               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-3 flex items-center gap-2"><User className="w-4 h-4 text-[#5044e4]"/> Academic Statement & Bio</h3>
+               <p className="text-slate-600 leading-relaxed text-sm whitespace-pre-wrap">{bio || "No biography provided yet."}</p>
+             </div>
+             
+             <div className="p-6 bg-white border border-slate-200 rounded-3xl shadow-sm">
+               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-[#5044e4]"/> Technical Skills</h3>
+               <div className="flex flex-wrap gap-2">
+                 {skills.length > 0 ? skills.map(s => (
+                   <span key={s} className="px-3 py-1 bg-[#5044e4]/10 text-[#5044e4] border border-[#5044e4]/20 rounded-lg text-xs font-bold shadow-sm inline-block">{s}</span>
+                 )) : <span className="text-slate-500 text-sm italic">No technical skills listed</span>}
+               </div>
+             </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }
