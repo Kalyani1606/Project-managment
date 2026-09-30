@@ -5,8 +5,17 @@ import { useNotification } from "@/context/NotificationContext";
 import { EmailLogItem } from "@/types";
 import { X, Mail, RefreshCw, Key, ShieldCheck, Clock, Send } from "lucide-react";
 
-export function DevMailboxModal() {
-  const { isDevMailboxOpen, closeDevMailbox } = useNotification();
+interface DevMailboxModalProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function DevMailboxModal({ isOpen, onClose }: DevMailboxModalProps = {}) {
+  const { isDevMailboxOpen: contextIsOpen, closeDevMailbox: contextClose } = useNotification();
+
+  const isMailboxOpen = isOpen !== undefined ? isOpen : contextIsOpen;
+  const closeMailbox = onClose !== undefined ? onClose : contextClose;
+
   const [emails, setEmails] = useState<EmailLogItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState<EmailLogItem | null>(null);
@@ -30,19 +39,19 @@ export function DevMailboxModal() {
   };
 
   useEffect(() => {
-    if (isDevMailboxOpen) {
+    if (isMailboxOpen) {
       fetchEmails();
     }
-  }, [isDevMailboxOpen]);
+  }, [isMailboxOpen]);
 
-  if (!isDevMailboxOpen) return null;
+  if (!isMailboxOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-        onClick={closeDevMailbox}
+        onClick={closeMailbox}
       />
 
       {/* Modal Dialog */}
@@ -76,7 +85,7 @@ export function DevMailboxModal() {
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button
-              onClick={closeDevMailbox}
+              onClick={closeMailbox}
               className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white transition"
             >
               <X className="w-5 h-5" />
@@ -162,7 +171,7 @@ export function DevMailboxModal() {
             <span>Secure TLS Email Delivery Simulator</span>
           </div>
           <button
-            onClick={closeDevMailbox}
+            onClick={closeMailbox}
             className="px-3 py-1 bg-white hover:bg-slate-700 text-white rounded-lg transition"
           >
             Close

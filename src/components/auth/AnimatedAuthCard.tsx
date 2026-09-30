@@ -123,12 +123,16 @@ export function AnimatedAuthCard({
   };
 
   return (
-    <div className="w-full h-screen min-h-screen flex flex-col items-center justify-center bg-[#FCFCFA]">
+    <div className="w-full h-screen min-h-screen flex flex-col items-center justify-center bg-[#FAF2EC]">
       {/* Main Container Card (Edge-to-Edge Full Screen) */}
-      <div className="relative w-full h-full min-h-screen bg-[#FCFCFA] overflow-hidden flex">
+      <div className="relative w-full h-full min-h-screen bg-[#FAF2EC] overflow-hidden flex">
         
         {/* ========================================================================= */}
-        {/* PANEL 1: WHITE FORM CARD PANEL                                            */}
+        {/* PANEL 1: CREAM/WHITE FORM CARD PANEL                                       */}
+        {/* Horizontal Shift: Starts at left (0%), slides right (100% -> left: 50%)    */}
+        {/* ========================================================================= */}
+        {/* ========================================================================= */}
+        {/* PANEL 1: CREAM/WHITE FORM CARD PANEL                                       */}
         {/* Horizontal Shift: Starts at left (0%), slides right (100% -> left: 50%)    */}
         {/* ========================================================================= */}
         <motion.div
@@ -137,274 +141,277 @@ export function AnimatedAuthCard({
             x: isRegisterState ? "100%" : "0%",
           }}
           transition={transitionConfig}
-          className="absolute top-0 left-0 w-full md:w-1/2 h-full p-8 sm:p-10 md:p-12 flex flex-col justify-between bg-[#FCFCFA] z-10"
+          className="absolute top-0 left-0 w-full md:w-1/2 h-full px-6 sm:px-10 md:px-12 lg:px-16 py-8 sm:py-10 flex flex-col justify-between bg-[#FAF2EC] z-10 overflow-y-auto"
         >
-          {/* Top Form Brand Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#0B2E26] flex items-center justify-center text-[#E2C889] shadow-sm">
-                <GraduationCap className="w-4 h-4" />
+          {/* Inner Responsive Max-Width Container */}
+          <div className="w-full max-w-md mx-auto h-full flex flex-col justify-between">
+            {/* Top Form Brand Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#0A1628] flex items-center justify-center text-[#FF5F38] shadow-sm">
+                  <GraduationCap className="w-4 h-4 text-[#FF5F38]" />
+                </div>
+                <span className="font-extrabold tracking-tight text-sm text-[#111827]">
+                  PROJECT HUB<span className="text-[#FF5F38] text-base font-black">.</span>
+                </span>
               </div>
-              <span className="font-bold tracking-wider text-xs uppercase text-[#0B2E26]">
-                PROJECT HUB
-              </span>
+
+              {isModal && onCloseModal && (
+                <button
+                  type="button"
+                  onClick={onCloseModal}
+                  className="md:hidden text-slate-600 hover:text-[#111827] text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-[#EADBD0]/60 transition flex items-center gap-1 cursor-pointer"
+                >
+                  ✕ Close
+                </button>
+              )}
             </div>
 
-            {isModal && onCloseModal && (
-              <button
-                type="button"
-                onClick={onCloseModal}
-                className="text-slate-400 hover:text-slate-700 text-xs font-semibold px-2 py-1 rounded-md hover:bg-slate-100 transition"
-              >
-                ✕ Close
-              </button>
-            )}
-          </div>
-
-          {/* Dynamic Form Content Transition (Sign in <-> Create account) */}
-          <div className="my-auto">
-            <AnimatePresence mode="wait">
-              {isRegisterState ? (
-                /* ==================== CREATE ACCOUNT FORM ==================== */
-                <motion.div
-                  key="register-form"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-3.5"
-                >
-                  <div className="mb-4">
-                    <h2 className="text-3xl font-extrabold text-[#111111] tracking-tight mb-1.5">
-                      Create account
-                    </h2>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                      Register your student details to get started.
-                    </p>
-                  </div>
-
-                  {error && (
-                    <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-xs font-semibold text-red-600 flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
-                      <span>{error}</span>
+            {/* Dynamic Form Content Transition (Sign in <-> Create account) */}
+            <div className="my-auto py-4">
+              <AnimatePresence mode="wait">
+                {isRegisterState ? (
+                  /* ==================== CREATE ACCOUNT FORM ==================== */
+                  <motion.div
+                    key="register-form"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-3.5"
+                  >
+                    <div className="mb-3">
+                      <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight mb-1">
+                        Create account
+                      </h2>
+                      <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                        Register your student details to get started.
+                      </p>
                     </div>
-                  )}
 
-                  <form onSubmit={handleRegisterSubmit} className="space-y-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Full name
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          required
-                          placeholder="Alex Morgan"
-                          value={regName}
-                          onChange={(e) => setRegName(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
-                        />
-                        <User className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    {error && (
+                      <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-xs font-semibold text-red-600 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                        <span>{error}</span>
                       </div>
-                    </div>
+                    )}
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Email address
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="email"
-                          required
-                          placeholder="student@college.edu"
-                          value={regEmail}
-                          onChange={(e) => setRegEmail(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
-                        />
-                        <Mail className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <form onSubmit={handleRegisterSubmit} className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-[#111827] mb-1">
+                          Full name
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            required
+                            placeholder="Alex Morgan"
+                            value={regName}
+                            onChange={(e) => setRegName(e.target.value)}
+                            className="w-full px-4 py-2.5 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
+                          />
+                          <User className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        USN / Roll Number
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          required
-                          placeholder="1MS21CS045"
-                          value={regRoll}
-                          onChange={(e) => setRegRoll(e.target.value.toUpperCase())}
-                          className="w-full px-4 py-2.5 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm uppercase placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
-                        />
-                        <IdCard className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <div>
+                        <label className="block text-xs font-semibold text-[#111827] mb-1">
+                          Email address
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="email"
+                            required
+                            placeholder="student@college.edu"
+                            value={regEmail}
+                            onChange={(e) => setRegEmail(e.target.value)}
+                            className="w-full px-4 py-2.5 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
+                          />
+                          <Mail className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Password
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          required
-                          placeholder="Use 8 characters or more."
-                          value={regPassword}
-                          onChange={(e) => setRegPassword(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
+                      <div>
+                        <label className="block text-xs font-semibold text-[#111827] mb-1">
+                          USN / Roll Number
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            required
+                            placeholder="1MS21CS045"
+                            value={regRoll}
+                            onChange={(e) => setRegRoll(e.target.value.toUpperCase())}
+                            className="w-full px-4 py-2.5 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm uppercase placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
+                          />
+                          <IdCard className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
                       </div>
-                    </div>
 
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full py-3.5 mt-2 bg-[#0B2E26] hover:bg-[#07211C] text-[#E2C889] font-bold rounded-xl text-sm shadow-md hover:shadow-lg transition duration-200 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-                    >
-                      <span>{isLoading ? "Creating account..." : "Create account"}</span>
-                      {!isLoading && <ArrowRight className="w-4 h-4 text-[#E2C889]" />}
-                    </button>
-                  </form>
-                </motion.div>
-              ) : (
-                /* ==================== SIGN IN FORM ==================== */
-                <motion.div
-                  key="login-form"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-4"
-                >
-                  <div className="mb-4">
-                    <h2 className="text-3xl font-extrabold text-[#111111] tracking-tight mb-1.5">
-                      Sign in
-                    </h2>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                      Enter your college email & password to log in.
-                    </p>
-                  </div>
-
-                  {error && (
-                    <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-xs font-semibold text-red-600 flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
-                      <span>{error}</span>
-                    </div>
-                  )}
-
-                  <form onSubmit={handleLoginSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Username or email
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="email"
-                          required
-                          placeholder="student@college.edu"
-                          value={loginEmail}
-                          onChange={(e) => setLoginEmail(e.target.value)}
-                          className="w-full px-4 py-3 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
-                        />
-                        <User className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <div>
+                        <label className="block text-xs font-semibold text-[#111827] mb-1">
+                          Password
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            required
+                            placeholder="Use 8 characters or more."
+                            value={regPassword}
+                            onChange={(e) => setRegPassword(e.target.value)}
+                            className="w-full px-4 py-2.5 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#FF5F38] p-1 transition-colors"
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Password
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          required
-                          placeholder="Enter password"
-                          value={loginPassword}
-                          onChange={(e) => setLoginPassword(e.target.value)}
-                          className="w-full px-4 py-3 bg-[#FAF2EC]/80 border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#C69A59] focus:ring-1 focus:ring-[#C69A59] transition"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-1">
-                      <label className="flex items-center gap-2.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={keepSignedIn}
-                          onChange={(e) => setKeepSignedIn(e.target.checked)}
-                          className="w-4 h-4 rounded border-[#EADBD0] accent-[#0B2E26] text-[#0B2E26] focus:ring-[#0B2E26] cursor-pointer"
-                        />
-                        <span className="text-xs font-medium text-slate-600">Keep me signed in</span>
-                      </label>
                       <button
-                        type="button"
-                        onClick={() => setTab("forgot")}
-                        className="text-xs font-semibold text-[#B89552] hover:text-[#9A7A3E] underline underline-offset-2 transition"
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full py-3.5 mt-2 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold rounded-xl text-sm shadow-md hover:shadow-lg shadow-[#FF5F38]/25 transition duration-200 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                       >
-                        Forgot password?
+                        <span>{isLoading ? "Creating account..." : "Create account"}</span>
+                        {!isLoading && <ArrowRight className="w-4 h-4 text-white" />}
                       </button>
+                    </form>
+                  </motion.div>
+                ) : (
+                  /* ==================== SIGN IN FORM ==================== */
+                  <motion.div
+                    key="login-form"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-4"
+                  >
+                    <div className="mb-4">
+                      <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight mb-1.5">
+                        Sign in
+                      </h2>
+                      <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                        Enter your college email & password to log in.
+                      </p>
                     </div>
 
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full py-3.5 mt-3 bg-[#0B2E26] hover:bg-[#07211C] text-[#E2C889] font-bold rounded-xl text-sm shadow-md hover:shadow-lg transition duration-200 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-                    >
-                      <span>{isLoading ? "Signing in..." : "Sign in"}</span>
-                      {!isLoading && <ArrowRight className="w-4 h-4 text-[#E2C889]" />}
-                    </button>
-                  </form>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                    {error && (
+                      <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-xs font-semibold text-red-600 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                        <span>{error}</span>
+                      </div>
+                    )}
 
-          {/* Bottom Switcher Footer */}
-          <div className="pt-4 border-t border-slate-100 text-xs text-slate-600 font-medium flex items-center justify-center gap-1.5">
-            {isRegisterState ? (
-              <>
-                <span>Already have an account?</span>
-                <button
-                  type="button"
-                  onClick={() => { setError(null); setTab("login"); }}
-                  className="font-semibold text-[#B89552] hover:text-[#9A7A3E] underline underline-offset-2 transition cursor-pointer"
-                >
-                  Sign in
-                </button>
-              </>
-            ) : (
-              <>
-                <span>New to Project Hub?</span>
-                <button
-                  type="button"
-                  onClick={() => { setError(null); setTab("register"); }}
-                  className="font-semibold text-[#B89552] hover:text-[#9A7A3E] underline underline-offset-2 transition cursor-pointer"
-                >
-                  Create an account
-                </button>
-              </>
-            )}
+                    <form onSubmit={handleLoginSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-[#111827] mb-1">
+                          Username or email
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="email"
+                            required
+                            placeholder="student@college.edu"
+                            value={loginEmail}
+                            onChange={(e) => setLoginEmail(e.target.value)}
+                            className="w-full px-4 py-3 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
+                          />
+                          <User className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-[#111827] mb-1">
+                          Password
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            required
+                            placeholder="Enter password"
+                            value={loginPassword}
+                            onChange={(e) => setLoginPassword(e.target.value)}
+                            className="w-full px-4 py-3 bg-white border border-[#EADBD0] rounded-xl text-[#111827] text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition shadow-xs"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#FF5F38] p-1 transition-colors"
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <label className="flex items-center gap-2.5 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={keepSignedIn}
+                            onChange={(e) => setKeepSignedIn(e.target.checked)}
+                            className="w-4 h-4 rounded border-[#EADBD0] accent-[#FF5F38] text-[#FF5F38] focus:ring-[#FF5F38] cursor-pointer"
+                          />
+                          <span className="text-xs font-medium text-slate-600">Keep me signed in</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setTab("forgot")}
+                          className="text-xs font-bold text-[#FF5F38] hover:text-[#E54D26] underline underline-offset-2 transition"
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full py-3.5 mt-3 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold rounded-xl text-sm shadow-md hover:shadow-lg shadow-[#FF5F38]/25 transition duration-200 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                      >
+                        <span>{isLoading ? "Signing in..." : "Sign in"}</span>
+                        {!isLoading && <ArrowRight className="w-4 h-4 text-white" />}
+                      </button>
+                    </form>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Bottom Switcher Footer */}
+            <div className="pt-4 border-t border-[#EADBD0] text-xs text-slate-600 font-medium flex items-center justify-center gap-1.5">
+              {isRegisterState ? (
+                <>
+                  <span>Already have an account?</span>
+                  <button
+                    type="button"
+                    onClick={() => { setError(null); setTab("login"); }}
+                    className="font-bold text-[#FF5F38] hover:text-[#E54D26] underline underline-offset-2 transition cursor-pointer"
+                  >
+                    Sign in
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span>New to Project Hub?</span>
+                  <button
+                    type="button"
+                    onClick={() => { setError(null); setTab("register"); }}
+                    className="font-bold text-[#FF5F38] hover:text-[#E54D26] underline underline-offset-2 transition cursor-pointer"
+                  >
+                    Create an account
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </motion.div>
 
         {/* ========================================================================= */}
-        {/* PANEL 2: DEEP GREEN HERO BLADE PANEL                                       */}
+        {/* PANEL 2: DARK NAVY HERO BLADE PANEL WITH ORANGE CIRCULAR ARTWORK         */}
         {/* Horizontal Shift: Starts at right (0%), slides left (-100% -> left: 0)     */}
         {/* ========================================================================= */}
         <motion.div
@@ -413,41 +420,63 @@ export function AnimatedAuthCard({
             x: isRegisterState ? "-100%" : "0%",
           }}
           transition={transitionConfig}
-          className="hidden md:flex absolute top-0 left-1/2 w-1/2 h-full z-20 overflow-hidden bg-gradient-to-br from-[#0B2E26] via-[#08241E] to-[#041612] p-10 md:p-12 flex-col justify-between border-x border-[#1a4439]/60 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+          style={{
+            clipPath: isRegisterState
+              ? "polygon(0% 0%, 100% 0%, 92% 100%, 0% 100%)"
+              : "polygon(8% 0%, 100% 0%, 100% 100%, 0% 100%)",
+          }}
+          className="hidden md:flex absolute top-0 left-1/2 w-1/2 h-full z-20 overflow-hidden bg-[#0A1628] p-10 md:p-12 lg:p-16 flex-col justify-between shadow-2xl border-l border-slate-800/80"
         >
-          {/* Ambient Radial Mesh Orbs */}
-          <div className="absolute top-0 right-0 w-[350px] h-[350px] bg-[radial-gradient(circle_at_70%_20%,rgba(226,200,137,0.15),transparent_70%)] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[radial-gradient(circle_at_20%_80%,rgba(11,46,38,0.5),transparent_70%)] pointer-events-none" />
+          {/* Top-Right Decorative Reddish-Orange Blob Circle */}
+          <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-gradient-to-br from-[#BA3C1B] via-[#8C2910] to-[#5C1605] opacity-90 pointer-events-none blur-[1px]" />
 
-          {/* Curvilinear Vector Lines */}
+          {/* Bottom-Right Concentric Orange Circles */}
+          <div className="absolute -bottom-40 -right-40 w-[520px] h-[520px] rounded-full bg-gradient-to-tl from-[#FF5F38] via-[#E04B24] to-[#7D210A] opacity-95 pointer-events-none shadow-2xl" />
+          <div className="absolute -bottom-24 -right-24 w-[380px] h-[380px] rounded-full bg-gradient-to-tl from-[#FF6B47] via-[#E84E27] to-[#A83214] opacity-90 pointer-events-none" />
+
+          {/* Curvilinear Wavy Orange Vector Lines */}
           <svg
-            className="absolute inset-0 w-full h-full opacity-25 pointer-events-none"
+            className="absolute inset-0 w-full h-full pointer-events-none z-10"
             xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 600 800"
+            preserveAspectRatio="none"
           >
+            {/* Primary Bright Orange Wavy Line */}
             <path
-              d="M -100,200 C 150,50 300,450 600,250 C 750,150 850,350 1000,100"
+              d="M -50,230 C 120,220 280,410 650,290"
               fill="none"
-              stroke="#E2C889"
-              strokeWidth="1.5"
+              stroke="#FF5F38"
+              strokeWidth="2.5"
             />
+            {/* Secondary Dashed Orange Line */}
             <path
-              d="M -50,400 C 200,150 400,550 700,300 C 850,200 950,400 1100,200"
+              d="M -30,480 C 220,320 380,560 680,360"
               fill="none"
-              stroke="#E2C889"
-              strokeWidth="1"
-              strokeDasharray="4 4"
+              stroke="#FF5F38"
+              strokeWidth="1.5"
+              strokeDasharray="6 6"
+              opacity="0.6"
             />
           </svg>
 
-          {/* Brand Tag */}
-          <div className="relative z-10">
-            <span className="text-[11px] font-semibold tracking-[0.35em] text-[#E2C889]/90 uppercase">
-              PROJECT HUB
+          {/* Brand Tag Header */}
+          <div className="relative z-20 flex items-center justify-between">
+            <span className="text-xs font-black tracking-[0.25em] text-white uppercase flex items-center gap-1">
+              PROJECT HUB<span className="text-[#FF5F38] text-sm font-black">.</span>
             </span>
+            {isModal && onCloseModal && (
+              <button
+                type="button"
+                onClick={onCloseModal}
+                className="text-slate-800 hover:text-black bg-white hover:bg-slate-100 text-xs font-bold px-4 py-2 rounded-full shadow-md transition flex items-center gap-1.5 cursor-pointer"
+              >
+                ✕ Close
+              </button>
+            )}
           </div>
 
           {/* Hero Content Cross-fade with Horizontal Motion */}
-          <div className="relative z-10 my-auto py-12">
+          <div className="relative z-20 my-auto py-12">
             <AnimatePresence mode="wait">
               {isRegisterState ? (
                 <motion.div
@@ -458,11 +487,11 @@ export function AnimatedAuthCard({
                   transition={{ duration: 0.28 }}
                   className="space-y-4"
                 >
-                  <h3 className="font-serif-luxury text-4xl sm:text-5xl text-[#F2E5C9] font-normal leading-[1.15] tracking-tight">
+                  <h3 className="font-serif-luxury text-4xl sm:text-5xl lg:text-6xl text-white font-normal leading-[1.1] tracking-tight">
                     Start the <br />
-                    <span className="italic font-light text-[#E2C889]">first page.</span>
+                    <span className="italic font-light text-[#FF5F38]">first page.</span>
                   </h3>
-                  <p className="text-sm sm:text-[15px] text-[#A5BDAE] leading-relaxed max-w-sm font-normal">
+                  <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-sm font-normal">
                     One account for every board, every draft and every device you own.
                   </p>
                 </motion.div>
@@ -475,11 +504,11 @@ export function AnimatedAuthCard({
                   transition={{ duration: 0.28 }}
                   className="space-y-4"
                 >
-                  <h3 className="font-serif-luxury text-4xl sm:text-5xl text-[#F2E5C9] font-normal leading-[1.15] tracking-tight">
+                  <h3 className="font-serif-luxury text-4xl sm:text-5xl lg:text-6xl text-white font-normal leading-[1.1] tracking-tight">
                     Welcome <br />
-                    <span className="italic font-light text-[#E2C889]">back.</span>
+                    <span className="italic font-light text-[#FF5F38]">back.</span>
                   </h3>
-                  <p className="text-sm sm:text-[15px] text-[#A5BDAE] leading-relaxed max-w-sm font-normal">
+                  <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-sm font-normal">
                     Your boards, your drafts and your people are exactly where you left them.
                   </p>
                 </motion.div>
@@ -488,8 +517,8 @@ export function AnimatedAuthCard({
           </div>
 
           {/* Security Badge */}
-          <div className="relative z-10 pt-4 flex items-center gap-2.5 text-xs text-[#8BA495]">
-            <ShieldCheck className="w-4 h-4 text-[#E2C889]" />
+          <div className="relative z-20 pt-4 flex items-center gap-2.5 text-xs text-slate-300 font-medium">
+            <ShieldCheck className="w-4 h-4 text-[#FF5F38]" />
             <span>Encrypted Institutional Academic Portal</span>
           </div>
         </motion.div>

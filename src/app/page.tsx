@@ -75,12 +75,7 @@ export default function SingleHeroLandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
             {/* Left Column - Headline & Actions */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-6 space-y-6"
-            >
+            <div className="lg:col-span-6 space-y-6">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF5F38] text-white text-xs font-mono font-bold tracking-wider shadow-sm">
                 <span>#Learning Platform</span>
@@ -122,15 +117,10 @@ export default function SingleHeroLandingPage() {
                   </span>
                 </button>
               </div>
-            </motion.div>
+            </div>
 
             {/* Right Column - Hero Visual Artwork */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.1 }}
-              className="lg:col-span-6 relative flex justify-center lg:justify-end"
-            >
+            <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
               {/* Concentric Dashed Ring Background */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
                 <svg className="w-[480px] h-[480px]" viewBox="0 0 500 500" fill="none">
@@ -182,7 +172,7 @@ export default function SingleHeroLandingPage() {
                 </div>
 
               </div>
-            </motion.div>
+            </div>
 
           </div>
         </div>

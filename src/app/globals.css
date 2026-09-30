@@ -107,3 +107,15 @@ body {
 .bg-radial-glow-cyan {
   background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.12), transparent 70%);
 }
+
+/* Custom input autofill override to match warm cream home page theme */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
