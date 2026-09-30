@@ -266,20 +266,7 @@ export default function AppPortalLayout({
 
         {/* PAGE CONTENT */}
         <main className="flex-1 w-full p-4 sm:p-8 relative">
-          {!profileComplete ? (
-            <div className="absolute inset-0 z-40 bg-[#FAF2EC] w-full min-h-screen pt-4 pb-20 px-4 sm:px-8">
-              <div className="max-w-4xl mx-auto w-full mb-8 text-center animate-fadeIn">
-                <div className="w-16 h-16 bg-[#FF5F38]/10 text-[#FF5F38] rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">👋</div>
-                <h1 className="text-3xl font-black text-[#111827]">Welcome to Project Hub!</h1>
-                <p className="text-slate-600 mt-2 font-medium">Please complete your professional identity by adding your GitHub & LinkedIn to unlock the dashboard.</p>
-              </div>
-              <div className="pointer-events-auto bg-white/50 p-2 rounded-3xl border border-[#FF5F38]/20 shadow-xl">
-                <StudentProfilePage />
-              </div>
-            </div>
-          ) : (
-            children
-          )}
+          {children}
         </main>
         
         <DevMailboxModal isOpen={isMailboxOpen} onClose={() => setIsMailboxOpen(false)} />
