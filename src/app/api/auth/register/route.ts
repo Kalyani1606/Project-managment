@@ -7,9 +7,81 @@ import { sendAcademicEmail } from "@/lib/email";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, rollNumber, semester, collegeEmail, department, password } = body;
+    const { name, rollNumber, semester, collegeEmail, department, designation, password, role } = body;
+    const isMentor = role === "MENTOR" || role === "TEACHER";
 
-    // 1. Basic validation
+    const trimmedEmail = (collegeEmail || "").trim().toLowerCase();
+
+    // 1. Mentor Registration Flow
+    if (isMentor) {
+      if (!name || !collegeEmail) {
+        return NextResponse.json(
+          { error: "Please provide your Name and College Email." },
+          { status: 400 }
+        );
+      }
+
+      const emailValidation = validateCollegeEmail(trimmedEmail);
+      if (!emailValidation.isValid) {
+        return NextResponse.json(
+          { error: emailValidation.error || "Invalid faculty email address." },
+          { status: 400 }
+        );
+      }
+
+      const existingEmail = await prisma.user.findUnique({
+        where: { email: trimmedEmail },
+      });
+      if (existingEmail) {
+        return NextResponse.json(
+          { error: "An account with this email already exists. Please log in instead." },
+          { status: 409 }
+        );
+      }
+
+      const rawGeneratedPassword = password || generateSecureStudentPassword();
+      const passwordHash = await hashPassword(rawGeneratedPassword);
+
+      const user = await prisma.user.create({
+        data: {
+          name: name.trim(),
+          email: trimmedEmail,
+          passwordHash,
+          role: "TEACHER",
+          teacherProfile: {
+            create: {
+              department: department?.trim() || "Computer Science & Engineering",
+              designation: designation?.trim() || "Assistant Professor",
+              areasOfExpertise: JSON.stringify(["Project Mentorship", "Software Engineering", "AI/ML Systems"]),
+              maxProjects: 4,
+            },
+          },
+        },
+        include: {
+          teacherProfile: true,
+        },
+      });
+
+      await prisma.notification.create({
+        data: {
+          userId: user.id,
+          type: "SYSTEM",
+          title: "Welcome to Project Hub!",
+          message: `Your Faculty Mentor account is ready. Review assigned student teams and manage project evaluations.`,
+          link: "/mentor",
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Faculty Mentor account created successfully! You can now sign in.",
+        email: user.email,
+        role: "TEACHER",
+        generatedPassword: rawGeneratedPassword,
+      });
+    }
+
+    // 2. Student Registration Flow
     if (!name || !rollNumber || !semester || !collegeEmail) {
       return NextResponse.json(
         { error: "Please provide all required fields: Name, Roll Number/USN, Semester, and College Email." },
@@ -17,7 +89,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const trimmedEmail = collegeEmail.trim().toLowerCase();
     const trimmedRoll = rollNumber.trim().toUpperCase();
     const parsedSemester = parseInt(semester, 10);
 
@@ -28,7 +99,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Validate college email
+    // Validate college email
     const emailValidation = validateCollegeEmail(trimmedEmail);
     if (!emailValidation.isValid) {
       return NextResponse.json(
@@ -37,7 +108,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Check for duplicates
+    // Check for duplicates
     const existingEmail = await prisma.user.findUnique({
       where: { email: trimmedEmail },
     });

@@ -48,7 +48,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (userData: SafeUser) => {
     setUser(userData);
     setIsAuthModalOpen(false);
-    router.push("/student");
+    if (userData.role === "TEACHER" || userData.role === "HOD") {
+      router.push("/mentor");
+    } else {
+      router.push("/student");
+    }
   };
 
   const logout = async () => {
