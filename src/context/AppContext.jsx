@@ -27,9 +27,10 @@ export const initialData = {
     fullName: 'Dr. Sarah Jenkins',
     employeeId: 'EMP-8042',
     email: 's.jenkins@university.edu',
-    department: 'Department of Computer Science',
-    designation: 'Associate Professor',
-    areaOfExpertise: 'Artificial Intelligence, Machine Learning, Computer Vision'
+    phone: '+91 98450 12345',
+    department: 'Department of Computer Science & Engineering',
+    designation: 'Professor & Head of AI Supervision Lab',
+    areaOfExpertise: 'Artificial Intelligence, Deep Learning, Computer Vision, Cloud Systems'
   },
 
   reviewerProfile: {
@@ -49,11 +50,109 @@ export const initialData = {
   },
 
   // Teams list
-  teams: [],
+  teams: [
+    {
+      id: 'TEAM-01',
+      teamNumber: '01',
+      name: 'CodeCrafters Alpha',
+      projectTitle: 'MedScan AI: Automated Radiology Triage & Diagnostic System',
+      problemStatement: 'Radiologists in district hospitals face severe diagnostic fatigue with over 300+ X-rays per shift, leading to dangerous triage delays for critical pulmonary conditions.',
+      objectives: '1. Develop deep learning model for chest X-ray anomaly detection.\n2. Achieve under 2 sec inference time with >93% accuracy.\n3. Build HIPAA-compliant Web UI for emergency room doctors.',
+      shortDescription: 'Deep-learning based chest radiograph analysis platform that highlights pneumothorax and acute consolidation anomalies in under 2 seconds with 94.2% sensitivity.',
+      domain: 'AI / Healthcare',
+      domainReason: 'Priya and Alex have published paper on Convolutional Neural Networks for medical imaging.',
+      technologies: ['Python', 'PyTorch', 'FastAPI', 'React', 'Docker', 'DICOM', 'TailwindCSS'],
+      expectedOutcome: 'Clinical web application with real-time X-ray heatmap highlighting, priority queue triage, and automated PDF report generation.',
+      startDate: '2026-08-01',
+      expectedCompletionDate: '2026-11-30',
+      status: 'In Development',
+      currentStage: 'Development',
+      progress: 65,
+      lastReviewDate: '2026-09-30',
+      nextReviewDate: '2026-10-07',
+      leaderEmail: 'alex.vance@university.edu',
+      mentorId: 'MENTOR-01',
+      mentorName: 'Dr. Sarah Jenkins',
+      mentorStatus: 'Accepted',
+      currentSemester: '6th Semester',
+      members: [
+        { name: 'Alex Vance', email: 'alex.vance@university.edu', regNo: '21BCA042', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'David Miller', email: 'david.m@university.edu', regNo: '21BCA018', role: 'Backend Developer', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Elena Rostova', email: 'elena.r@university.edu', regNo: '21BCA035', role: 'AI / ML Engineer', status: 'Accepted', attendanceRate: '75%' },
+        { name: 'Siddharth Rao', email: 'sid.r@university.edu', regNo: '21BCA089', role: 'UI / UX Designer', status: 'Accepted', attendanceRate: '100%' }
+      ],
+      tasks: [
+        { id: 'TASK-101', description: 'Complete emergency doctor triage dashboard UI', assignedStudent: 'Alex Vance', dateAssigned: '2026-09-30', deadline: '2026-10-07', status: 'In Progress', mentorRemarks: 'Focus on responsive layouts for tablet devices.' },
+        { id: 'TASK-102', description: 'Fix API response error handling & PyTorch exception catching', assignedStudent: 'David Miller', dateAssigned: '2026-09-30', deadline: '2026-10-05', status: 'In Progress', mentorRemarks: 'Return standard HTTP 422 error payloads.' },
+        { id: 'TASK-103', description: 'Add input validation for DICOM image file uploads', assignedStudent: 'Elena Rostova', dateAssigned: '2026-09-30', deadline: '2026-10-06', status: 'Pending', mentorRemarks: 'Verify image magic bytes before model inference.' },
+        { id: 'TASK-104', description: 'Update GitHub repository README & Docker setup docs', assignedStudent: 'Siddharth Rao', dateAssigned: '2026-09-30', deadline: '2026-10-07', status: 'Completed', mentorRemarks: 'Great job on clean container startup instructions.' }
+      ],
+      documents: [
+        { id: 'DOC-01', title: 'Project Proposal & Feasibility Report', type: 'Proposal', date: '2026-08-10', size: '1.4 MB', url: '#', reviewId: 'Review 01' },
+        { id: 'DOC-02', title: 'Synopsis & System Architecture SRS', type: 'SRS', date: '2026-08-25', size: '2.8 MB', url: '#', reviewId: 'Review 02' },
+        { id: 'DOC-03', title: 'Mid-Term Progress Report & Model Accuracy Benchmarks', type: 'Progress Report', date: '2026-09-15', size: '4.1 MB', url: '#', reviewId: 'Review 03' }
+      ],
+      invitations: [],
+      researchPapers: [
+        { id: 1, title: 'Deep Learning for Chest Radiograph Diagnosis', authors: 'Rajpurkar et al.', journal: 'PLOS Medicine', year: '2021', link: 'https://arxiv.org' }
+      ],
+      marks: {
+        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 },
+        endSem: { presentation: 18, finalReport: 22, total: 40 },
+        totalMarks: 65,
+        status: 'Approved'
+      }
+    },
+    {
+      id: 'TEAM-02',
+      teamNumber: '02',
+      name: 'CyberShield Systems',
+      projectTitle: 'Zero-Trust Network Access & Real-Time Anomaly Inspection',
+      problemStatement: 'Legacy VPN solutions lack continuous micro-segmentation and device trust verification, making internal campus networks vulnerable to lateral threat movements.',
+      objectives: '1. Implement eBPF kernel probes for real-time packet inspection.\n2. Construct automated device posture verification module.\n3. Provide central dashboard for SOC analysts.',
+      shortDescription: 'Enterprise Zero-Trust network access gateway with eBPF micro-segmentation, posture verification, and automated SOC incident response rules.',
+      domain: 'Cybersecurity & Networks',
+      domainReason: 'Specialized focus in cryptography and kernel programming.',
+      technologies: ['Go', 'eBPF', 'Rust', 'Docker', 'React', 'TailwindCSS', 'Redis'],
+      expectedOutcome: 'High-throughput security proxy capable of inspecting 10Gbps traffic with low latency overhead.',
+      startDate: '2026-08-05',
+      expectedCompletionDate: '2026-11-28',
+      status: 'In Development',
+      currentStage: 'Design',
+      progress: 45,
+      lastReviewDate: '2026-09-22',
+      nextReviewDate: '2026-10-06',
+      leaderEmail: 'kiran.kumar@university.edu',
+      mentorId: 'MENTOR-01',
+      mentorName: 'Dr. Sarah Jenkins',
+      mentorStatus: 'Accepted',
+      currentSemester: '6th Semester',
+      members: [
+        { name: 'Kiran Kumar', email: 'kiran.kumar@university.edu', regNo: '21BCA055', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Rohan Sharma', email: 'rohan.s@university.edu', regNo: '21BCA068', role: 'Security Analyst', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Priya Sharma', email: 'priya.s@university.edu', regNo: '21BCA072', role: 'Frontend Engineer', status: 'Accepted', attendanceRate: '100%' }
+      ],
+      tasks: [
+        { id: 'TASK-201', description: 'Benchmarking eBPF kernel probe overhead under 1Gbps load', assignedStudent: 'Kiran Kumar', dateAssigned: '2026-09-22', deadline: '2026-10-04', status: 'In Progress', mentorRemarks: 'Measure CPU cycles per packet.' },
+        { id: 'TASK-202', description: 'Design wireframes for central SOC incident alert stream', assignedStudent: 'Priya Sharma', dateAssigned: '2026-09-22', deadline: '2026-10-06', status: 'Pending', mentorRemarks: 'Ensure dark mode compatibility.' }
+      ],
+      documents: [
+        { id: 'DOC-04', title: 'Zero-Trust Architecture System Blueprint', type: 'SRS', date: '2026-08-28', size: '3.1 MB', url: '#', reviewId: 'Review 01' }
+      ],
+      invitations: [],
+      researchPapers: [],
+      marks: {
+        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 4, total: 24 },
+        endSem: { presentation: 15, finalReport: 20, total: 35 },
+        totalMarks: 59,
+        status: 'Draft'
+      }
+    }
+  ],
 
   // Mentors list
   mentors: [
-    { id: 'MENTOR-01', name: 'Dr. Sarah Jenkins', email: 's.jenkins@university.edu', department: 'Computer Science', designation: 'Associate Professor', maxTeams: 8, assignedTeamsCount: 5, expertise: ['Artificial Intelligence', 'Machine Learning', 'Computer Vision'] },
+    { id: 'MENTOR-01', name: 'Dr. Sarah Jenkins', email: 's.jenkins@university.edu', department: 'Computer Science', designation: 'Professor & Head of AI Lab', maxTeams: 8, assignedTeamsCount: 2, expertise: ['Artificial Intelligence', 'Machine Learning', 'Computer Vision', 'Cloud Systems'] },
     { id: 'MENTOR-02', name: 'Prof. Alan Turing', email: 'a.turing@university.edu', department: 'Cybersecurity', designation: 'Professor', maxTeams: 8, assignedTeamsCount: 4, expertise: ['Cybersecurity', 'IoT Security', 'Cryptography'] },
     { id: 'MENTOR-03', name: 'Dr. Grace Hopper', email: 'g.hopper@university.edu', department: 'Cloud Systems', designation: 'Professor', maxTeams: 8, assignedTeamsCount: 7, expertise: ['Cloud Computing', 'DevOps', 'Distributed Systems'] },
     { id: 'MENTOR-04', name: 'Dr. Raj Patel', email: 'r.patel@university.edu', department: 'Data Science', designation: 'Assistant Professor', maxTeams: 8, assignedTeamsCount: 6, expertise: ['Data Science', 'Big Data Analytics', 'NLP'] }
@@ -66,7 +165,124 @@ export const initialData = {
   ],
 
   // Private Project Diary entries
-  projectDiary: [],
+  projectDiary: [
+    {
+      id: 'DIARY-04',
+      teamId: 'TEAM-01',
+      teamName: 'CodeCrafters Alpha',
+      reviewNumber: 'Review 04',
+      date: '2026-09-30',
+      studentsPresent: ['Alex Vance', 'David Miller', 'Elena Rostova', 'Siddharth Rao'],
+      attendanceMap: {
+        'Alex Vance': 'Present',
+        'David Miller': 'Present',
+        'Elena Rostova': 'Present',
+        'Siddharth Rao': 'Present'
+      },
+      workCompleted: 'Students completed the login system and connected the project PostgreSQL database.',
+      workDemonstrated: 'Students demonstrated registration, JWT login, and role-based authentication.',
+      progressPercent: 65,
+      stage: 'Development',
+      problemsFaced: 'Students are facing issues with API response handling and exception catching during model inference.',
+      mentorObservations: 'The authentication module is working properly, but API error handling needs immediate improvement.',
+      mentorFeedback: 'Complete the main doctor triage dashboard and improve API error handling before the next review.',
+      improvementsSuggested: 'Implement standardized JSON error responses and retry logic for DICOM file processing.',
+      tasksGivenList: [
+        { task: 'Complete dashboard', student: 'Alex Vance', deadline: '2026-10-07' },
+        { task: 'Fix API issues', student: 'David Miller', deadline: '2026-10-05' },
+        { task: 'Add validation', student: 'Elena Rostova', deadline: '2026-10-06' },
+        { task: 'Update GitHub repository', student: 'Siddharth Rao', deadline: '2026-10-07' }
+      ],
+      nextReviewDate: '2026-10-07',
+      remarks: 'Team is showing steady progress and maintaining clean code structure.',
+      mentorName: 'Dr. Sarah Jenkins'
+    },
+    {
+      id: 'DIARY-03',
+      teamId: 'TEAM-01',
+      teamName: 'CodeCrafters Alpha',
+      reviewNumber: 'Review 03',
+      date: '2026-09-15',
+      studentsPresent: ['Alex Vance', 'David Miller', 'Siddharth Rao'],
+      attendanceMap: {
+        'Alex Vance': 'Present',
+        'David Miller': 'Present',
+        'Elena Rostova': 'Absent',
+        'Siddharth Rao': 'Present'
+      },
+      workCompleted: 'PyTorch deep learning model trained on CheXNet dataset with 94.2% sensitivity.',
+      workDemonstrated: 'Demonstrated model inference on 20 sample test X-ray DICOM images.',
+      progressPercent: 45,
+      stage: 'Development',
+      problemsFaced: 'Training time was high due to GPU memory constraints.',
+      mentorObservations: 'Model accuracy is satisfactory. Focus now shifts to full-stack integration.',
+      mentorFeedback: 'Prepare API endpoints for backend integration.',
+      improvementsSuggested: 'Quantize PyTorch model weights to reduce RAM memory footprint.',
+      tasksGivenList: [
+        { task: 'Setup FastAPI REST endpoints', student: 'David Miller', deadline: '2026-09-22' },
+        { task: 'Create database schema', student: 'Alex Vance', deadline: '2026-09-22' }
+      ],
+      nextReviewDate: '2026-09-30',
+      remarks: 'Elena Rostova was absent with prior leave permission.',
+      mentorName: 'Dr. Sarah Jenkins'
+    },
+    {
+      id: 'DIARY-02',
+      teamId: 'TEAM-01',
+      teamName: 'CodeCrafters Alpha',
+      reviewNumber: 'Review 02',
+      date: '2026-08-25',
+      studentsPresent: ['Alex Vance', 'David Miller', 'Elena Rostova', 'Siddharth Rao'],
+      attendanceMap: {
+        'Alex Vance': 'Present',
+        'David Miller': 'Present',
+        'Elena Rostova': 'Present',
+        'Siddharth Rao': 'Present'
+      },
+      workCompleted: 'Completed literature survey of 8 research papers and finalized SRS document.',
+      workDemonstrated: 'Presented system architecture diagram and database ER diagram.',
+      progressPercent: 25,
+      stage: 'Research & SRS',
+      problemsFaced: 'Selecting appropriate cloud storage for heavy DICOM files.',
+      mentorObservations: 'Comprehensive literature survey. Architecture diagram is well structured.',
+      mentorFeedback: 'Approved SRS and system architecture. Proceed to dataset preparation.',
+      improvementsSuggested: 'Consider using MinIO local object storage for DICOM files.',
+      tasksGivenList: [
+        { task: 'Download CheXNet dataset', student: 'Elena Rostova', deadline: '2026-09-01' }
+      ],
+      nextReviewDate: '2026-09-15',
+      remarks: 'SRS approved officially.',
+      mentorName: 'Dr. Sarah Jenkins'
+    },
+    {
+      id: 'DIARY-01',
+      teamId: 'TEAM-01',
+      teamName: 'CodeCrafters Alpha',
+      reviewNumber: 'Review 01',
+      date: '2026-08-10',
+      studentsPresent: ['Alex Vance', 'David Miller', 'Elena Rostova', 'Siddharth Rao'],
+      attendanceMap: {
+        'Alex Vance': 'Present',
+        'David Miller': 'Present',
+        'Elena Rostova': 'Present',
+        'Siddharth Rao': 'Present'
+      },
+      workCompleted: 'Team formation and project domain finalization.',
+      workDemonstrated: 'Project proposal presentation deck.',
+      progressPercent: 10,
+      stage: 'Project Selection',
+      problemsFaced: 'Narrowing down domain scope to pulmonary radiology.',
+      mentorObservations: 'Good initiative and high domain enthusiasm.',
+      mentorFeedback: 'Proposal accepted. Begin literature review immediately.',
+      improvementsSuggested: 'Refine problem statement to highlight triage speed metrics.',
+      tasksGivenList: [
+        { task: 'Submit literature review draft', student: 'Alex Vance', deadline: '2026-08-20' }
+      ],
+      nextReviewDate: '2026-08-25',
+      remarks: 'Project topic officially approved by mentor.',
+      mentorName: 'Dr. Sarah Jenkins'
+    }
+  ],
 
   // Review Evaluation Rubric Parameters
   rubricParameters: [
@@ -332,6 +548,119 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const updateProjectProgress = (teamId, currentStage, progress) => {
+    setData(prev => ({
+      ...prev,
+      teams: prev.teams.map(t => t.id === teamId ? { ...t, currentStage, progress: Number(progress) } : t),
+      notifications: [
+        { id: `N-${Date.now()}`, text: `📈 Progress updated for Team ${teamId}: ${currentStage} (${progress}%)`, time: 'Just now', read: false, role: 'mentor' },
+        ...prev.notifications
+      ]
+    }));
+  };
+
+  const addComprehensiveReviewDiaryEntry = (entryData) => {
+    const reviewId = `DIARY-${Date.now()}`;
+    const newEntry = {
+      id: reviewId,
+      mentorName: data.mentorProfile.fullName,
+      ...entryData
+    };
+
+    setData(prev => {
+      // Find team
+      const targetTeam = prev.teams.find(t => t.id === entryData.teamId);
+      if (!targetTeam) return prev;
+
+      // Extract tasks if any
+      const newTasks = (entryData.tasksGivenList || []).map((t, idx) => ({
+        id: `TASK-${Date.now()}-${idx}`,
+        description: t.task,
+        assignedStudent: t.student || 'All Members',
+        dateAssigned: entryData.date,
+        deadline: t.deadline || entryData.nextReviewDate,
+        status: 'Pending',
+        mentorRemarks: `Assigned during ${entryData.reviewNumber}`
+      }));
+
+      const updatedTeams = prev.teams.map(t => {
+        if (t.id === entryData.teamId) {
+          return {
+            ...t,
+            progress: Number(entryData.progressPercent) || t.progress,
+            currentStage: entryData.stage || t.currentStage,
+            lastReviewDate: entryData.date,
+            nextReviewDate: entryData.nextReviewDate || t.nextReviewDate,
+            tasks: [...(t.tasks || []), ...newTasks]
+          };
+        }
+        return t;
+      });
+
+      return {
+        ...prev,
+        projectDiary: [newEntry, ...prev.projectDiary],
+        teams: updatedTeams,
+        notifications: [
+          { id: `N-${Date.now()}`, text: `📖 ${entryData.reviewNumber} recorded for ${targetTeam.name}!`, time: 'Just now', read: false, role: 'mentor' },
+          ...prev.notifications
+        ]
+      };
+    });
+  };
+
+  const addMentorTaskToTeam = (teamId, taskObj) => {
+    const newTask = {
+      id: `TASK-${Date.now()}`,
+      status: 'Pending',
+      dateAssigned: new Date().toISOString().split('T')[0],
+      ...taskObj
+    };
+    setData(prev => ({
+      ...prev,
+      teams: prev.teams.map(t => t.id === teamId ? { ...t, tasks: [...(t.tasks || []), newTask] } : t),
+      notifications: [
+        { id: `N-${Date.now()}`, text: `📌 New task assigned to ${taskObj.assignedStudent}: "${taskObj.description}"`, time: 'Just now', read: false, role: 'mentor' },
+        ...prev.notifications
+      ]
+    }));
+  };
+
+  const updateMentorTaskStatus = (teamId, taskId, status, mentorRemarks) => {
+    setData(prev => ({
+      ...prev,
+      teams: prev.teams.map(t => {
+        if (t.id === teamId) {
+          return {
+            ...t,
+            tasks: (t.tasks || []).map(tk => tk.id === taskId ? { ...tk, status, mentorRemarks: mentorRemarks !== undefined ? mentorRemarks : tk.mentorRemarks } : tk)
+          };
+        }
+        return t;
+      })
+    }));
+  };
+
+  const uploadTeamProjectDocument = (teamId, docObj) => {
+    const newDoc = {
+      id: `DOC-${Date.now()}`,
+      date: new Date().toISOString().split('T')[0],
+      url: '#',
+      ...docObj
+    };
+    setData(prev => ({
+      ...prev,
+      teams: prev.teams.map(t => t.id === teamId ? { ...t, documents: [...(t.documents || []), newDoc] } : t)
+    }));
+  };
+
+  const updateMentorProfile = (updatedFields) => {
+    setData(prev => ({
+      ...prev,
+      mentorProfile: { ...prev.mentorProfile, ...updatedFields }
+    }));
+  };
+
   // Reviewer Actions
   const submitReviewerMarks = (teamId, reviewName, scores, comments) => {
     const totalScore = Object.values(scores).reduce((a, b) => Number(a) + Number(b), 0);
@@ -452,6 +781,12 @@ export const AppProvider = ({ children }) => {
       addResearchPaper,
       respondToMentorRequest,
       addProjectDiaryEntry,
+      updateProjectProgress,
+      addComprehensiveReviewDiaryEntry,
+      addMentorTaskToTeam,
+      updateMentorTaskStatus,
+      uploadTeamProjectDocument,
+      updateMentorProfile,
       submitReviewerMarks,
       toggleRegisterLock,
       approveTeamStatus,

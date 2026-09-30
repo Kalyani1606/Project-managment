@@ -950,6 +950,78 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </div>
                 )}
 
+                {/* READ-ONLY OFFICIAL PROJECT DIARY VIEW FOR STUDENTS */}
+                {(activeSection === 'all' || activeSection === 'mentor') && userTeam && (
+                <div className="p-6 rounded-[24px] bg-white border border-[#EADBD0] shadow-md space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EADBD0] pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-[#0B2E26] text-white rounded-xl flex items-center justify-center font-bold text-sm">
+                        📖
+                      </div>
+                      <div>
+                        <h3 className="text-base font-extrabold text-[#111827] flex items-center gap-2">
+                          Official Project Diary & Mentor Guidance History
+                          <span className="text-[10px] bg-amber-100 text-amber-800 font-mono font-bold px-2 py-0.5 rounded-full border border-amber-200">
+                            🔒 Read-Only Official Log
+                          </span>
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                          Mentor: <strong className="text-[#0B2E26]">{userTeam.mentorName || 'Dr. Sarah Jenkins'}</strong> • Total Reviews: {data.projectDiary.filter(d => d.teamId === userTeam.id).length}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {data.projectDiary.filter(d => d.teamId === userTeam.id).length === 0 ? (
+                      <div className="text-center py-8 text-slate-400 text-xs font-medium">
+                        No official project review entries logged by mentor yet.
+                      </div>
+                    ) : (
+                      data.projectDiary
+                        .filter(d => d.teamId === userTeam.id)
+                        .map((entry, eIdx) => (
+                          <div key={entry.id || eIdx} className="p-5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EADBD0] pb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-black bg-[#FF5F38] text-white px-2.5 py-0.5 rounded-lg">
+                                  {entry.reviewNumber || `Review 0${eIdx + 1}`}
+                                </span>
+                                <span className="text-xs font-mono font-bold text-slate-700">Date: {entry.date}</span>
+                              </div>
+                              <span className="text-xs font-mono text-slate-500">Stage: <strong>{entry.stage || 'Development'}</strong></span>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                              <div>
+                                <strong className="text-[#0B2E26] block mb-0.5">Work Demonstrated:</strong>
+                                <p className="text-slate-700 font-medium">{entry.workDemonstrated || entry.workCompleted}</p>
+                              </div>
+                              <div className="bg-[#0B2E26] text-white p-3 rounded-xl">
+                                <strong className="text-[#FF5F38] block mb-0.5">Mentor Feedback:</strong>
+                                <p className="text-slate-200 font-medium text-[11px]">{entry.mentorFeedback}</p>
+                              </div>
+                            </div>
+
+                            {entry.tasksGivenList && entry.tasksGivenList.length > 0 && (
+                              <div className="pt-2 border-t border-[#EADBD0]">
+                                <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Assigned Tasks:</span>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {entry.tasksGivenList.map((t, tIdx) => (
+                                    <span key={tIdx} className="text-[11px] bg-white border border-[#EADBD0] px-2.5 py-1 rounded-xl text-slate-800 font-medium">
+                                      📌 {t.task} <span className="text-[#FF5F38] font-bold">({t.student})</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))
+                    )}
+                  </div>
+                </div>
+                )}
+
                 {/* SEMESTER COMPLETE BUTTON */}
                 {activeSection === 'all' && progressPercentage === 100 && (
                   <div className="p-6 mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
