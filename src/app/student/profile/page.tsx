@@ -18,6 +18,12 @@ import {
   X,
   ExternalLink,
   Info,
+  FileText,
+  Check,
+  FileUp,
+  File,
+  Calendar,
+  ChevronDown
 } from "lucide-react";
 
 export default function StudentProfilePage() {
@@ -34,6 +40,29 @@ export default function StudentProfilePage() {
   const [newSkillInput, setNewSkillInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  const mockSemester6Papers = [
+    { id: "p1", title: "Blockchain based E-Voting System" },
+    { id: "p2", title: "IoT Smart Home Automation Security" },
+    { id: "p3", title: "Machine Learning for Crop Prediction" },
+    { id: "p4", title: "Automated Traffic Management using Computer Vision" },
+    { id: "p5", title: "Decentralized File Storage Network" }
+  ];
+
+  const [selectedPaper, setSelectedPaper] = useState("");
+  const [review1Date, setReview1Date] = useState("");
+  const [review1Faculty, setReview1Faculty] = useState("");
+  const [review2Date, setReview2Date] = useState("");
+  const [review2Faculty, setReview2Faculty] = useState("");
+  const [projectTitle, setProjectTitle] = useState("");
+  const [projectGuide, setProjectGuide] = useState("");
+  const [projectStatus, setProjectStatus] = useState("Not Started");
+  const [projectDescription, setProjectDescription] = useState("");
+  const [uploads, setUploads] = useState<Record<string, string>>({});
+
+  const handleFileUpload = (docType: string) => {
+    setUploads(prev => ({ ...prev, [docType]: `${docType.toLowerCase().replace(/ /g, '_')}.pdf` }));
+  };
 
   // Sync form state when user changes
   useEffect(() => {
@@ -416,6 +445,239 @@ export default function StudentProfilePage() {
               onChange={(e) => setBio(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-[#5044e4] focus:ring-1 focus:ring-[#5044e4] transition resize-none shadow-sm"
             />
+          </div>
+        </div>
+
+        {/* Section 4: Semester 7 - Research Project & Reviews */}
+        <div className="p-6 bg-white border border-slate-200 rounded-3xl space-y-8 shadow-sm">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
+             <div className="flex items-center gap-2">
+               <FileText className="w-4 h-4 text-[#5044e4]" />
+               <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                 4. SEMESTER 7 — RESEARCH PROJECT & REVIEWS
+               </h2>
+             </div>
+             <p className="text-xs text-slate-500 font-medium">Continue your research work by selecting one research paper from Semester 6.</p>
+          </div>
+
+          {/* Section 1: Research Paper Selection */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-slate-800">Research Paper Selection</h3>
+            <p className="text-xs text-slate-500 -mt-2 mb-4">Select one research paper from your Semester 6 submissions.</p>
+            
+            <div className="relative max-w-lg">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Select Research Paper from Semester 6 *</label>
+              <div className="relative">
+                 <File className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                 <select 
+                   value={selectedPaper}
+                   onChange={(e) => setSelectedPaper(e.target.value)}
+                   className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-[#5044e4] focus:ring-1 focus:ring-[#5044e4] shadow-sm appearance-none"
+                 >
+                   <option value="">Select one research paper</option>
+                   {mockSemester6Papers.map(p => (
+                     <option key={p.id} value={p.id}>{p.title}</option>
+                   ))}
+                 </select>
+                 <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+
+            {selectedPaper && (
+              <div className="mt-4 p-4 border border-[#5044e4]/30 bg-[#5044e4]/5 rounded-2xl flex items-start gap-4">
+                <div className="p-2 bg-[#5044e4] text-white rounded-lg shrink-0"><CheckCircle2 className="w-5 h-5"/></div>
+                <div>
+                  <div className="text-[10px] font-bold text-[#5044e4] uppercase tracking-wide mb-1">✓ Selected for Semester 7</div>
+                  <h4 className="text-sm font-bold text-slate-900">{mockSemester6Papers.find(p=>p.id===selectedPaper)?.title}</h4>
+                  <p className="text-xs text-slate-500 mt-0.5">Source: Semester 6 Research Paper</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Section 2: Review Structure */}
+          <div className="pt-6 border-t border-slate-100">
+             <h3 className="text-sm font-bold text-slate-800 mb-4">Semester 7 Review Structure</h3>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div className="p-4 border border-slate-200 rounded-2xl bg-white shadow-sm">
+                 <div className="flex justify-between items-start mb-3 border-b border-slate-100 pb-3">
+                   <div>
+                     <div className="font-bold text-slate-900 text-sm">Review - 1</div>
+                     <div className="text-xs text-slate-500 font-medium">CA</div>
+                   </div>
+                   <div className="text-sm font-black text-[#5044e4]">50 Marks</div>
+                 </div>
+                 <div className="space-y-2 text-xs text-slate-600 font-medium pb-3 border-b border-slate-100">
+                   <div className="flex justify-between"><span>Project Planning & Proposal</span><span>20 Marks</span></div>
+                   <div className="flex justify-between"><span>Literature Survey</span><span>10 Marks</span></div>
+                   <div className="flex justify-between"><span>Presentation & Report</span><span>20 Marks</span></div>
+                 </div>
+                 <div className="flex justify-between font-bold text-slate-800 text-sm mt-3">
+                   <span>Total</span><span>50 Marks</span>
+                 </div>
+               </div>
+
+               <div className="p-4 border border-slate-200 rounded-2xl bg-white shadow-sm">
+                 <div className="flex justify-between items-start mb-3 border-b border-slate-100 pb-3">
+                   <div>
+                     <div className="font-bold text-slate-900 text-sm">Review - 2</div>
+                     <div className="text-xs text-slate-500 font-medium">ESF</div>
+                   </div>
+                   <div className="text-sm font-black text-[#5044e4]">50 Marks</div>
+                 </div>
+                 <div className="space-y-2 text-xs text-slate-600 font-medium pb-3 border-b border-slate-100">
+                   <div className="flex justify-between"><span>Literature Survey Paper</span><span>15 Marks</span></div>
+                   <div className="flex justify-between"><span>Review 2 Report</span><span>15 Marks</span></div>
+                   <div className="flex justify-between"><span>Progress Monitoring</span><span>10 Marks</span></div>
+                   <div className="flex justify-between"><span>Presentation</span><span>10 Marks</span></div>
+                 </div>
+                 <div className="flex justify-between font-bold text-slate-800 text-sm mt-3">
+                   <span>Total</span><span>50 Marks</span>
+                 </div>
+               </div>
+             </div>
+          </div>
+
+          {/* Section 3: Review Schedule */}
+          <div className="pt-6 border-t border-slate-100">
+             <h3 className="text-sm font-bold text-slate-800 mb-4">Review Schedule</h3>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <div className="space-y-3 p-4 bg-slate-50 rounded-2xl">
+                 <div className="text-xs font-bold text-[#5044e4] uppercase tracking-wide">REVIEW 1</div>
+                 <div>
+                   <label className="block text-xs font-semibold text-slate-700 mb-1">Review Date *</label>
+                   <div className="relative">
+                     <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                     <input type="date" value={review1Date} onChange={e=>setReview1Date(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-[#5044e4] shadow-sm" />
+                   </div>
+                 </div>
+                 <div>
+                   <label className="block text-xs font-semibold text-slate-700 mb-1">Review Conducted By</label>
+                   <div className="relative">
+                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                     <select value={review1Faculty} onChange={e=>setReview1Faculty(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm appearance-none focus:outline-none focus:border-[#5044e4] shadow-sm">
+                       <option value="">Select Faculty / Review Panel</option>
+                       <option value="Prof. Sharma">Prof. Sharma</option>
+                       <option value="Dr. Patil">Dr. Patil</option>
+                     </select>
+                     <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                   </div>
+                 </div>
+               </div>
+
+               <div className="space-y-3 p-4 bg-slate-50 rounded-2xl">
+                 <div className="text-xs font-bold text-[#5044e4] uppercase tracking-wide">REVIEW 2</div>
+                 <div>
+                   <label className="block text-xs font-semibold text-slate-700 mb-1">Review Date *</label>
+                   <div className="relative">
+                     <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                     <input type="date" value={review2Date} onChange={e=>setReview2Date(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-[#5044e4] shadow-sm" />
+                   </div>
+                 </div>
+                 <div>
+                   <label className="block text-xs font-semibold text-slate-700 mb-1">Review Conducted By</label>
+                   <div className="relative">
+                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                     <select value={review2Faculty} onChange={e=>setReview2Faculty(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm appearance-none focus:outline-none focus:border-[#5044e4] shadow-sm">
+                       <option value="">Select Faculty / Review Panel</option>
+                       <option value="Prof. Sharma">Prof. Sharma</option>
+                       <option value="Dr. Patil">Dr. Patil</option>
+                     </select>
+                     <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                   </div>
+                 </div>
+               </div>
+             </div>
+          </div>
+
+          {/* Section 4: Project Details */}
+          <div className="pt-6 border-t border-slate-100">
+            <h3 className="text-sm font-bold text-slate-800 mb-4">Project Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Project Title *</label>
+                <div className="relative">
+                   <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                   <input type="text" placeholder="Enter project title" value={projectTitle} onChange={e=>setProjectTitle(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-[#5044e4] shadow-sm" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Project Guide / Mentor</label>
+                <div className="relative">
+                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                   <select value={projectGuide} onChange={e=>setProjectGuide(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm appearance-none focus:outline-none focus:border-[#5044e4] shadow-sm">
+                     <option value="">Select Faculty / Enter Faculty Name</option>
+                     <option value="Prof. Sharma">Prof. Sharma</option>
+                     <option value="Dr. Patil">Dr. Patil</option>
+                   </select>
+                   <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Current Project Status</label>
+                <div className="relative">
+                   <CheckCircle2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                   <select value={projectStatus} onChange={e=>setProjectStatus(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm appearance-none focus:outline-none focus:border-[#5044e4] shadow-sm">
+                     <option value="Not Started">Not Started</option>
+                     <option value="Project Planning">Project Planning</option>
+                     <option value="Proposal Submitted">Proposal Submitted</option>
+                     <option value="Literature Survey">Literature Survey</option>
+                     <option value="Development / Implementation">Development / Implementation</option>
+                     <option value="Review 1 Completed">Review 1 Completed</option>
+                     <option value="Review 2 Completed">Review 2 Completed</option>
+                     <option value="Completed">Completed</option>
+                   </select>
+                   <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                </div>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Short Project Description</label>
+                <textarea rows={2} placeholder="Describe your project in 2-3 sentences..." value={projectDescription} onChange={e=>setProjectDescription(e.target.value)} className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-[#5044e4] resize-none shadow-sm" />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 5: Document Submission */}
+          <div className="pt-6 border-t border-slate-100">
+             <h3 className="text-sm font-bold text-slate-800 mb-4">Document Submission</h3>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               {["Project Proposal", "Literature Survey", "Review 1 Report", "Literature Survey Paper", "Review 2 Report", "Final Project Report"].map(doc => (
+                 <div key={doc} className="p-3 border border-slate-200 rounded-xl flex items-center justify-between bg-white shadow-sm">
+                    <div className="text-xs font-bold text-slate-700">{doc}</div>
+                    {uploads[doc] ? (
+                      <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-bold bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-md">
+                        <Check className="w-3 h-3"/> {uploads[doc]}
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => handleFileUpload(doc)} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600 hover:text-[#5044e4] hover:bg-white transition shadow-sm">
+                        <FileUp className="w-3 h-3"/> Upload PDF
+                      </button>
+                    )}
+                 </div>
+               ))}
+             </div>
+          </div>
+
+          {/* Section 6: Semester 7 Progress */}
+          <div className="pt-6 border-t border-slate-100">
+            <h3 className="text-sm font-bold text-slate-800 mb-4">Semester 7 Progress</h3>
+            <div className="flex flex-wrap gap-2 text-xs font-semibold">
+               <span className={`px-3 py-1 rounded-full border ${selectedPaper ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                 [ Research Paper Selected ] {selectedPaper ? "✓" : ""}
+               </span>
+               <span className={`px-3 py-1 rounded-full border ${projectTitle ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                 [ Project Details ] {projectTitle ? "✓" : ""}
+               </span>
+               <span className={`px-3 py-1 rounded-full border ${uploads["Review 1 Report"] ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                 [ Review 1 ] {uploads["Review 1 Report"] ? "✓" : "Pending"}
+               </span>
+               <span className={`px-3 py-1 rounded-full border ${uploads["Review 2 Report"] ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                 [ Review 2 ] {uploads["Review 2 Report"] ? "✓" : "Pending"}
+               </span>
+               <span className={`px-3 py-1 rounded-full border ${uploads["Final Project Report"] ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                 [ Final Submission ] {uploads["Final Project Report"] ? "✓" : "Pending"}
+               </span>
+            </div>
           </div>
         </div>
 
