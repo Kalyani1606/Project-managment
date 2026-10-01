@@ -4,9 +4,9 @@ const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Seeding database with engineering students, faculty guides, and sample projects...");
+  console.log("Cleaning all existing data from SQLite database...");
 
-  // Clean existing data
+  // 1. Wipe all existing data in correct dependency order
   await prisma.emailLog.deleteMany();
   await prisma.notification.deleteMany();
   await prisma.guideRequest.deleteMany();
@@ -18,10 +18,39 @@ async function main() {
   await prisma.studentProfile.deleteMany();
   await prisma.user.deleteMany();
 
-  const defaultPasswordHash = await bcrypt.hash("Acad#Demo2026!", 10);
+  console.log("Database wiped clean.");
+  console.log("Seeding fresh Faculty Mentors, Engineering Students, Teams, Projects, and Guide Allocations...");
 
-  // 1. Create Faculty Guides
-  const guidesData = [
+  // Universal Password for all demo accounts
+  const passwordHash = await bcrypt.hash("Password123", 10);
+
+  // 2. Create Faculty Mentors (Teachers) & Coordinator
+  const coordinatorUser = await prisma.user.create({
+    data: {
+      name: "Dr. Marcus Sterling",
+      email: "coordinator@college.edu",
+      passwordHash,
+      role: "COORDINATOR",
+      teacherProfile: {
+        create: {
+          department: "Computer Science & Engineering",
+          designation: "Head of Department & Project Coordinator",
+          areasOfExpertise: JSON.stringify(["Academic Administration", "Project Monitoring", "Quality Assurance"]),
+          maxProjects: 10,
+        },
+      },
+    },
+  });
+
+  const teachersData = [
+    {
+      name: "Kalyani",
+      email: "kalyanivilas990@gcu.edu.in",
+      department: "Computer Science & Engineering",
+      designation: "Assistant Professor",
+      areasOfExpertise: JSON.stringify(["Project Mentorship", "Software Engineering", "Web Technologies", "Database Systems"]),
+      maxProjects: 5,
+    },
     {
       name: "Dr. Aris Thorne",
       email: "dr.aris@engg.college.edu",
@@ -54,30 +83,22 @@ async function main() {
       areasOfExpertise: JSON.stringify(["Network Security", "Blockchain", "Cryptography", "Ethical Hacking"]),
       maxProjects: 5,
     },
-    {
-      name: "Dr. Vikramaditya Rao",
-      email: "dr.vikram@engg.college.edu",
-      department: "Data Science & AI",
-      designation: "Associate Professor",
-      areasOfExpertise: JSON.stringify(["Big Data Analytics", "Natural Language Processing (NLP)", "Reinforcement Learning"]),
-      maxProjects: 3,
-    },
   ];
 
-  const createdTeachers = [];
-  for (const g of guidesData) {
+  const createdTeachersMap = {};
+  for (const t of teachersData) {
     const user = await prisma.user.create({
       data: {
-        name: g.name,
-        email: g.email,
-        passwordHash: defaultPasswordHash,
+        name: t.name,
+        email: t.email,
+        passwordHash,
         role: "TEACHER",
         teacherProfile: {
           create: {
-            department: g.department,
-            designation: g.designation,
-            areasOfExpertise: g.areasOfExpertise,
-            maxProjects: g.maxProjects,
+            department: t.department,
+            designation: t.designation,
+            areasOfExpertise: t.areasOfExpertise,
+            maxProjects: t.maxProjects,
           },
         },
       },
@@ -85,11 +106,20 @@ async function main() {
         teacherProfile: true,
       },
     });
-    createdTeachers.push(user);
+    createdTeachersMap[t.email] = user;
   }
 
-  // 2. Create Students
+  // 3. Create Students
   const studentsData = [
+    {
+      name: "Kalyani",
+      email: "24btice186@gcu.edu.in",
+      rollNumber: "24BTCE186",
+      semester: 6,
+      department: "Computer Science & Engineering",
+      bio: "Computer Science engineering student focused on full-stack web applications and AI tools.",
+      skills: JSON.stringify(["React", "Next.js", "Python", "TypeScript", "TailwindCSS"]),
+    },
     {
       name: "Aman Verma",
       email: "aman.verma@engg.college.edu",
@@ -97,10 +127,7 @@ async function main() {
       semester: 6,
       department: "Computer Science & Engineering",
       bio: "Full Stack enthusiast with keen interest in cloud architecture, Next.js, and scalable web solutions.",
-      github: "https://github.com/amanverma",
-      linkedin: "https://linkedin.com/in/amanverma",
-      skills: JSON.stringify(["React", "Next.js", "Node.js", "TypeScript", "TailwindCSS", "PostgreSQL", "Docker"]),
-      profilePicture: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+      skills: JSON.stringify(["React", "Next.js", "Node.js", "TypeScript", "PostgreSQL", "Docker"]),
     },
     {
       name: "Priya Patel",
@@ -109,10 +136,7 @@ async function main() {
       semester: 6,
       department: "Computer Science & Engineering",
       bio: "AI/ML researcher and data specialist. Passionate about computer vision and applied healthcare AI.",
-      github: "https://github.com/priyapatel",
-      linkedin: "https://linkedin.com/in/priyapatel",
-      skills: JSON.stringify(["Python", "PyTorch", "TensorFlow", "FastAPI", "OpenCV", "Scikit-Learn"]),
-      profilePicture: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop&q=80",
+      skills: JSON.stringify(["Python", "PyTorch", "TensorFlow", "FastAPI", "OpenCV"]),
     },
     {
       name: "Rahul Sharma",
@@ -121,10 +145,7 @@ async function main() {
       semester: 6,
       department: "Computer Science & Engineering",
       bio: "Backend developer specializing in distributed systems, Rust, and container orchestration.",
-      github: "https://github.com/rahulsharma",
-      linkedin: "https://linkedin.com/in/rahulsharma",
-      skills: JSON.stringify(["Go", "Rust", "Docker", "Kubernetes", "Redis", "Kafka", "Linux"]),
-      profilePicture: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80",
+      skills: JSON.stringify(["Go", "Rust", "Docker", "Kubernetes", "Redis", "Linux"]),
     },
     {
       name: "Sneha Rao",
@@ -133,10 +154,7 @@ async function main() {
       semester: 6,
       department: "Computer Science & Engineering",
       bio: "IoT hardware hacker and robotics lover. Building smart sensors and edge AI models.",
-      github: "https://github.com/sneharao",
-      linkedin: "https://linkedin.com/in/sneharao",
-      skills: JSON.stringify(["Embedded C", "C++", "MQTT", "ESP32", "Computer Vision", "TensorFlow Lite"]),
-      profilePicture: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&auto=format&fit=crop&q=80",
+      skills: JSON.stringify(["Embedded C", "C++", "MQTT", "ESP32", "TensorFlow Lite"]),
     },
     {
       name: "Kiran Kumar",
@@ -145,44 +163,17 @@ async function main() {
       semester: 6,
       department: "Information Science & Engineering",
       bio: "Cybersecurity analyst and ethical penetration tester. Focused on Zero-Trust security.",
-      github: "https://github.com/kirankumar",
-      linkedin: "https://linkedin.com/in/kirankumar",
       skills: JSON.stringify(["Wireshark", "Network Security", "Metasploit", "Python", "Cryptography"]),
-      profilePicture: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80",
-    },
-    {
-      name: "Ananya Sen",
-      email: "ananya.sen@engg.college.edu",
-      rollNumber: "1MS20CS019",
-      semester: 7,
-      department: "Computer Science & Engineering",
-      bio: "Senior undergraduate exploring generative AI, multimodal agents, and LLM reasoning frameworks.",
-      github: "https://github.com/ananyasen",
-      linkedin: "https://linkedin.com/in/ananyasen",
-      skills: JSON.stringify(["LangChain", "LLMs", "Llama3", "Transformers", "Python", "RAG Systems"]),
-      profilePicture: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80",
-    },
-    {
-      name: "Fresh Student",
-      email: "kalyani.test@engg.college.edu",
-      rollNumber: "1MS21CS999",
-      semester: 6,
-      department: "Computer Science & Engineering",
-      bio: "Engineering student ready to start their project journey.",
-      github: "",
-      linkedin: "",
-      skills: JSON.stringify(["C++", "Java"]),
-      profilePicture: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&auto=format&fit=crop&q=80",
     },
   ];
 
-  const createdStudents = [];
+  const createdStudentsMap = {};
   for (const s of studentsData) {
     const studentUser = await prisma.user.create({
       data: {
         name: s.name,
         email: s.email,
-        passwordHash: defaultPasswordHash,
+        passwordHash,
         role: "STUDENT",
         studentProfile: {
           create: {
@@ -190,10 +181,7 @@ async function main() {
             semester: s.semester,
             department: s.department,
             bio: s.bio,
-            github: s.github,
-            linkedin: s.linkedin,
             skills: s.skills,
-            profilePicture: s.profilePicture,
           },
         },
       },
@@ -201,18 +189,104 @@ async function main() {
         studentProfile: true,
       },
     });
-    createdStudents.push(studentUser);
+    createdStudentsMap[s.email] = studentUser;
   }
 
-  // 3. Create Sample Completed Semester 5 Project for Aman Verma & Priya Patel
-  const aman = createdStudents[0];
-  const priya = createdStudents[1];
-  const rahul = createdStudents[2];
-  const sneha = createdStudents[3];
-  const profSunita = createdTeachers[1];
-  const drAris = createdTeachers[0];
+  const studentKalyani = createdStudentsMap["24btice186@gcu.edu.in"];
+  const priya = createdStudentsMap["priya.patel@engg.college.edu"];
+  const aman = createdStudentsMap["aman.verma@engg.college.edu"];
+  const rahul = createdStudentsMap["rahul.sharma@engg.college.edu"];
+  const sneha = createdStudentsMap["sneha.rao@engg.college.edu"];
+  const kiran = createdStudentsMap["kiran.kumar@engg.college.edu"];
 
-  const sem5Team = await prisma.team.create({
+  const teacherKalyani = createdTeachersMap["kalyanivilas990@gcu.edu.in"];
+  const drAris = createdTeachersMap["dr.aris@engg.college.edu"];
+  const profSunita = createdTeachersMap["prof.sunita@engg.college.edu"];
+  const drRajesh = createdTeachersMap["dr.rajesh@engg.college.edu"];
+  const profDevika = createdTeachersMap["prof.devika@engg.college.edu"];
+
+  // --- TEAM 1: Guided by Mentor Kalyani ---
+  const team1 = await prisma.team.create({
+    data: {
+      teamName: "InnovateX Team",
+      semester: 6,
+      creatorId: studentKalyani.id,
+      members: {
+        create: [
+          { userId: studentKalyani.id, role: "Team Creator", status: "ACCEPTED" },
+          { userId: priya.id, role: "Team Member", status: "ACCEPTED" },
+        ],
+      },
+    },
+  });
+
+  const project1 = await prisma.project.create({
+    data: {
+      teamId: team1.id,
+      semester: 6,
+      projectTitle: "Smart Academic & Project Management Hub",
+      problemStatement: "Manual management of engineering projects leads to submission delays and lack of guide visibility.",
+      description: "An integrated web portal for automated team formation, project tracking, and mentor evaluations.",
+      domain: "Web Applications & Cloud Platforms",
+      technologies: JSON.stringify(["Next.js", "React", "TypeScript", "SQLite", "Prisma", "TailwindCSS"]),
+      status: "IN_DEVELOPMENT",
+    },
+  });
+
+  if (teacherKalyani.teacherProfile) {
+    await prisma.guideRequest.create({
+      data: {
+        projectId: project1.id,
+        teacherId: teacherKalyani.teacherProfile.id,
+        requestedById: studentKalyani.id,
+        roleType: "Lead Guide",
+        status: "ACCEPTED",
+      },
+    });
+  }
+
+  // --- TEAM 2: Guided by Dr. Aris Thorne ---
+  const team2 = await prisma.team.create({
+    data: {
+      teamName: "Neural Vision Squad",
+      semester: 6,
+      creatorId: priya.id,
+      members: {
+        create: [
+          { userId: priya.id, role: "Team Creator", status: "ACCEPTED" },
+          { userId: aman.id, role: "Team Member", status: "ACCEPTED" },
+        ],
+      },
+    },
+  });
+
+  const project2 = await prisma.project.create({
+    data: {
+      teamId: team2.id,
+      semester: 6,
+      projectTitle: "Autonomous Drone Defect Detection",
+      problemStatement: "Inspecting solar panel arrays manually on large solar farms is hazardous and time-consuming.",
+      description: "Computer vision pipeline deployed on autonomous drones for thermal anomaly identification.",
+      domain: "Computer Vision & Autonomous Systems",
+      technologies: JSON.stringify(["Python", "PyTorch", "YOLOv8", "OpenCV", "ROS"]),
+      status: "IN_DEVELOPMENT",
+    },
+  });
+
+  if (drAris.teacherProfile) {
+    await prisma.guideRequest.create({
+      data: {
+        projectId: project2.id,
+        teacherId: drAris.teacherProfile.id,
+        requestedById: priya.id,
+        roleType: "Lead Guide",
+        status: "ACCEPTED",
+      },
+    });
+  }
+
+  // --- TEAM 3: Guided by Prof. Sunita Menon ---
+  const team3 = await prisma.team.create({
     data: {
       teamName: "CodeCrafters Alpha",
       semester: 5,
@@ -220,21 +294,21 @@ async function main() {
       members: {
         create: [
           { userId: aman.id, role: "Team Creator", status: "ACCEPTED" },
-          { userId: priya.id, role: "Team Member", status: "ACCEPTED" },
+          { userId: rahul.id, role: "Team Member", status: "ACCEPTED" },
         ],
       },
     },
   });
 
-  const sem5Project = await prisma.project.create({
+  const project3 = await prisma.project.create({
     data: {
-      teamId: sem5Team.id,
+      teamId: team3.id,
       semester: 5,
       projectTitle: "MedScan AI: Automated Radiology Triage System",
-      problemStatement: "Radiologists in tier-2 district hospitals face extreme diagnostic fatigue with over 300+ X-rays per shift, leading to dangerous triage delays for critical pulmonary conditions.",
-      description: "A deep-learning based chest radiograph analysis platform that highlights pneumothorax and acute consolidation anomalies in under 2 seconds with 94.2% sensitivity.",
+      problemStatement: "Radiologists in district hospitals face diagnostic fatigue with over 300+ X-rays per shift.",
+      description: "Deep-learning based chest radiograph analysis platform that highlights anomalies in under 2 seconds.",
       domain: "AI / Healthcare",
-      technologies: JSON.stringify(["Python", "PyTorch", "FastAPI", "React", "Docker", "DICOM"]),
+      technologies: JSON.stringify(["Python", "PyTorch", "FastAPI", "React", "Docker"]),
       status: "COMPLETED",
     },
   });
@@ -242,7 +316,7 @@ async function main() {
   if (profSunita.teacherProfile) {
     await prisma.guideRequest.create({
       data: {
-        projectId: sem5Project.id,
+        projectId: project3.id,
         teacherId: profSunita.teacherProfile.id,
         requestedById: aman.id,
         roleType: "Lead Guide",
@@ -251,81 +325,92 @@ async function main() {
     });
   }
 
-  // 4. Create an incoming Team Invitation for Priya Patel from Sneha Rao (for Semester 6)
-  const snehaTeam = await prisma.team.create({
+  // --- TEAM 4: Guided by Dr. Rajesh Iyer ---
+  const team4 = await prisma.team.create({
     data: {
-      teamName: "EdgeRobotics Vanguard",
+      teamName: "EdgeRobotics Lab",
       semester: 6,
       creatorId: sneha.id,
       members: {
-        create: [{ userId: sneha.id, role: "Team Creator", status: "ACCEPTED" }],
+        create: [
+          { userId: sneha.id, role: "Team Creator", status: "ACCEPTED" },
+          { userId: kiran.id, role: "Team Member", status: "ACCEPTED" },
+        ],
       },
     },
   });
 
-  await prisma.teamInvitation.create({
+  const project4 = await prisma.project.create({
     data: {
-      teamId: snehaTeam.id,
-      senderId: sneha.id,
-      receiverId: priya.id,
+      teamId: team4.id,
       semester: 6,
-      status: "PENDING",
+      projectTitle: "Smart Agriculture Edge Sensor Network",
+      problemStatement: "Small-scale farmers lack real-time soil moisture and automated drip irrigation scheduling.",
+      description: "LoRaWAN-based wireless sensor network with predictive solar-powered node controller.",
+      domain: "Internet of Things & Edge Computing",
+      technologies: JSON.stringify(["Embedded C", "LoRaWAN", "MQTT", "Python", "Raspberry Pi"]),
+      status: "IN_DEVELOPMENT",
     },
   });
 
-  // Create corresponding notification for Priya
-  await prisma.notification.create({
+  if (drRajesh.teacherProfile) {
+    await prisma.guideRequest.create({
+      data: {
+        projectId: project4.id,
+        teacherId: drRajesh.teacherProfile.id,
+        requestedById: sneha.id,
+        roleType: "Lead Guide",
+        status: "ACCEPTED",
+      },
+    });
+  }
+
+  // --- TEAM 5: Guided by Prof. Devika Nair ---
+  const team5 = await prisma.team.create({
     data: {
-      userId: priya.id,
-      type: "TEAM_INVITE",
-      title: "Team Invitation from Sneha Rao",
-      message: 'Sneha Rao wants to add you to their project team "EdgeRobotics Vanguard" for Semester 6.',
-      link: "/student",
-      metadata: JSON.stringify({ teamId: snehaTeam.id }),
-      read: false,
+      teamName: "CyberVanguard",
+      semester: 6,
+      creatorId: kiran.id,
+      members: {
+        create: [
+          { userId: kiran.id, role: "Team Creator", status: "ACCEPTED" },
+          { userId: rahul.id, role: "Team Member", status: "ACCEPTED" },
+        ],
+      },
     },
   });
 
-  // 5. Create System Notifications for Aman
-  await prisma.notification.create({
+  const project5 = await prisma.project.create({
     data: {
-      userId: aman.id,
-      type: "SYSTEM",
-      title: "Welcome to Semester 6 Academic Projects",
-      message: "Project registration for Semester 6 is now open. Form your team and submit your problem statement.",
-      link: "/student/projects/new",
-      read: false,
+      teamId: team5.id,
+      semester: 6,
+      projectTitle: "Zero-Trust IoT Device Authentication Protocol",
+      problemStatement: "IoT edge nodes are vulnerable to spoofing and unauthorized network access.",
+      description: "A lightweight cryptographic protocol for embedded device identity verification using hardware keys.",
+      domain: "Cybersecurity & Embedded Systems",
+      technologies: JSON.stringify(["C++", "Python", "MQTT", "Cryptography", "ESP32"]),
+      status: "IN_DEVELOPMENT",
     },
   });
 
-  await prisma.notification.create({
-    data: {
-      userId: aman.id,
-      type: "GUIDE_REQUEST",
-      title: "Previous Guide Approved: MedScan AI",
-      message: "Prof. Sunita Menon accepted your lead guide request for Semester 5 MedScan AI.",
-      link: "/student/projects",
-      read: true,
-    },
-  });
+  if (profDevika.teacherProfile) {
+    await prisma.guideRequest.create({
+      data: {
+        projectId: project5.id,
+        teacherId: profDevika.teacherProfile.id,
+        requestedById: kiran.id,
+        roleType: "Lead Guide",
+        status: "ACCEPTED",
+      },
+    });
+  }
 
-  // Seed sample Email Log
-  await prisma.emailLog.create({
-    data: {
-      recipientId: aman.id,
-      toEmail: aman.email,
-      subject: "Welcome to NexusAcademic - Your Student Portal Credentials",
-      htmlBody: `<p>Welcome Aman Verma! Your account has been provisioned.</p>`,
-      textBody: `Welcome Aman Verma! Your account has been provisioned for USN 1MS21CS012.`,
-    },
-  });
-
-  console.log("Database seeded successfully with realistic students, faculty mentors, and project records!");
+  console.log("Database successfully populated with clean seed data for all 5 faculty mentors!");
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("Seeding error:", e);
     process.exit(1);
   })
   .finally(async () => {

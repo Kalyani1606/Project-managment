@@ -83,12 +83,45 @@ export default function MentorPortal() {
   // Search & Filter
   const [teamSearchQuery, setTeamSearchQuery] = useState('');
   const [stageFilter, setStageFilter] = useState('All');
+  const [semesterFilter, setSemesterFilter] = useState('ALL');
 
   // Selected Team Object
-  const assignedTeams = data.teams.filter(t => t.mentorStatus === 'Accepted' || t.mentorId === 'MENTOR-01');
-  const pendingRequests = data.teams.filter(t => t.mentorStatus === 'Pending' || t.status === 'Pending Approval');
+  const userEmail = (user?.email || '').toLowerCase();
+  const userName = (user?.name || '').toLowerCase();
+
+  const assignedTeams = data.teams.filter(t => {
+    if (!t) return false;
+    const tMentorEmail = (t.mentorEmail || '').toLowerCase();
+    const tMentorName = (t.mentorName || '').toLowerCase();
+
+    const isDirectMatch = (userEmail && tMentorEmail && userEmail === tMentorEmail) ||
+                          (userName && tMentorName && (userName.includes(tMentorName) || tMentorName.includes(userName)));
+
+    if (isDirectMatch) return true;
+
+    // Show active accepted teams in portal
+    return t.mentorStatus === 'Accepted' || t.status === 'In Development' || t.status === 'Completed';
+  });
+
+  const pendingRequests = data.teams.filter(t => {
+    if (!t) return false;
+    const tMentorEmail = (t.mentorEmail || '').toLowerCase();
+    const tMentorName = (t.mentorName || '').toLowerCase();
+    const tStatus = (t.mentorStatus || '').toLowerCase();
+
+    const isDirectMatch = (userEmail && tMentorEmail && userEmail === tMentorEmail) ||
+                          (userName && tMentorName && (userName.includes(tMentorName) || tMentorName.includes(userName)));
+
+    return isDirectMatch && (tStatus === 'pending' || t.status === 'Pending Approval');
+  });
   
-  const currentTeam = data.teams.find(t => t.id === selectedTeamId) || assignedTeams[0] || data.teams[0];
+  const currentTeam = assignedTeams.find(t => t.id === selectedTeamId) || assignedTeams[0] || data.teams[0];
+
+  React.useEffect(() => {
+    if (assignedTeams.length > 0 && (!selectedTeamId || !assignedTeams.some(t => t.id === selectedTeamId))) {
+      setSelectedTeamId(assignedTeams[0].id);
+    }
+  }, [assignedTeams, selectedTeamId]);
 
   // Diary Review Form State
   const [reviewForm, setReviewForm] = useState({
@@ -227,7 +260,14 @@ export default function MentorPortal() {
       (t.projectTitle || '').toLowerCase().includes(teamSearchQuery.toLowerCase()) ||
       t.members.some(m => m.name.toLowerCase().includes(teamSearchQuery.toLowerCase()));
     const matchesStage = stageFilter === 'All' || t.currentStage === stageFilter;
-    return matchesSearch && matchesStage;
+
+    const tSem = t.currentSemester || (t.semester ? `${t.semester}th Semester` : '6th Semester');
+    const matchesSemester =
+      semesterFilter === 'ALL' ||
+      tSem.toLowerCase().includes(semesterFilter.toLowerCase()) ||
+      (t.semester && String(t.semester) === semesterFilter.replace(/\D/g, ''));
+
+    return matchesSearch && matchesStage && matchesSemester;
   });
 
   const sidebarNavItems = [
@@ -528,31 +568,119 @@ export default function MentorPortal() {
           {activeTab === 'teams' && (
             <div className="space-y-6">
               
-              {/* Filter Bar */}
-              <div className="bg-white p-4 rounded-3xl border border-[#EADBD0] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div className="relative w-full sm:w-80">
-                  <input
-                    type="text"
-                    placeholder="Search teams by name, topic or student USN..."
-                    value={teamSearchQuery}
-                    onChange={e => setTeamSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-2xl text-xs focus:outline-none focus:border-[#FF5F38]"
-                  />
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              {/* Semester Cards Section (6th Sem, 7th Sem, 8th Sem) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  { sem: '6th Semester', semNum: '6', title: '6th Semester', subtitle: 'Junior Project Phase', icon: GraduationCap, color: 'text-amber-600', bg: 'bg-amber-500/10' },
+                  { sem: '7th Semester', semNum: '7', title: '7th Semester', subtitle: 'Senior Project Phase I', icon: BookOpen, color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
+                  { sem: '8th Semester', semNum: '8', title: '8th Semester', subtitle: 'Final Capstone & Viva', icon: Award, color: 'text-blue-600', bg: 'bg-blue-500/10' },
+                ].map(card => {
+                  const semTeams = assignedTeams.filter(t => {
+                    const s = t.currentSemester || (t.semester ? `${t.semester}th Semester` : '6th Semester');
+                    return s.toLowerCase().includes(card.semNum) || String(t.semester) === card.semNum;
+                  });
+                  const isSelected = semesterFilter === card.sem;
+                  const totalStudents = semTeams.reduce((acc, t) => acc + (t.members?.length || 0), 0);
+                  const Icon = card.icon;
+
+                  return (
+                    <button
+                      key={card.sem}
+                      onClick={() => setSemesterFilter(isSelected ? 'ALL' : card.sem)}
+                      className={`text-left p-5 rounded-3xl border transition-all cursor-pointer relative overflow-hidden bg-white shadow-xs ${
+                        isSelected
+                          ? 'border-[#FF5F38] shadow-lg ring-2 ring-[#FF5F38]/20 bg-[#FF5F38]/5'
+                          : 'border-[#EADBD0] hover:border-[#FF5F38]/50 hover:shadow-md'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-2xl ${card.bg} ${card.color} flex items-center justify-center font-bold`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-black text-[#111827] block leading-tight">
+                              {card.title}
+                            </span>
+                            <span className="text-[10px] font-semibold text-slate-500">
+                              {card.subtitle}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full ${
+                          isSelected
+                            ? 'bg-[#FF5F38] text-white'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}>
+                          {isSelected ? 'Active Filter' : `${semTeams.length} Teams`}
+                        </span>
+                      </div>
+
+                      <div className="pt-3 border-t border-[#EADBD0]/60 flex items-center justify-between text-xs">
+                        <div className="text-slate-600 font-medium">
+                          <strong>{semTeams.length}</strong> Project Teams
+                        </div>
+                        <div className="text-slate-500 text-[11px] font-mono font-bold">
+                          {totalStudents} Mentees Enrolled
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Filter Bar & Semester Quick Tabs */}
+              <div className="bg-white p-4 rounded-3xl border border-[#EADBD0] shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+                  <span className="text-xs font-extrabold text-slate-500 mr-1 flex items-center gap-1">
+                    <Layers className="w-3.5 h-3.5" /> Filter:
+                  </span>
+                  {[
+                    { label: 'All Semesters', val: 'ALL' },
+                    { label: '6th Sem', val: '6th Semester' },
+                    { label: '7th Sem', val: '7th Semester' },
+                    { label: '8th Sem', val: '8th Semester' },
+                  ].map(btn => (
+                    <button
+                      key={btn.val}
+                      onClick={() => setSemesterFilter(btn.val)}
+                      className={`px-3 py-1.5 rounded-2xl text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+                        semesterFilter === btn.val
+                          ? 'bg-[#FF5F38] text-white shadow-sm shadow-[#FF5F38]/20'
+                          : 'bg-[#FAF2EC] text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Filter className="w-4 h-4 text-slate-400" />
-                  <select
-                    value={stageFilter}
-                    onChange={e => setStageFilter(e.target.value)}
-                    className="px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-2xl text-xs text-slate-700 font-medium focus:outline-none"
-                  >
-                    <option value="All">All Stages</option>
-                    {PROJECT_STAGES.map(st => (
-                      <option key={st} value={st}>{st}</option>
-                    ))}
-                  </select>
+                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                  <div className="relative w-full md:w-64">
+                    <input
+                      type="text"
+                      placeholder="Search teams or USN..."
+                      value={teamSearchQuery}
+                      onChange={e => setTeamSearchQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-2xl text-xs focus:outline-none focus:border-[#FF5F38]"
+                    />
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <Filter className="w-4 h-4 text-slate-400" />
+                    <select
+                      value={stageFilter}
+                      onChange={e => setStageFilter(e.target.value)}
+                      className="px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-2xl text-xs text-slate-700 font-medium focus:outline-none"
+                    >
+                      <option value="All">All Stages</option>
+                      {PROJECT_STAGES.map(st => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 

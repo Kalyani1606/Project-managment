@@ -8,9 +8,79 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { name, rollNumber, semester, collegeEmail, department, designation, password, role } = body;
+    const isCoordinator = role === "COORDINATOR";
     const isMentor = role === "MENTOR" || role === "TEACHER";
 
     const trimmedEmail = (collegeEmail || "").trim().toLowerCase();
+
+    // 0. Coordinator Registration Flow
+    if (isCoordinator) {
+      if (!name || !collegeEmail) {
+        return NextResponse.json(
+          { error: "Please provide your Name and College Email." },
+          { status: 400 }
+        );
+      }
+
+      const emailValidation = validateCollegeEmail(trimmedEmail);
+      if (!emailValidation.isValid) {
+        return NextResponse.json(
+          { error: emailValidation.error || "Invalid coordinator email address." },
+          { status: 400 }
+        );
+      }
+
+      const existingEmail = await prisma.user.findUnique({
+        where: { email: trimmedEmail },
+      });
+      if (existingEmail) {
+        return NextResponse.json(
+          { error: "An account with this email already exists. Please log in instead." },
+          { status: 409 }
+        );
+      }
+
+      const rawGeneratedPassword = password || generateSecureStudentPassword();
+      const passwordHash = await hashPassword(rawGeneratedPassword);
+
+      const user = await prisma.user.create({
+        data: {
+          name: name.trim(),
+          email: trimmedEmail,
+          passwordHash,
+          role: "COORDINATOR",
+          teacherProfile: {
+            create: {
+              department: department?.trim() || "Computer Science & Engineering",
+              designation: designation?.trim() || "Head of Department & Project Coordinator",
+              areasOfExpertise: JSON.stringify(["Academic Administration", "Project Monitoring", "Quality Assurance"]),
+              maxProjects: 10,
+            },
+          },
+        },
+        include: {
+          teacherProfile: true,
+        },
+      });
+
+      await prisma.notification.create({
+        data: {
+          userId: user.id,
+          type: "SYSTEM",
+          title: "Welcome to Project Hub!",
+          message: `Your Academic Coordinator account is active. Manage students, mentors, reviews, and project progress.`,
+          link: "/coordinator",
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Coordinator account created successfully! You can now sign in.",
+        email: user.email,
+        role: "COORDINATOR",
+        generatedPassword: rawGeneratedPassword,
+      });
+    }
 
     // 1. Mentor Registration Flow
     if (isMentor) {

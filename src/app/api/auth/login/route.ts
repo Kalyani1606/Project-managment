@@ -41,15 +41,22 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Validate against selected role if provided
+    // 3. Validate against selectedRole if provided
     if (selectedRole === "STUDENT" && user.role !== "STUDENT") {
       return NextResponse.json(
-        { error: "This email is registered as a Faculty Mentor account. Please select 'Faculty Mentor' above to sign in." },
+        { error: "This email is registered as a Faculty/Coordinator account. Please select your role above to sign in." },
         { status: 400 }
       );
     }
 
     if ((selectedRole === "MENTOR" || selectedRole === "TEACHER") && user.role === "STUDENT") {
+      return NextResponse.json(
+        { error: "This email is registered as a Student account. Please select 'Student' above to sign in." },
+        { status: 400 }
+      );
+    }
+
+    if (selectedRole === "COORDINATOR" && user.role === "STUDENT") {
       return NextResponse.json(
         { error: "This email is registered as a Student account. Please select 'Student' above to sign in." },
         { status: 400 }
