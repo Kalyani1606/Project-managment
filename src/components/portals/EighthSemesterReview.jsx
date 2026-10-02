@@ -69,8 +69,8 @@ export default function EighthSemesterReview() {
           <div className="absolute -bottom-3 left-16 w-8 h-8 rounded-full bg-[#FF5F38]/40"></div>
 
           <div className="relative z-10">
-            <h2 className="text-lg font-bold text-[#111827] flex items-center gap-2 mb-1">8th Semester</h2>
-            <p className="text-xs font-bold text-[#0B2E26]/70 max-w-xl">Final Project Evaluation</p>
+            <h2 className="text-base font-bold text-[#111827] flex items-center gap-2 mb-1">8th Semester</h2>
+            <p className="text-xs font-semibold text-[#0B2E26]/70 max-w-xl">Final Project Evaluation</p>
           </div>
           
           <div className="relative z-10 bg-white/60 px-5 py-3 rounded-xl border border-white flex flex-col items-end">
@@ -123,7 +123,7 @@ export default function EighthSemesterReview() {
       {/* Project Reviews Section */}
       <div className="pt-4">
         <div className="flex items-end justify-between mb-6 px-2">
-          <h2 className="text-lg font-bold text-[#111827]">Project Evaluation</h2>
+          <h2 className="text-base font-bold text-[#111827]">Project Evaluation</h2>
           <span className="bg-[#FFF8F4] text-[#D94625] border border-[#FADCC7] px-3 py-1 rounded-full font-bold text-xs">2 Reviews</span>
         </div>
         
@@ -131,7 +131,7 @@ export default function EighthSemesterReview() {
           {evaluationData.reviews.map((review) => (
             <div key={review.id} className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 flex flex-col group">
               <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
-                <h3 className="text-lg font-bold text-[#111827]">{review.title}</h3>
+                <h3 className="text-base font-bold text-[#111827]">{review.title}</h3>
                 <CheckCircle className="w-5 h-5 text-[#FF5F38]/50 group-hover:text-[#FF5F38] transition-colors" />
               </div>
               <div className="p-6 space-y-3 flex-1">
@@ -154,7 +154,7 @@ export default function EighthSemesterReview() {
 
       {/* Project Requirements */}
       <div className="pt-4">
-        <h2 className="text-lg font-bold text-[#111827] mb-6 px-2">Final Project Requirements</h2>
+        <h2 className="text-base font-bold text-[#111827] mb-6 px-2">Final Project Requirements</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {evaluationData.requirements.map((req) => {
             const Icon = req.icon;

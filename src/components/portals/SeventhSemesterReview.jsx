@@ -53,8 +53,8 @@ export default function SeventhSemesterReview({ userTeam }) {
             <BarChart className="w-48 h-48 text-[#FF5F38]" />
           </div>
           <div className="relative z-10">
-            <h2 className="text-lg font-bold text-[#111827] flex items-center gap-2 mb-1">7th Semester – Project Review</h2>
-            <p className="text-xs font-bold text-[#0B2E26]/70 max-w-xl">Project Review & Evaluation. Secure your grades by completing both review phases successfully.</p>
+            <h2 className="text-base font-bold text-[#111827] flex items-center gap-2 mb-1">7th Semester – Project Review</h2>
+            <p className="text-xs font-semibold text-[#0B2E26]/70 max-w-xl">Project Review & Evaluation. Secure your grades by completing both review phases successfully.</p>
           </div>
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function SeventhSemesterReview({ userTeam }) {
         {/* Review 1 Card */}
         <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 group flex flex-col">
           <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
-            <h2 className="text-lg font-bold text-[#111827]">{evaluationData.review1.title}</h2>
+            <h2 className="text-base font-bold text-[#111827]">{evaluationData.review1.title}</h2>
             <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-bold text-xs rounded-full">Total: {evaluationData.review1.totalMarks}</span>
           </div>
           <div className="p-6 space-y-4 flex-1">
@@ -118,11 +118,11 @@ export default function SeventhSemesterReview({ userTeam }) {
                       <Icon className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-[#111827]">{item.title}</h4>
+                      <h4 className="text-sm font-bold text-[#111827]">{item.title}</h4>
                       {item.type && <p className="text-xs font-semibold text-slate-500">{item.type}</p>}
                     </div>
                   </div>
-                  <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-bold text-[#D94625] shrink-0 text-sm">
+                  <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-bold text-[#D94625] shrink-0 text-xs">
                     {item.marks} M
                   </div>
                 </div>
@@ -130,15 +130,15 @@ export default function SeventhSemesterReview({ userTeam }) {
             })}
           </div>
           <div className="p-5 bg-[#0B2E26] text-white flex justify-between items-center">
-            <span className="font-bold text-sm tracking-wide text-emerald-100/70 uppercase">Total Marks</span>
-            <span className="text-xl font-bold">{evaluationData.review1.totalMarks}</span>
+            <span className="font-bold text-xs tracking-wide text-emerald-100/70 uppercase">Total Marks</span>
+            <span className="text-lg font-bold">{evaluationData.review1.totalMarks}</span>
           </div>
         </div>
 
         {/* Review 2 Card */}
         <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 group flex flex-col">
           <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
-            <h2 className="text-lg font-bold text-[#111827]">{evaluationData.review2.title}</h2>
+            <h2 className="text-base font-bold text-[#111827]">{evaluationData.review2.title}</h2>
             <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-bold text-xs rounded-full">Total: {evaluationData.review2.totalMarks}</span>
           </div>
           <div className="p-6 space-y-4 flex-1">
@@ -151,11 +151,11 @@ export default function SeventhSemesterReview({ userTeam }) {
                       <Icon className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-[#111827]">{item.title}</h4>
+                      <h4 className="text-sm font-bold text-[#111827]">{item.title}</h4>
                       {item.type && <span className="inline-block mt-1 px-2 py-0.5 bg-[#FFDAC5]/50 text-[#D94625] text-[10px] uppercase font-bold rounded-md">{item.type}</span>}
                     </div>
                   </div>
-                  <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-bold text-[#D94625] shrink-0 text-sm">
+                  <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-bold text-[#D94625] shrink-0 text-xs">
                     {item.marks} M
                   </div>
                 </div>
@@ -163,8 +163,8 @@ export default function SeventhSemesterReview({ userTeam }) {
             })}
           </div>
           <div className="p-5 bg-[#0B2E26] text-white flex justify-between items-center">
-            <span className="font-bold text-sm tracking-wide text-emerald-100/70 uppercase">Total Marks</span>
-            <span className="text-xl font-bold">{evaluationData.review2.totalMarks}</span>
+            <span className="font-bold text-xs tracking-wide text-emerald-100/70 uppercase">Total Marks</span>
+            <span className="text-lg font-bold">{evaluationData.review2.totalMarks}</span>
           </div>
         </div>
 
@@ -172,7 +172,7 @@ export default function SeventhSemesterReview({ userTeam }) {
 
       {/* Review Schedule / Additional Info */}
       <div className="mt-10">
-        <h3 className="text-lg font-bold text-[#111827] mb-4 px-2">Review Schedule</h3>
+        <h3 className="text-base font-bold text-[#111827] mb-4 px-2">Review Schedule</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
            {/* Date */}
            <div className="bg-white p-5 rounded-[24px] border border-[#EADBD0] shadow-sm flex items-center gap-4 hover:border-[#FF5F38] transition-colors duration-300 cursor-pointer">
