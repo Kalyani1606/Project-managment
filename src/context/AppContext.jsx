@@ -147,6 +147,143 @@ export const initialData = {
         totalMarks: 59,
         status: 'Draft'
       }
+    },
+    {
+      id: 'TEAM-03',
+      teamNumber: '03',
+      name: 'NeuroPulse Systems',
+      projectTitle: 'Real-Time EEG Signal Processing & Cognitive State Detection',
+      problemStatement: 'Non-invasive BCI hardware generates high artifact noise, preventing robust real-time classification of user focus and fatigue states.',
+      objectives: '1. Build lightweight EEG denoising filter using Wavelet Transforms.\n2. Train real-time 1D-CNN classifier for 4 distinct cognitive states.\n3. Implement low-latency BLE streaming gateway for clinical researchers.',
+      shortDescription: 'Brain-Computer Interface platform capable of filtering raw EEG noise and classifying cognitive fatigue with 91.8% accuracy.',
+      domain: 'AI / Biomedical',
+      domainReason: 'Specialized focus in signal processing and embedded bio-sensors.',
+      technologies: ['Python', 'TensorFlow', 'C++', 'FastAPI', 'React', 'WebSockets'],
+      expectedOutcome: 'Working prototype desktop and web interface displaying live brainwave heatmaps and cognitive focus metrics.',
+      startDate: '2026-08-01',
+      expectedCompletionDate: '2026-11-25',
+      status: 'In Development',
+      currentStage: 'Development',
+      progress: 58,
+      lastReviewDate: '2026-09-28',
+      nextReviewDate: '2026-10-08',
+      leaderEmail: 'ananya.sharma@university.edu',
+      mentorId: 'MENTOR-01',
+      mentorName: 'Dr. Sarah Jenkins',
+      mentorStatus: 'Accepted',
+      currentSemester: '7th Semester',
+      members: [
+        { name: 'Ananya Sharma', email: 'ananya.sharma@university.edu', regNo: '20BCA012', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Rahul Verma', email: 'rahul.v@university.edu', regNo: '20BCA045', role: 'Hardware & ML Engineer', status: 'Accepted', attendanceRate: '95%' },
+        { name: 'Sneha Patel', email: 'sneha.p@university.edu', regNo: '20BCA063', role: 'Frontend & Visualizer', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Arjun Nair', email: 'arjun.n@university.edu', regNo: '20BCA088', role: 'Firmware Specialist', status: 'Accepted', attendanceRate: '90%' }
+      ],
+      tasks: [
+        { id: 'TASK-301', description: 'Optimize FFT bandpass filter for 50Hz mains hum reduction', assignedStudent: 'Rahul Verma', dateAssigned: '2026-09-28', deadline: '2026-10-06', status: 'In Progress', mentorRemarks: 'Test with synthetic noise samples.' },
+        { id: 'TASK-302', description: 'Design 3D electrode montage display component', assignedStudent: 'Sneha Patel', dateAssigned: '2026-09-28', deadline: '2026-10-07', status: 'Completed', mentorRemarks: 'Looks very intuitive.' }
+      ],
+      documents: [
+        { id: 'DOC-05', title: 'Phase II System Architecture & Model Pipeline', type: 'Architecture Document', date: '2026-09-10', size: '3.6 MB', url: '#', reviewId: 'Review 02' }
+      ],
+      invitations: [],
+      researchPapers: [],
+      marks: {
+        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 },
+        endSem: { presentation: 19, finalReport: 21, total: 40 },
+        totalMarks: 65,
+        status: 'Approved'
+      }
+    },
+    {
+      id: 'TEAM-04',
+      teamNumber: '04',
+      name: 'GridFlow IoT',
+      projectTitle: 'Smart Microgrid Decentralized Energy Trading & Load Balancing',
+      problemStatement: 'Distributed solar rooftop producers face high transaction friction and grid instability when selling surplus power to neighboring campus buildings.',
+      objectives: '1. Create private ledger smart contracts for peer-to-peer kWh settlement.\n2. Deploy IoT energy meters with automated load cutoff relays.\n3. Integrate predictive solar forecast algorithm.',
+      shortDescription: 'Decentralized peer-to-peer campus energy distribution system balancing dynamic battery storage with automated smart contracts.',
+      domain: 'IoT & Clean Energy',
+      domainReason: 'Clean tech sustainability project with embedded hardware integration.',
+      technologies: ['Solidity', 'Node.js', 'MQTT', 'ESP32', 'Next.js', 'InfluxDB'],
+      expectedOutcome: 'Campus pilot prototype enabling 10 student labs to bid and consume decentralized green energy.',
+      startDate: '2026-08-10',
+      expectedCompletionDate: '2026-11-20',
+      status: 'In Development',
+      currentStage: 'Development',
+      progress: 62,
+      lastReviewDate: '2026-09-25',
+      nextReviewDate: '2026-10-09',
+      leaderEmail: 'kartik.deshmukh@university.edu',
+      mentorId: 'MENTOR-01',
+      mentorName: 'Dr. Sarah Jenkins',
+      mentorStatus: 'Accepted',
+      currentSemester: '7th Semester',
+      members: [
+        { name: 'Kartik Deshmukh', email: 'kartik.deshmukh@university.edu', regNo: '20BCA029', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Meera Iyer', email: 'meera.i@university.edu', regNo: '20BCA051', role: 'Smart Contract Developer', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Devendra Joshi', email: 'devendra.j@university.edu', regNo: '20BCA077', role: 'IoT Firmware Developer', status: 'Accepted', attendanceRate: '85%' }
+      ],
+      tasks: [
+        { id: 'TASK-401', description: 'Verify MQTT packet latency under 50 concurrent smart meters', assignedStudent: 'Devendra Joshi', dateAssigned: '2026-09-25', deadline: '2026-10-05', status: 'In Progress', mentorRemarks: 'Ensure TLS encryption on broker.' }
+      ],
+      documents: [
+        { id: 'DOC-06', title: 'Microgrid Hardware Schematic & Protocol Spec', type: 'SRS', date: '2026-09-02', size: '2.1 MB', url: '#', reviewId: 'Review 01' }
+      ],
+      invitations: [],
+      researchPapers: [],
+      marks: {
+        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 4, total: 24 },
+        endSem: { presentation: 17, finalReport: 20, total: 37 },
+        totalMarks: 61,
+        status: 'Approved'
+      }
+    },
+    {
+      id: 'TEAM-05',
+      teamNumber: '05',
+      name: 'AeroVision Autonomous',
+      projectTitle: 'Autonomous UAV Swarm for Wildfire Early Detection & Thermal Mapping',
+      problemStatement: 'Forestry departments suffer critical response delays due to manual satellite review that only updates every 6-12 hours.',
+      objectives: '1. Implement edge computer vision on Nvidia Jetson for smoke & flame recognition.\n2. Autonomous drone mesh networking without cellular connectivity.\n3. Publish final research paper and complete defense viva.',
+      shortDescription: 'Multi-UAV autonomous surveillance mesh streaming real-time thermal geo-coordinates of ignition points to first responder dashboards.',
+      domain: 'Robotics & Computer Vision',
+      domainReason: 'Capstone capstone engineering project combining embedded avionics and edge AI.',
+      technologies: ['ROS2', 'PyTorch', 'C++', 'Nvidia Jetson', 'WebRTC', 'Mapbox GL'],
+      expectedOutcome: 'Final defended capstone project with published IEEE conference paper and live outdoor flight demonstration.',
+      startDate: '2026-08-01',
+      expectedCompletionDate: '2026-12-10',
+      status: 'Final Submission',
+      currentStage: 'Final Presentation',
+      progress: 92,
+      lastReviewDate: '2026-09-29',
+      nextReviewDate: '2026-10-12',
+      leaderEmail: 'tanvi.kulkarni@university.edu',
+      mentorId: 'MENTOR-01',
+      mentorName: 'Dr. Sarah Jenkins',
+      mentorStatus: 'Accepted',
+      currentSemester: '8th Semester',
+      members: [
+        { name: 'Tanvi Kulkarni', email: 'tanvi.kulkarni@university.edu', regNo: '19BCA008', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Vikramaditya Sen', email: 'vikram.sen@university.edu', regNo: '19BCA033', role: 'Computer Vision Engineer', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Ritu Ganguly', email: 'ritu.g@university.edu', regNo: '19BCA057', role: 'Embedded Systems Lead', status: 'Accepted', attendanceRate: '95%' },
+        { name: 'Pranav Menon', email: 'pranav.m@university.edu', regNo: '19BCA091', role: 'Flight Operations & QA', status: 'Accepted', attendanceRate: '100%' }
+      ],
+      tasks: [
+        { id: 'TASK-501', description: 'Prepare 15-minute final defense slide deck and video demonstration', assignedStudent: 'Tanvi Kulkarni', dateAssigned: '2026-09-29', deadline: '2026-10-10', status: 'In Progress', mentorRemarks: 'Include benchmarking against satellite latency.' },
+        { id: 'TASK-502', description: 'Finalize camera-ready IEEE conference manuscript', assignedStudent: 'Vikramaditya Sen', dateAssigned: '2026-09-29', deadline: '2026-10-08', status: 'Completed', mentorRemarks: 'Paper accepted for publication.' }
+      ],
+      documents: [
+        { id: 'DOC-07', title: 'Complete Project Thesis & Final Technical Report', type: 'Final Report', date: '2026-09-20', size: '8.4 MB', url: '#', reviewId: 'Review 04' },
+        { id: 'DOC-08', title: 'Conference Publication Proof & Reviewer Comments', type: 'Publication', date: '2026-09-28', size: '1.8 MB', url: '#', reviewId: 'Review 04' }
+      ],
+      invitations: [],
+      researchPapers: [],
+      marks: {
+        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 },
+        endSem: { presentation: 20, finalReport: 24, total: 44 },
+        totalMarks: 69,
+        status: 'Approved'
+      }
     }
   ],
 
@@ -324,7 +461,16 @@ export const AppProvider = ({ children }) => {
     const saved = localStorage.getItem('nexus_academic_data_save');
     if (saved) {
       try {
-        setData(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        const hasSem7 = parsed.teams?.some(t => t.currentSemester === '7th Semester');
+        const hasSem8 = parsed.teams?.some(t => t.currentSemester === '8th Semester');
+        if (!hasSem7 || !hasSem8) {
+          const missingTeams = initialData.teams.filter(
+            it => !parsed.teams?.some(pt => pt.id === it.id)
+          );
+          parsed.teams = [...(parsed.teams || []), ...missingTeams];
+        }
+        setData(parsed);
       } catch (e) {
         console.error("Failed to parse saved data", e);
       }
