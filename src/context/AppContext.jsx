@@ -54,15 +54,15 @@ export const initialData = {
     {
       id: 'TEAM-01',
       teamNumber: '01',
-      name: 'CodeCrafters Alpha',
-      projectTitle: 'MedScan AI: Automated Radiology Triage & Diagnostic System',
-      problemStatement: 'Radiologists in district hospitals face severe diagnostic fatigue with over 300+ X-rays per shift, leading to dangerous triage delays for critical pulmonary conditions.',
-      objectives: '1. Develop deep learning model for chest X-ray anomaly detection.\n2. Achieve under 2 sec inference time with >93% accuracy.\n3. Build HIPAA-compliant Web UI for emergency room doctors.',
-      shortDescription: 'Deep-learning based chest radiograph analysis platform that highlights pneumothorax and acute consolidation anomalies in under 2 seconds with 94.2% sensitivity.',
-      domain: 'AI / Healthcare',
-      domainReason: 'Priya and Alex have published paper on Convolutional Neural Networks for medical imaging.',
-      technologies: ['Python', 'PyTorch', 'FastAPI', 'React', 'Docker', 'DICOM', 'TailwindCSS'],
-      expectedOutcome: 'Clinical web application with real-time X-ray heatmap highlighting, priority queue triage, and automated PDF report generation.',
+      name: 'Neural Vision Squad',
+      projectTitle: 'Autonomous Drone Defect Detection',
+      problemStatement: 'Inspecting solar panel arrays manually on large solar farms is hazardous and time-consuming.',
+      objectives: '1. Build autonomous drone path planning.\n2. Thermal camera anomaly inference.\n3. Real-time operator dashboard.',
+      shortDescription: 'Computer vision pipeline deployed on autonomous drones for thermal anomaly identification.',
+      domain: 'Computer Vision & Autonomous Systems',
+      domainReason: 'Priya and Aman have published work on Object Detection models.',
+      technologies: ['Python', 'PyTorch', 'YOLOv8', 'OpenCV', 'ROS'],
+      expectedOutcome: 'Drone analytics dashboard with real-time thermal anomaly bounding boxes.',
       startDate: '2026-08-01',
       expectedCompletionDate: '2026-11-30',
       status: 'In Development',
@@ -70,74 +70,61 @@ export const initialData = {
       progress: 65,
       lastReviewDate: '2026-09-30',
       nextReviewDate: '2026-10-07',
-      leaderEmail: 'alex.vance@university.edu',
+      leaderEmail: 'priya.patel@engg.college.edu',
       mentorId: 'MENTOR-01',
-      mentorName: 'Dr. Sarah Jenkins',
+      mentorName: 'Dr. Aris Thorne',
+      mentorEmail: 'dr.aris@engg.college.edu',
       mentorStatus: 'Accepted',
       currentSemester: '6th Semester',
       members: [
-        { name: 'Alex Vance', email: 'alex.vance@university.edu', regNo: '21BCA042', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'David Miller', email: 'david.m@university.edu', regNo: '21BCA018', role: 'Backend Developer', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Elena Rostova', email: 'elena.r@university.edu', regNo: '21BCA035', role: 'AI / ML Engineer', status: 'Accepted', attendanceRate: '75%' },
-        { name: 'Siddharth Rao', email: 'sid.r@university.edu', regNo: '21BCA089', role: 'UI / UX Designer', status: 'Accepted', attendanceRate: '100%' }
+        { name: 'Priya Patel', email: 'priya.patel@engg.college.edu', regNo: '1MS21CS045', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Aman Verma', email: 'aman.verma@engg.college.edu', regNo: '1MS21CS012', role: 'Team Member', status: 'Accepted', attendanceRate: '100%' }
       ],
       tasks: [
-        { id: 'TASK-101', description: 'Complete emergency doctor triage dashboard UI', assignedStudent: 'Alex Vance', dateAssigned: '2026-09-30', deadline: '2026-10-07', status: 'In Progress', mentorRemarks: 'Focus on responsive layouts for tablet devices.' },
-        { id: 'TASK-102', description: 'Fix API response error handling & PyTorch exception catching', assignedStudent: 'David Miller', dateAssigned: '2026-09-30', deadline: '2026-10-05', status: 'In Progress', mentorRemarks: 'Return standard HTTP 422 error payloads.' },
-        { id: 'TASK-103', description: 'Add input validation for DICOM image file uploads', assignedStudent: 'Elena Rostova', dateAssigned: '2026-09-30', deadline: '2026-10-06', status: 'Pending', mentorRemarks: 'Verify image magic bytes before model inference.' },
-        { id: 'TASK-104', description: 'Update GitHub repository README & Docker setup docs', assignedStudent: 'Siddharth Rao', dateAssigned: '2026-09-30', deadline: '2026-10-07', status: 'Completed', mentorRemarks: 'Great job on clean container startup instructions.' }
+        { id: 'TASK-101', description: 'Train YOLOv8 model on solar panel thermal dataset', assignedStudent: 'Priya Patel', dateAssigned: '2026-09-30', deadline: '2026-10-07', status: 'In Progress', mentorRemarks: 'Target mAP@0.5 above 90%.' },
+        { id: 'TASK-102', description: 'Setup ROS2 node for drone telemetry streaming', assignedStudent: 'Aman Verma', dateAssigned: '2026-09-30', deadline: '2026-10-05', status: 'In Progress', mentorRemarks: 'Ensure low latency web socket stream.' }
       ],
       documents: [
-        { id: 'DOC-01', title: 'Project Proposal & Feasibility Report', type: 'Proposal', date: '2026-08-10', size: '1.4 MB', url: '#', reviewId: 'Review 01' },
-        { id: 'DOC-02', title: 'Synopsis & System Architecture SRS', type: 'SRS', date: '2026-08-25', size: '2.8 MB', url: '#', reviewId: 'Review 02' },
-        { id: 'DOC-03', title: 'Mid-Term Progress Report & Model Accuracy Benchmarks', type: 'Progress Report', date: '2026-09-15', size: '4.1 MB', url: '#', reviewId: 'Review 03' }
+        { id: 'DOC-01', title: 'Thermal Anomaly Detection System Architecture', type: 'SRS', date: '2026-08-20', size: '2.4 MB', url: '#', reviewId: 'Review 01' }
       ],
       invitations: [],
-      researchPapers: [
-        { id: 1, title: 'Deep Learning for Chest Radiograph Diagnosis', authors: 'Rajpurkar et al.', journal: 'PLOS Medicine', year: '2021', link: 'https://arxiv.org' }
-      ],
-      marks: {
-        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 },
-        endSem: { presentation: 18, finalReport: 22, total: 40 },
-        totalMarks: 65,
-        status: 'Approved'
-      }
+      researchPapers: [],
+      marks: { cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 }, endSem: { presentation: 18, finalReport: 22, total: 40 }, totalMarks: 65, status: 'Approved' }
     },
     {
       id: 'TEAM-02',
       teamNumber: '02',
-      name: 'CyberShield Systems',
-      projectTitle: 'Zero-Trust Network Access & Real-Time Anomaly Inspection',
-      problemStatement: 'Legacy VPN solutions lack continuous micro-segmentation and device trust verification, making internal campus networks vulnerable to lateral threat movements.',
-      objectives: '1. Implement eBPF kernel probes for real-time packet inspection.\n2. Construct automated device posture verification module.\n3. Provide central dashboard for SOC analysts.',
-      shortDescription: 'Enterprise Zero-Trust network access gateway with eBPF micro-segmentation, posture verification, and automated SOC incident response rules.',
-      domain: 'Cybersecurity & Networks',
-      domainReason: 'Specialized focus in cryptography and kernel programming.',
-      technologies: ['Go', 'eBPF', 'Rust', 'Docker', 'React', 'TailwindCSS', 'Redis'],
-      expectedOutcome: 'High-throughput security proxy capable of inspecting 10Gbps traffic with low latency overhead.',
+      name: 'InnovateX Team',
+      projectTitle: 'Smart Academic & Project Management Hub',
+      problemStatement: 'Manual management of engineering projects leads to submission delays and lack of guide visibility.',
+      objectives: '1. Build automated team registration.\n2. Faculty mentor approval workflow.\n3. Digital review diary logging.',
+      shortDescription: 'An integrated web portal for automated team formation, project tracking, and mentor evaluations.',
+      domain: 'Web Applications & Cloud Platforms',
+      domainReason: 'Full-stack engineering expertise.',
+      technologies: ['Next.js', 'React', 'TypeScript', 'SQLite', 'Prisma', 'TailwindCSS'],
+      expectedOutcome: 'Fully functional academic project evaluation hub.',
       startDate: '2026-08-05',
       expectedCompletionDate: '2026-11-28',
       status: 'In Development',
-      currentStage: 'Design',
-      progress: 45,
-      lastReviewDate: '2026-09-22',
-      nextReviewDate: '2026-10-06',
-      leaderEmail: 'kiran.kumar@university.edu',
-      mentorId: 'MENTOR-01',
-      mentorName: 'Dr. Sarah Jenkins',
+      currentStage: 'Development',
+      progress: 70,
+      lastReviewDate: '2026-09-25',
+      nextReviewDate: '2026-10-08',
+      leaderEmail: '24btice186@gcu.edu.in',
+      mentorId: 'MENTOR-02',
+      mentorName: 'Kalyani',
+      mentorEmail: 'kalyanivilas990@gcu.edu.in',
       mentorStatus: 'Accepted',
       currentSemester: '6th Semester',
       members: [
-        { name: 'Kiran Kumar', email: 'kiran.kumar@university.edu', regNo: '21BCA055', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Rohan Sharma', email: 'rohan.s@university.edu', regNo: '21BCA068', role: 'Security Analyst', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Priya Sharma', email: 'priya.s@university.edu', regNo: '21BCA072', role: 'Frontend Engineer', status: 'Accepted', attendanceRate: '100%' }
+        { name: 'Kalyani', email: '24btice186@gcu.edu.in', regNo: '24BTCE186', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Priya Patel', email: 'priya.patel@engg.college.edu', regNo: '1MS21CS045', role: 'Team Member', status: 'Accepted', attendanceRate: '100%' }
       ],
       tasks: [
-        { id: 'TASK-201', description: 'Benchmarking eBPF kernel probe overhead under 1Gbps load', assignedStudent: 'Kiran Kumar', dateAssigned: '2026-09-22', deadline: '2026-10-04', status: 'In Progress', mentorRemarks: 'Measure CPU cycles per packet.' },
-        { id: 'TASK-202', description: 'Design wireframes for central SOC incident alert stream', assignedStudent: 'Priya Sharma', dateAssigned: '2026-09-22', deadline: '2026-10-06', status: 'Pending', mentorRemarks: 'Ensure dark mode compatibility.' }
+        { id: 'TASK-201', description: 'Implement digital diary review modal UI', assignedStudent: 'Kalyani', dateAssigned: '2026-09-25', deadline: '2026-10-04', status: 'In Progress', mentorRemarks: 'Keep clean typography.' }
       ],
       documents: [
-        { id: 'DOC-04', title: 'Zero-Trust Architecture System Blueprint', type: 'SRS', date: '2026-08-28', size: '3.1 MB', url: '#', reviewId: 'Review 01' }
+        { id: 'DOC-02', title: 'Project Management SRS Document', type: 'SRS', date: '2026-08-25', size: '1.8 MB', url: '#', reviewId: 'Review 01' }
       ],
       invitations: [],
       researchPapers: [],
@@ -289,10 +276,11 @@ export const initialData = {
 
   // Mentors list
   mentors: [
-    { id: 'MENTOR-01', name: 'Dr. Sarah Jenkins', email: 's.jenkins@university.edu', department: 'Computer Science', designation: 'Professor & Head of AI Lab', maxTeams: 8, assignedTeamsCount: 2, expertise: ['Artificial Intelligence', 'Machine Learning', 'Computer Vision', 'Cloud Systems'] },
-    { id: 'MENTOR-02', name: 'Prof. Alan Turing', email: 'a.turing@university.edu', department: 'Cybersecurity', designation: 'Professor', maxTeams: 8, assignedTeamsCount: 4, expertise: ['Cybersecurity', 'IoT Security', 'Cryptography'] },
-    { id: 'MENTOR-03', name: 'Dr. Grace Hopper', email: 'g.hopper@university.edu', department: 'Cloud Systems', designation: 'Professor', maxTeams: 8, assignedTeamsCount: 7, expertise: ['Cloud Computing', 'DevOps', 'Distributed Systems'] },
-    { id: 'MENTOR-04', name: 'Dr. Raj Patel', email: 'r.patel@university.edu', department: 'Data Science', designation: 'Assistant Professor', maxTeams: 8, assignedTeamsCount: 6, expertise: ['Data Science', 'Big Data Analytics', 'NLP'] }
+    { id: 'MENTOR-01', name: 'Dr. Aris Thorne', email: 'dr.aris@engg.college.edu', department: 'Computer Science & Engineering', designation: 'Professor & Head of AI Lab', maxTeams: 5, assignedTeamsCount: 1, expertise: ['Artificial Intelligence', 'Deep Learning', 'Computer Vision', 'Neural Networks'] },
+    { id: 'MENTOR-02', name: 'Kalyani', email: 'kalyanivilas990@gcu.edu.in', department: 'Computer Science & Engineering', designation: 'Assistant Professor', maxTeams: 5, assignedTeamsCount: 1, expertise: ['Project Mentorship', 'Software Engineering', 'Web Technologies', 'Database Systems'] },
+    { id: 'MENTOR-03', name: 'Prof. Sunita Menon', email: 'prof.sunita@engg.college.edu', department: 'Computer Science & Engineering', designation: 'Associate Professor', maxTeams: 5, assignedTeamsCount: 1, expertise: ['Full Stack Web Systems', 'Cloud Computing', 'Distributed Systems', 'Microservices'] },
+    { id: 'MENTOR-04', name: 'Dr. Rajesh Iyer', email: 'dr.rajesh@engg.college.edu', department: 'Information Science & Engineering', designation: 'Professor', maxTeams: 5, assignedTeamsCount: 1, expertise: ['Internet of Things (IoT)', 'Embedded Systems', 'Edge Computing', 'Smart Sensors'] },
+    { id: 'MENTOR-05', name: 'Prof. Devika Nair', email: 'prof.devika@engg.college.edu', department: 'Cybersecurity & Systems', designation: 'Assistant Professor', maxTeams: 5, assignedTeamsCount: 1, expertise: ['Network Security', 'Blockchain', 'Cryptography', 'Ethical Hacking'] }
   ],
 
   // Reviewers list
@@ -431,10 +419,18 @@ export const initialData = {
   ],
 
   // Evaluation Marks recorded by Reviewers
-  evaluations: [],
+  evaluations: [
+    { id: 'EVAL-01', teamId: 'TEAM-01', teamName: 'Neural Vision Squad', reviewerName: 'Prof. Robert Langford', reviewNumber: 'CIA Review 1', date: '2026-09-30', marks: { problemUnderstanding: 9, literatureReview: 8, technicalKnowledge: 9, progress: 8, presentation: 9 }, totalMarks: 43, status: 'Verified' },
+    { id: 'EVAL-02', teamId: 'TEAM-03', teamName: 'CodeCrafters Alpha', reviewerName: 'Dr. Emily Watson', reviewNumber: 'CIA Review 1', date: '2026-09-28', marks: { problemUnderstanding: 10, literatureReview: 9, technicalKnowledge: 10, progress: 9, presentation: 10 }, totalMarks: 48, status: 'Finalized' },
+    { id: 'EVAL-03', teamId: 'TEAM-06', teamName: 'DataForge Alpha', reviewerName: 'Prof. Robert Langford', reviewNumber: 'CIA Review 1', date: '2026-09-27', marks: { problemUnderstanding: 8, literatureReview: 8, technicalKnowledge: 7, progress: 7, presentation: 8 }, totalMarks: 38, status: 'Draft' }
+  ],
 
   // Scheduled Reviews
-  reviews: [],
+  reviews: [
+    { id: 'REV-SCH-01', title: 'CIA Review 2 — 6th Semester', date: '2026-10-20', time: '10:00 AM', venue: 'Seminar Hall 2', semester: '6th Semester', teams: ['TEAM-01', 'TEAM-02', 'TEAM-03'], reviewer: 'Prof. Robert Langford', status: 'Upcoming' },
+    { id: 'REV-SCH-02', title: 'Progress Demo — 7th Semester', date: '2026-10-25', time: '02:00 PM', venue: 'Lab Block A — Room 301', semester: '7th Semester', teams: ['TEAM-06', 'TEAM-07', 'TEAM-09'], reviewer: 'Dr. Emily Watson', status: 'Upcoming' },
+    { id: 'REV-SCH-03', title: 'Final Viva — 8th Semester', date: '2026-11-05', time: '09:00 AM', venue: 'Conference Hall', semester: '8th Semester', teams: ['TEAM-10', 'TEAM-11', 'TEAM-12'], reviewer: 'Prof. Robert Langford', status: 'Upcoming' }
+  ],
 
   // Coordinator Notice Board
   notices: [
@@ -458,7 +454,10 @@ export const AppProvider = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('nexus_academic_data_save');
+    // Clear old legacy cache keys that caused persistent stale display
+    localStorage.removeItem('nexus_academic_data_save');
+    localStorage.removeItem('nexus_academic_data_v3');
+    const saved = localStorage.getItem('nexus_academic_data_v4');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -472,15 +471,17 @@ export const AppProvider = ({ children }) => {
         }
         setData(parsed);
       } catch (e) {
-        console.error("Failed to parse saved data", e);
+        setData(initialData);
       }
+    } else {
+      setData(initialData);
     }
     setIsLoaded(true);
   }, []);
 
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem('nexus_academic_data_save', JSON.stringify(data));
+      localStorage.setItem('nexus_academic_data_v4', JSON.stringify(data));
     }
   }, [data, isLoaded]);
 

@@ -1,12 +1,18 @@
 "use client";
-import React from "react";
-import { AppProvider } from "@/context/AppContext";
+
+import React, { Suspense } from "react";
 import CoordinatorPortal from "@/components/portals/CoordinatorPortal";
 
 export default function Page() {
   return (
-    <AppProvider>
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-xs text-slate-500 font-semibold">
+          Loading Coordinator Portal...
+        </div>
+      }
+    >
       <CoordinatorPortal />
-    </AppProvider>
+    </Suspense>
   );
 }

@@ -2,8 +2,7 @@
 
 import React from "react";
 import { useNotification } from "@/context/NotificationContext";
-import { NotificationItem } from "@/types";
-import { Bell, CheckCheck, Users, Compass, BookOpen, AlertCircle, Clock, ExternalLink } from "lucide-react";
+import { Bell, CheckCheck, Users, Compass, BookOpen, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 interface NotificationDrawerProps {
@@ -13,7 +12,7 @@ interface NotificationDrawerProps {
 }
 
 export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: NotificationDrawerProps) {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, refreshNotifications } = useNotification();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotification();
 
   if (!isOpen) return null;
 
@@ -22,25 +21,27 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
       case "TEAM_INVITE":
       case "INVITE_ACCEPTED":
       case "INVITE_REJECTED":
-        return <Users className="w-4 h-4 text-blue-400" />;
+        return <Users className="w-4 h-4 text-blue-600" />;
       case "GUIDE_REQUEST":
-        return <Compass className="w-4 h-4 text-purple-400" />;
+        return <Compass className="w-4 h-4 text-purple-600" />;
       case "PROJECT_CREATED":
-        return <BookOpen className="w-4 h-4 text-emerald-400" />;
+        return <BookOpen className="w-4 h-4 text-emerald-600" />;
       default:
-        return <Bell className="w-4 h-4 text-cyan-400" />;
+        return <Bell className="w-4 h-4 text-[#FF5F38]" />;
     }
   };
 
   return (
-    <div className="absolute right-0 top-12 w-80 sm:w-96 bg-[#FAF2EC] border border-slate-700/80 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fadeIn">
+    <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white border border-[#EADBD0] rounded-2xl shadow-2xl z-50 overflow-hidden animate-fadeIn">
       {/* Header */}
-      <div className="p-4 bg-white/80 border-b border-slate-800 flex items-center justify-between">
+      <div className="p-4 bg-[#FAF2EC] border-b border-[#EADBD0] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Bell className="w-4 h-4 text-blue-400" />
-          <h4 className="text-sm font-bold text-white">Notifications</h4>
+          <div className="p-1.5 rounded-lg bg-white border border-[#EADBD0] text-[#FF5F38]">
+            <Bell className="w-4 h-4" />
+          </div>
+          <h4 className="text-sm font-extrabold text-[#111827]">Notifications</h4>
           {unreadCount > 0 && (
-            <span className="px-2 py-0.5 text-[10px] font-bold bg-[#FF5F38] text-white rounded-full">
+            <span className="px-2 py-0.5 text-[10px] font-extrabold bg-[#FF5F38] text-white rounded-full font-mono">
               {unreadCount} new
             </span>
           )}
@@ -49,7 +50,7 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
         {unreadCount > 0 && (
           <button
             onClick={markAllAsRead}
-            className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1"
+            className="text-[11px] text-[#FF5F38] hover:text-[#E54D26] font-extrabold flex items-center gap-1 cursor-pointer transition"
           >
             <CheckCheck className="w-3.5 h-3.5" />
             Mark all read
@@ -58,10 +59,10 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
       </div>
 
       {/* List */}
-      <div className="max-h-[380px] overflow-y-auto divide-y divide-slate-800/60 p-1">
+      <div className="max-h-[380px] overflow-y-auto divide-y divide-[#EADBD0]/50 p-2 space-y-1.5">
         {notifications.length === 0 ? (
-          <div className="py-10 text-center text-xs text-slate-500">
-            <Bell className="w-6 h-6 mx-auto mb-2 opacity-30" />
+          <div className="py-10 text-center text-xs text-slate-400 font-medium">
+            <Bell className="w-8 h-8 mx-auto mb-2 opacity-30 text-slate-400" />
             No notifications yet
           </div>
         ) : (
@@ -69,39 +70,39 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
             <div
               key={n.id}
               onClick={() => !n.read && markAsRead(n.id)}
-              className={`p-3.5 rounded-xl transition ${
+              className={`p-3.5 rounded-xl transition cursor-pointer ${
                 n.read
-                  ? "bg-transparent opacity-80 hover:bg-white/40"
-                  : "bg-blue-950/30 border-l-2 border-blue-500 hover:bg-blue-950/50"
+                  ? "bg-white hover:bg-[#FAF2EC]/50 border border-transparent"
+                  : "bg-[#FAF2EC] border-l-4 border-[#FF5F38] hover:bg-[#F5E6DC] shadow-xs"
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-white/80 shrink-0 mt-0.5">
+                <div className="p-2 rounded-xl bg-white border border-[#EADBD0] shrink-0 mt-0.5 shadow-xs">
                   {getIcon(n.type)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-1 mb-1">
-                    <h5 className={`text-xs font-semibold truncate ${n.read ? "text-slate-300" : "text-white"}`}>
+                    <h5 className={`text-xs font-extrabold truncate ${n.read ? "text-slate-700" : "text-[#111827]"}`}>
                       {n.title}
                     </h5>
-                    <span className="text-[10px] text-slate-500 shrink-0">
+                    <span className="text-[10px] text-slate-400 font-mono font-medium shrink-0">
                       {new Date(n.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-2">
+                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed mb-2 font-medium">
                     {n.message}
                   </p>
 
                   {/* If team invitation, show fast action buttons if callback provided */}
                   {n.type === "TEAM_INVITE" && n.metadata?.invitationId && onRespondInvite && (
-                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-800/60">
+                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#EADBD0]">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onRespondInvite(n.metadata.invitationId, "ACCEPT");
                           markAsRead(n.id);
                         }}
-                        className="px-2.5 py-1 text-[11px] font-semibold bg-[#FF5F38] hover:bg-[#FF5F38] text-white rounded-lg transition"
+                        className="px-3 py-1 text-[11px] font-extrabold bg-[#FF5F38] hover:bg-[#E54D26] text-white rounded-lg transition shadow-xs cursor-pointer"
                       >
                         Accept
                       </button>
@@ -111,7 +112,7 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
                           onRespondInvite(n.metadata.invitationId, "REJECT");
                           markAsRead(n.id);
                         }}
-                        className="px-2.5 py-1 text-[11px] font-semibold bg-white hover:bg-slate-700 text-slate-300 rounded-lg transition"
+                        className="px-3 py-1 text-[11px] font-extrabold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition border border-slate-200 cursor-pointer"
                       >
                         Reject
                       </button>
@@ -122,7 +123,7 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
                     <Link
                       href={n.link}
                       onClick={onClose}
-                      className="inline-flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 font-medium mt-1"
+                      className="inline-flex items-center gap-1 text-[11px] text-[#FF5F38] hover:text-[#E54D26] font-extrabold mt-1 hover:underline"
                     >
                       <span>View details</span>
                       <ExternalLink className="w-3 h-3" />
@@ -137,3 +138,4 @@ export function NotificationDrawer({ isOpen, onClose, onRespondInvite }: Notific
     </div>
   );
 }
+

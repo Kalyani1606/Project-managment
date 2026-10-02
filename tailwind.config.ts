@@ -30,7 +30,7 @@ const config: Config = {
         }
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-plus-jakarta)", "var(--font-inter)", "system-ui", "-apple-system", "sans-serif"],
       },
       boxShadow: {
         glass: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
