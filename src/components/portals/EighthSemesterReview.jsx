@@ -89,7 +89,7 @@ export default function EighthSemesterReview() {
              </div>
              <div>
                <p className="text-xs font-bold text-slate-500 uppercase">CA</p>
-               <p className="text-xl font-black text-[#111827]">{evaluationData.summary.ca} <span className="text-sm font-medium text-slate-500">Marks</span></p>
+               <p className="text-xl font-bold text-[#111827]">{evaluationData.summary.ca} <span className="text-sm font-medium text-slate-500">Marks</span></p>
              </div>
           </div>
         </div>
@@ -100,7 +100,7 @@ export default function EighthSemesterReview() {
              </div>
              <div>
                <p className="text-xs font-bold text-slate-500 uppercase">ESE</p>
-               <p className="text-xl font-black text-[#111827]">{evaluationData.summary.ese} <span className="text-sm font-medium text-slate-500">Marks</span></p>
+               <p className="text-xl font-bold text-[#111827]">{evaluationData.summary.ese} <span className="text-sm font-medium text-slate-500">Marks</span></p>
              </div>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function EighthSemesterReview() {
              </div>
              <div>
                <p className="text-xs font-bold text-white/90 uppercase">Total Evaluation</p>
-               <p className="text-2xl font-black text-white">{evaluationData.summary.total} <span className="text-sm font-medium text-white/80">Marks</span></p>
+               <p className="text-2xl font-bold text-white">{evaluationData.summary.total} <span className="text-sm font-medium text-white/80">Marks</span></p>
              </div>
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function EighthSemesterReview() {
           {evaluationData.reviews.map((review) => (
             <div key={review.id} className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 flex flex-col group">
               <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
-                <h3 className="text-xl font-black text-[#0B2E26]">{review.title}</h3>
+                <h3 className="text-lg font-bold text-[#111827]">{review.title}</h3>
                 <CheckCircle className="w-5 h-5 text-[#FF5F38]/50 group-hover:text-[#FF5F38] transition-colors" />
               </div>
               <div className="p-6 space-y-3 flex-1">

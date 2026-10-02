@@ -68,7 +68,7 @@ export default function SeventhSemesterReview({ userTeam }) {
              </div>
              <div>
                <p className="text-xs font-bold text-slate-500 uppercase">CIA</p>
-               <p className="text-lg font-black text-[#111827]">{evaluationData.summary.r1} <span className="text-sm font-medium text-slate-500">Marks</span></p>
+               <p className="text-xl font-bold text-[#111827]">{evaluationData.summary.r1} <span className="text-sm font-medium text-slate-500">Marks</span></p>
              </div>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function SeventhSemesterReview({ userTeam }) {
              </div>
              <div>
                <p className="text-xs font-bold text-slate-500 uppercase">ESE</p>
-               <p className="text-lg font-black text-[#111827]">{evaluationData.summary.r2} <span className="text-sm font-medium text-slate-500">Marks</span></p>
+               <p className="text-xl font-bold text-[#111827]">{evaluationData.summary.r2} <span className="text-sm font-medium text-slate-500">Marks</span></p>
              </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function SeventhSemesterReview({ userTeam }) {
              </div>
              <div>
                <p className="text-xs font-bold text-white/90 uppercase">Total Evaluation</p>
-               <p className="text-xl font-black text-white">{evaluationData.summary.total} <span className="text-sm font-medium text-white/80">Marks</span></p>
+               <p className="text-2xl font-bold text-white">{evaluationData.summary.total} <span className="text-sm font-medium text-white/80">Marks</span></p>
              </div>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function SeventhSemesterReview({ userTeam }) {
         <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 group flex flex-col">
           <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
             <h2 className="text-lg font-bold text-[#111827]">{evaluationData.review1.title}</h2>
-            <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-black text-xs rounded-full">Total: {evaluationData.review1.totalMarks}</span>
+            <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-bold text-xs rounded-full">Total: {evaluationData.review1.totalMarks}</span>
           </div>
           <div className="p-6 space-y-4 flex-1">
             {evaluationData.review1.items.map((item) => {
@@ -122,7 +122,7 @@ export default function SeventhSemesterReview({ userTeam }) {
                       {item.type && <p className="text-xs font-semibold text-slate-500">{item.type}</p>}
                     </div>
                   </div>
-                  <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-black text-[#D94625] shrink-0 text-sm">
+                  <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-bold text-[#D94625] shrink-0 text-sm">
                     {item.marks} M
                   </div>
                 </div>
@@ -131,7 +131,7 @@ export default function SeventhSemesterReview({ userTeam }) {
           </div>
           <div className="p-5 bg-[#0B2E26] text-white flex justify-between items-center">
             <span className="font-bold text-sm tracking-wide text-emerald-100/70 uppercase">Total Marks</span>
-            <span className="text-xl font-black">{evaluationData.review1.totalMarks}</span>
+            <span className="text-xl font-bold">{evaluationData.review1.totalMarks}</span>
           </div>
         </div>
 
@@ -139,7 +139,7 @@ export default function SeventhSemesterReview({ userTeam }) {
         <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 group flex flex-col">
           <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
             <h2 className="text-lg font-bold text-[#111827]">{evaluationData.review2.title}</h2>
-            <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-black text-xs rounded-full">Total: {evaluationData.review2.totalMarks}</span>
+            <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-bold text-xs rounded-full">Total: {evaluationData.review2.totalMarks}</span>
           </div>
           <div className="p-6 space-y-4 flex-1">
             {evaluationData.review2.items.map((item) => {
@@ -155,7 +155,7 @@ export default function SeventhSemesterReview({ userTeam }) {
                       {item.type && <span className="inline-block mt-1 px-2 py-0.5 bg-[#FFDAC5]/50 text-[#D94625] text-[10px] uppercase font-bold rounded-md">{item.type}</span>}
                     </div>
                   </div>
-                  <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-black text-[#D94625] shrink-0 text-sm">
+                  <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-bold text-[#D94625] shrink-0 text-sm">
                     {item.marks} M
                   </div>
                 </div>
@@ -164,7 +164,7 @@ export default function SeventhSemesterReview({ userTeam }) {
           </div>
           <div className="p-5 bg-[#0B2E26] text-white flex justify-between items-center">
             <span className="font-bold text-sm tracking-wide text-emerald-100/70 uppercase">Total Marks</span>
-            <span className="text-xl font-black">{evaluationData.review2.totalMarks}</span>
+            <span className="text-xl font-bold">{evaluationData.review2.totalMarks}</span>
           </div>
         </div>
 
