@@ -218,7 +218,7 @@ export default function AppPortalLayout({
                 />
              </div>
 
-             <div className="flex items-center gap-3">
+             <Link href={isMentor ? "/mentor" : "/student/profile"} className="flex items-center gap-3 p-1.5 rounded-2xl hover:bg-white border border-transparent hover:border-[#EADBD0] transition-colors cursor-pointer">
                <img src={user?.studentProfile?.profilePicture || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80"} alt="Profile" className="w-10 h-10 rounded-full object-cover shadow-sm border border-slate-200" />
                <div className="hidden sm:block text-right">
                  <div className="text-sm font-bold text-[#111827]">{user.name}</div>
@@ -226,12 +226,12 @@ export default function AppPortalLayout({
                     {isMentor ? (user?.teacherProfile?.designation || "Faculty Mentor") : `${user?.studentProfile?.semester || 6}th Semester`}
                   </div>
                  {!profileComplete && pathname !== "/student/profile" && (
-                   <Link href="/student/profile" className="text-[10px] bg-[#FF5F38] text-white px-2 py-0.5 rounded-full font-bold mt-1 inline-block hover:bg-[#E54D26] transition-colors shadow-sm">
+                   <div className="text-[10px] bg-[#FF5F38] text-white px-2 py-0.5 rounded-full font-bold mt-1 inline-block hover:bg-[#E54D26] shadow-sm">
                      Complete Profile
-                   </Link>
+                   </div>
                  )}
                </div>
-             </div>
+             </Link>
           </div>
         </header>
 
