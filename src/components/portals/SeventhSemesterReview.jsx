@@ -103,7 +103,7 @@ export default function SeventhSemesterReview({ userTeam }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
         {/* Review 1 Card */}
-        <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
+        <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 group flex flex-col">
           <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
             <h2 className="text-xl font-black text-[#111827]">{evaluationData.review1.title}</h2>
             <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-black text-xs rounded-full">Total: {evaluationData.review1.totalMarks}</span>
@@ -136,7 +136,7 @@ export default function SeventhSemesterReview({ userTeam }) {
         </div>
 
         {/* Review 2 Card */}
-        <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
+        <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 group flex flex-col">
           <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
             <h2 className="text-xl font-black text-[#111827]">{evaluationData.review2.title}</h2>
             <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-black text-xs rounded-full">Total: {evaluationData.review2.totalMarks}</span>
@@ -175,7 +175,7 @@ export default function SeventhSemesterReview({ userTeam }) {
         <h3 className="text-lg font-black text-[#111827] mb-4 px-2">Review Schedule</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
            {/* Date */}
-           <div className="bg-white p-5 rounded-[24px] border border-[#EADBD0] shadow-sm flex items-center gap-4">
+           <div className="bg-white p-5 rounded-[24px] border border-[#EADBD0] shadow-sm flex items-center gap-4 hover:border-[#FF5F38] transition-colors duration-300 cursor-pointer">
              <div className="w-12 h-12 rounded-full bg-[#FFF8F4] text-[#FF5F38] flex items-center justify-center shrink-0 border border-[#FADCC7]">
                <Calendar className="w-6 h-6" />
              </div>
@@ -186,7 +186,7 @@ export default function SeventhSemesterReview({ userTeam }) {
            </div>
            
            {/* Conducted On */}
-           <div className="bg-white p-5 rounded-[24px] border border-[#EADBD0] shadow-sm flex items-center gap-4">
+           <div className="bg-white p-5 rounded-[24px] border border-[#EADBD0] shadow-sm flex items-center gap-4 hover:border-[#FF5F38] transition-colors duration-300 cursor-pointer">
              <div className="w-12 h-12 rounded-full bg-[#FFF8F4] text-[#FF5F38] flex items-center justify-center shrink-0 border border-[#FADCC7]">
                <CheckCircle className="w-6 h-6" />
              </div>
@@ -197,7 +197,7 @@ export default function SeventhSemesterReview({ userTeam }) {
            </div>
 
            {/* Reviewed By */}
-           <div className="bg-white p-5 rounded-[24px] border border-[#EADBD0] shadow-sm flex items-center gap-4">
+           <div className="bg-white p-5 rounded-[24px] border border-[#EADBD0] shadow-sm flex items-center gap-4 hover:border-[#FF5F38] transition-colors duration-300 cursor-pointer">
              <div className="w-12 h-12 rounded-full bg-[#FFF8F4] text-[#FF5F38] flex items-center justify-center shrink-0 border border-[#FADCC7]">
                <Users className="w-6 h-6" />
              </div>
