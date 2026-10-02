@@ -1330,26 +1330,20 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Current Progress %</label>
-                  <input type="number" min="0" max="100" value={reviewFormData.progressPercent} onChange={e => setReviewFormData({...reviewFormData, progressPercent: e.target.value})} className="w-full px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-mono font-bold" />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Current Project Stage</label>
-                  <select value={reviewFormData.stage} onChange={e => setReviewFormData({...reviewFormData, stage: e.target.value})} className="w-full px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-bold">
-                    <option>Project Selection</option>
-                    <option>Problem Identification</option>
-                    <option>Research & SRS</option>
-                    <option>Planning & Architecture</option>
-                    <option>Design & Prototype</option>
-                    <option>Development</option>
-                    <option>Testing & QA</option>
-                    <option>Documentation</option>
-                    <option>Final Presentation</option>
-                    <option>Final Submission</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Current Project Stage</label>
+                <select value={reviewFormData.stage} onChange={e => setReviewFormData({...reviewFormData, stage: e.target.value})} className="w-full px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-bold">
+                  <option>Project Selection</option>
+                  <option>Problem Identification</option>
+                  <option>Research & SRS</option>
+                  <option>Planning & Architecture</option>
+                  <option>Design & Prototype</option>
+                  <option>Development</option>
+                  <option>Testing & QA</option>
+                  <option>Documentation</option>
+                  <option>Final Presentation</option>
+                  <option>Final Submission</option>
+                </select>
               </div>
 
               <div className="pt-4 border-t border-[#EADBD0] flex justify-end gap-3">
