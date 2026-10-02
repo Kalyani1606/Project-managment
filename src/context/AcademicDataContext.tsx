@@ -158,13 +158,7 @@ const initialTeams: Team[] = [
       { name: "Siddharth Rao", email: "siddharth.r@university.edu", regNo: "21BCA048", role: "Member", status: "Accepted" }
     ],
     invitations: [],
-    researchPapers: [
-      { id: 1, title: "Deep Residual Learning for Image Recognition", authors: "He, K., Zhang, X., Ren, S., & Sun, J.", publication: "IEEE CVPR", year: "2016" },
-      { id: 2, title: "Grad-CAM: Visual Explanations from Deep Networks", authors: "Selvaraju, R. R., et al.", publication: "IEEE ICCV", year: "2017" },
-      { id: 3, title: "Deep Learning for Detection of Diabetic Retinopathy", authors: "Gulshan, V., Rajan, R. P., et al.", publication: "JAMA Journal", year: "2016" },
-      { id: 4, title: "Attention Is All You Need in Medical Vision Transformers", authors: "Vaswani, A., & Dosovitskiy, A.", publication: "NeurIPS", year: "2021" },
-      { id: 5, title: "Explainable AI in Clinical Decision Support: A Review", authors: "Amann, J., et al.", publication: "BMC Medical Informatics", year: "2020" }
-    ],
+    researchPapers: [],
     marks: {
       cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 },
       endSem: { presentation: 9, finalReport: 14, total: 23 },
@@ -192,13 +186,7 @@ const initialTeams: Team[] = [
       { name: "Ananya Roy", email: "ananya.r@university.edu", regNo: "21BCA019", role: "Member", status: "Accepted" }
     ],
     invitations: [],
-    researchPapers: [
-      { id: 1, title: "eBPF-Based Network Packet Inspection", authors: "Smith, J.", publication: "ACM SIGCOMM", year: "2022" },
-      { id: 2, title: "IoT Security Challenges and Machine Learning Defense", authors: "Zheng, C.", publication: "IEEE IoT Journal", year: "2021" },
-      { id: 3, title: "Isolation Forest for High-Dimensional Network Intrusion", authors: "Liu, F. T.", publication: "IEEE ICDM", year: "2008" },
-      { id: 4, title: "Zero-Day Vulnerability Mitigation in Edge Networks", authors: "Kumar, A.", publication: "IEEE Access", year: "2023" },
-      { id: 5, title: "Mirai Botnet Architecture & Remediation Strategies", authors: "Antonakakis, M.", publication: "USENIX Security", year: "2017" }
-    ],
+    researchPapers: [],
     marks: {
       cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 4, problemIdentification: 5, researchReview: 4, total: 23 },
       endSem: { presentation: 8, finalReport: 13, total: 21 },

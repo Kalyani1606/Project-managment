@@ -89,7 +89,12 @@ export const initialData = {
       ],
       invitations: [],
       researchPapers: [],
-      marks: { cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 }, endSem: { presentation: 18, finalReport: 22, total: 40 }, totalMarks: 65, status: 'Approved' }
+      marks: {
+        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 },
+        endSem: { presentation: 18, finalReport: 22, total: 40 },
+        totalMarks: 65,
+        status: 'Approved'
+      }
     },
     {
       id: 'TEAM-02',
@@ -531,12 +536,15 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
-  const createTeam = (teamName) => {
+  const createTeam = (submittedTeamName, overrideUser = null) => {
+    // Generate a unique sequential Team ID based on the number of teams
     const newTeamId = `TEAM-${String(data.teams.length + 1).padStart(2, '0')}`;
+    const teamName = submittedTeamName;
+    const activeUser = overrideUser || data.currentUser || data.studentProfile;
     const newTeam = {
       id: newTeamId,
       name: teamName,
-      leaderEmail: data.studentProfile.email,
+      leaderEmail: activeUser.email,
       status: 'Pending Approval',
       mentorId: null,
       mentorName: null,
@@ -548,7 +556,7 @@ export const AppProvider = ({ children }) => {
       shortDescription: '',
       currentSemester: '6th Semester',
       members: [
-        { name: data.studentProfile.fullName, email: data.studentProfile.email, regNo: data.studentProfile.registerNo, role: 'Team Leader', status: 'Accepted' }
+        { name: activeUser.fullName || activeUser.email.split('@')[0], email: activeUser.email, regNo: activeUser.registerNo || 'NEW-REG', role: 'Team Leader', status: 'Accepted' }
       ],
       invitations: [],
       researchPapers: [],
@@ -655,6 +663,22 @@ export const AppProvider = ({ children }) => {
             ...t,
             researchPapers: newPapers,
             marks: { ...t.marks, cia: { ...t.marks.cia, researchReview: ciaReviewScore } }
+          };
+        }
+        return t;
+      })
+    }));
+  };
+
+  const clearResearchPapers = (teamId) => {
+    setData(prev => ({
+      ...prev,
+      teams: prev.teams.map(t => {
+        if (t.id === teamId) {
+          return {
+            ...t,
+            researchPapers: [],
+            marks: { ...t.marks, cia: { ...t.marks.cia, researchReview: 0 } }
           };
         }
         return t;
@@ -842,6 +866,46 @@ export const AppProvider = ({ children }) => {
         ...prev.notifications
       ]
     }));
+  };  const submitStudentReviewLog = (teamId, entryDetails) => {
+    const newEntry = {
+      id: `DIARY-${Date.now()}`,
+      teamId,
+      teamName: data.teams.find(t => t.id === teamId)?.name,
+      ...entryDetails,
+      status: 'Pending',
+    };
+    
+    setData(prev => ({
+      ...prev,
+      projectDiary: [newEntry, ...prev.projectDiary],
+      notifications: [
+        { id: `N-${Date.now()}`, text: `📝 New review submitted by ${newEntry.teamName} pending your approval.`, time: 'Just now', read: false, role: 'mentor' },
+        ...prev.notifications
+      ]
+    }));
+  };
+
+  const approveStudentReviewLog = (diaryId, mentorDetails) => {
+    setData(prev => {
+      const entryIndex = prev.projectDiary.findIndex(d => d.id === diaryId);
+      if (entryIndex === -1) return prev;
+      
+      const updatedDiary = [...prev.projectDiary];
+      updatedDiary[entryIndex] = {
+        ...updatedDiary[entryIndex],
+        ...mentorDetails,
+        status: 'Approved'
+      };
+
+      return {
+        ...prev,
+        projectDiary: updatedDiary,
+        notifications: [
+          { id: `N-${Date.now()}`, text: `✅ Your review (${updatedDiary[entryIndex].reviewNumber}) has been approved by the mentor!`, time: 'Just now', read: false, role: 'student' },
+          ...prev.notifications
+        ]
+      };
+    });
   };
 
   // Coordinator Actions
@@ -926,6 +990,7 @@ export const AppProvider = ({ children }) => {
       selectMentor,
       setDomainAndTopic,
       addResearchPaper,
+      clearResearchPapers,
       respondToMentorRequest,
       addProjectDiaryEntry,
       updateProjectProgress,
@@ -935,6 +1000,8 @@ export const AppProvider = ({ children }) => {
       uploadTeamProjectDocument,
       updateMentorProfile,
       submitReviewerMarks,
+      submitStudentReviewLog,
+      approveStudentReviewLog,
       toggleRegisterLock,
       approveTeamStatus,
       assignMentorToTeam,
