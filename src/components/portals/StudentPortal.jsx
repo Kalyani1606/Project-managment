@@ -1246,7 +1246,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 <h2 className="text-xl font-black text-[#111827]">
                   New Official Project Review Entry — {userTeam?.name}
                 </h2>
-                <p className="text-xs text-slate-500 mt-1 font-medium">Record attendance, demonstrated progress, mentor feedback & assigned tasks</p>
+                <p className="text-xs text-slate-500 mt-1 font-medium">Record review date, attendance, work completed & demonstrated progress for mentor approval</p>
               </div>
               <button onClick={() => setShowReviewSubmitModal(false)} className="bg-slate-100 hover:bg-slate-200 p-2 rounded-full text-slate-500 transition">
                 <X className="w-5 h-5" />
@@ -1323,42 +1323,9 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </div>
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Problems & Challenges Faced by Students</label>
-                <input type="text" placeholder="Students are facing issues with..." value={reviewFormData.problemsFaced} onChange={e => setReviewFormData({...reviewFormData, problemsFaced: e.target.value})} className="w-full px-3.5 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-medium" />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Mentor Observations</label>
-                <input type="text" placeholder="Authentication module is working..." value={reviewFormData.mentorObservations} onChange={e => setReviewFormData({...reviewFormData, mentorObservations: e.target.value})} className="w-full px-3.5 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-medium" />
-              </div>
-
-              <div>
-                <label className="block font-extrabold text-[#0B2E26] mb-1">Official Mentor Feedback & Instructions</label>
-                <textarea rows="3" placeholder="Complete the dashboard and improve API..." value={reviewFormData.mentorFeedback} onChange={e => setReviewFormData({...reviewFormData, mentorFeedback: e.target.value})} className="w-full p-3 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-medium"></textarea>
-              </div>
-
-              <div className="space-y-2 pt-2 border-t border-[#EADBD0]">
-                <div className="flex items-center justify-between">
-                  <label className="block font-extrabold text-slate-800">Tasks Given to Students</label>
-                  <button type="button" onClick={() => setReviewFormData({...reviewFormData, tasks: [...reviewFormData.tasks, { task: '', student: userTeam?.members[0]?.name || '', deadline: '' }]})} className="text-xs font-bold text-[#FF5F38] hover:underline cursor-pointer">
-                    + Add Task Row
-                  </button>
-                </div>
-                {reviewFormData.tasks.map((tk, tIdx) => (
-                  <div key={tIdx} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <input type="text" placeholder="Task description..." value={tk.task} onChange={e => { const copy = [...reviewFormData.tasks]; copy[tIdx].task = e.target.value; setReviewFormData({ ...reviewFormData, tasks: copy }); }} className="px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl text-xs" />
-                    <select value={tk.student} onChange={e => { const copy = [...reviewFormData.tasks]; copy[tIdx].student = e.target.value; setReviewFormData({ ...reviewFormData, tasks: copy }); }} className="px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl text-xs font-semibold">
-                      {(userTeam?.members || []).map(m => <option key={m.regNo} value={m.name}>{m.name}</option>)}
-                    </select>
-                    <input type="date" value={tk.deadline} onChange={e => { const copy = [...reviewFormData.tasks]; copy[tIdx].deadline = e.target.value; setReviewFormData({ ...reviewFormData, tasks: copy }); }} className="px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl text-xs font-mono" />
-                  </div>
-                ))}
-              </div>
-
               <div className="pt-4 border-t border-[#EADBD0] flex justify-end gap-3">
                 <button type="button" onClick={() => setShowReviewSubmitModal(false)} className="px-6 py-2.5 rounded-xl border border-[#EADBD0] text-slate-600 font-bold hover:bg-slate-100 cursor-pointer text-sm">Cancel</button>
-                <button type="submit" className="px-6 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white text-sm font-extrabold shadow-md cursor-pointer rounded-xl">Save Permanent Diary Entry</button>
+                <button type="submit" className="px-6 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white text-sm font-extrabold shadow-md cursor-pointer rounded-xl">Submit Review Entry</button>
               </div>
             </form>
           </div>
