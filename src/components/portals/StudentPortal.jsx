@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
+import { useAuth } from '@/context/AuthContext';
 import {
   User,
   Users,
@@ -22,7 +23,9 @@ import {
   BarChart3,
   Info,
   MonitorPlay,
-  Save
+  XCircle,
+  Save,
+  PlusCircle
 } from 'lucide-react';
 import Roadmap3D from '../Roadmap3D';
 import EReportView from '../common/EReportView';
@@ -37,11 +40,25 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
     respondToInvitation,
     selectMentor,
     setDomainAndTopic,
-    addResearchPaper
+    addResearchPaper,
+    clearResearchPapers,
+    submitStudentReviewLog
   } = useApp();
 
-  const profile = data.studentProfile;
-  const userTeam = data.teams.find(t => t.id === profile.teamId) || null;
+  const { user } = useAuth();
+  
+  // Merge true auth user with the fallback profile so names/emails display properly
+  const profile = {
+    ...data.studentProfile,
+    ...(data.currentUser || {}),
+    ...(user || {}),
+    email: user?.email || user?.collegeEmail || data.currentUser?.email || data.studentProfile.email,
+    fullName: user?.name || data.currentUser?.fullName || data.studentProfile.fullName
+  };
+  const userTeam = data.teams.find(t => 
+    t.leaderEmail === profile.email || 
+    t.members?.some(m => m.email === profile.email)
+  ) || null;
 
   const [activeTab, setActiveTab] = useState(defaultTab);
   
@@ -51,8 +68,26 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
 
   const [selectedSemester, setSelectedSemester] = useState('6th Semester');
   const [showEReportModal, setShowEReportModal] = useState(false);
+  const [showReviewSubmitModal, setShowReviewSubmitModal] = useState(false);
+  const [reviewFormData, setReviewFormData] = useState({
+    date: new Date().toISOString().split('T')[0],
+    stage: 'Development',
+    workCompleted: '',
+    problemsFaced: ''
+  });
   const [saveStatus, setSaveStatus] = useState('');
-  const [isSemesterCompleted, setIsSemesterCompleted] = useState(false);
+  const [isSemesterCompleted, setIsSemesterCompleted] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('isSemesterCompleted') === 'true';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('isSemesterCompleted', isSemesterCompleted);
+    }
+  }, [isSemesterCompleted]);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ ...profile });
@@ -60,7 +95,16 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
   const [newTeamName, setNewTeamName] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
 
-  const [domain, setDomain] = useState(userTeam?.domain || 'Artificial Intelligence');
+  const [domain, setDomain] = useState(() => {
+    if (!userTeam?.domain) return 'Artificial Intelligence';
+    const presets = ['Artificial Intelligence', 'Machine Learning', 'Web Development', 'Cybersecurity', 'IoT', 'Cloud Computing', 'Data Science'];
+    return presets.includes(userTeam.domain) ? userTeam.domain : 'Others';
+  });
+  const [customDomain, setCustomDomain] = useState(() => {
+    if (!userTeam?.domain) return '';
+    const presets = ['Artificial Intelligence', 'Machine Learning', 'Web Development', 'Cybersecurity', 'IoT', 'Cloud Computing', 'Data Science'];
+    return presets.includes(userTeam.domain) ? '' : userTeam.domain;
+  });
   const [domainReason, setDomainReason] = useState(userTeam?.domainReason || '');
   const [projectTitle, setProjectTitle] = useState(userTeam?.projectTitle || '');
   const [problemStatement, setProblemStatement] = useState(userTeam?.problemStatement || '');
@@ -68,7 +112,15 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
 
   useEffect(() => {
     if (userTeam) {
-      if (userTeam.domain) setDomain(userTeam.domain);
+      if (userTeam.domain) {
+        const presets = ['Artificial Intelligence', 'Machine Learning', 'Web Development', 'Cybersecurity', 'IoT', 'Cloud Computing', 'Data Science'];
+        if (presets.includes(userTeam.domain)) {
+          setDomain(userTeam.domain);
+        } else {
+          setDomain('Others');
+          setCustomDomain(userTeam.domain);
+        }
+      }
       if (userTeam.domainReason) setDomainReason(userTeam.domainReason);
       if (userTeam.projectTitle) setProjectTitle(userTeam.projectTitle);
       if (userTeam.problemStatement) setProblemStatement(userTeam.problemStatement);
@@ -76,18 +128,15 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
     }
   }, [userTeam?.id, activeSection]);
 
-  const [paperTitle, setPaperTitle] = useState('');
-  const [paperAuthors, setPaperAuthors] = useState('');
-  const [paperPublication, setPaperPublication] = useState('');
-  const [paperYear, setPaperYear] = useState('2024');
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [isExtracting, setIsExtracting] = useState(false);
 
   const steps = [
     { id: 1, title: 'Create Team', isDone: !!userTeam },
     { id: 2, title: 'Add Members', isDone: userTeam && userTeam.members.length >= 2 },
     { id: 3, title: 'Select Mentor', isDone: userTeam && !!userTeam.mentorId },
-    { id: 4, title: 'Domain Selection', isDone: userTeam && !!userTeam.domain },
-    { id: 5, title: 'Project Topic', isDone: userTeam && !!userTeam.projectTitle },
-    { id: 6, title: '5 Research Papers', isDone: userTeam && userTeam.researchPapers.length >= 5 }
+    { id: 4, title: 'Domain & Topic', isDone: userTeam && !!userTeam.domain && !!userTeam.projectTitle },
+    { id: 5, title: '5 Research Papers', isDone: userTeam && userTeam.researchPapers.length >= 5 }
   ];
 
   const completedStepsCount = steps.filter(s => s.isDone).length;
@@ -102,7 +151,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
   const handleCreateTeamSubmit = (e) => {
     e.preventDefault();
     if (!newTeamName.trim()) return;
-    createTeam(newTeamName.trim());
+    createTeam(newTeamName.trim(), profile);
     setNewTeamName('');
   };
 
@@ -120,24 +169,59 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
       setTimeout(() => setSaveStatus(''), 4000);
       return;
     }
-    setDomainAndTopic(userTeam.id, domain, domainReason, projectTitle, problemStatement, shortDescription);
+    const finalDomain = domain === 'Others' ? customDomain : domain;
+    setDomainAndTopic(userTeam.id, finalDomain, domainReason, projectTitle, problemStatement, shortDescription);
     setSaveStatus('success');
     setTimeout(() => setSaveStatus(''), 4000);
   };
 
-  const handleAddPaperSubmit = (e) => {
+  const handleUploadFile = (e) => {
+    const files = Array.from(e.target.files);
+    if (uploadedFiles.length + files.length > 5) {
+      alert("You can only upload up to 5 papers.");
+      return;
+    }
+    setUploadedFiles([...uploadedFiles, ...files]);
+  };
+
+  const removeUploadedFile = (index) => {
+    setUploadedFiles(uploadedFiles.filter((_, i) => i !== index));
+  };
+
+  const handleExtractDetails = () => {
+    if (uploadedFiles.length < 5) {
+      alert("Please upload 5 research papers before extracting.");
+      return;
+    }
+    setIsExtracting(true);
+    setTimeout(() => {
+      const aiMockExtracts = [
+          { title: "Deep Residual Learning for Image Recognition", authors: "He, K., Zhang, X.", publication: "IEEE CVPR", year: "2016" },
+          { title: "Attention Is All You Need", authors: "Vaswani, A., et al.", publication: "NeurIPS", year: "2017" },
+          { title: "YOLOv7: Trainable bag-of-freebies", authors: "Wang, C. Y., et al.", publication: "CVPR", year: "2023" },
+          { title: "ImageNet Classification with Deep Convolutional Neural Networks", authors: "Krizhevsky, A., Sutskever, I.", publication: "NIPS", year: "2012" },
+          { title: "Adam: A Method for Stochastic Optimization", authors: "Kingma, D. P., Ba, J.", publication: "ICLR", year: "2015" }
+      ];
+      aiMockExtracts.forEach(paper => addResearchPaper(userTeam.id, paper));
+      setIsExtracting(false);
+      setUploadedFiles([]);
+    }, 2500); 
+  };
+  
+  const handleReviewSubmit = (e) => {
     e.preventDefault();
-    if (!userTeam || !paperTitle || !paperAuthors) return;
-    addResearchPaper(userTeam.id, {
-      title: paperTitle,
-      authors: paperAuthors,
-      publication: paperPublication,
-      year: paperYear
+    if (!userTeam || !reviewFormData.workCompleted) return;
+    submitStudentReviewLog(userTeam.id, {
+      ...reviewFormData,
+      reviewNumber: `Review ${String(data.projectDiary.filter(d => d.teamId === userTeam.id).length + 1).padStart(2, '0')}`,
+      studentsPresent: [profile.fullName],
+      attendanceMap: { [profile.fullName]: 'Present' },
+      progressPercent: progressPercentage
     });
-    setPaperTitle('');
-    setPaperAuthors('');
-    setPaperPublication('');
-    setPaperYear('');
+    setShowReviewSubmitModal(false);
+    setSaveStatus('success');
+    setTimeout(() => setSaveStatus(''), 4000);
+    setReviewFormData({ date: new Date().toISOString().split('T')[0], stage: 'Development', workCompleted: '', problemsFaced: ''});
   };
 
   return (
@@ -319,7 +403,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 <span className="text-[80px] filter drop-shadow-lg relative z-10 duration-300 hover:scale-110">📚</span>
               </div>
               <div className="flex-1 space-y-2">
-                <h3 className="text-xl font-black text-[#111827]">6th Semester</h3>
+                <h3 className="text-xl font-black text-[#111827]">Capstone Project Phase 1</h3>
                 <p className="text-sm font-bold text-slate-500">Planning & Research</p>
                 <p className="text-xs text-slate-500 leading-relaxed min-h-[60px]">
                   Team formation, Mentor selection, Domain identification, Problem statement and 5 Research papers.
@@ -344,7 +428,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 <span className="text-[80px] filter drop-shadow-lg relative z-10 duration-300 hover:scale-110">💻</span>
               </div>
               <div className="flex-1 space-y-2">
-                <h3 className="text-xl font-black text-[#111827]">7th Semester</h3>
+                <h3 className="text-xl font-black text-[#111827]">Capstone Project Phase 2</h3>
                 <p className="text-sm font-bold text-slate-500">Development & Implementation</p>
                 <p className="text-xs text-slate-500 leading-relaxed min-h-[60px]">
                   Architecture design, Model training/API development, System integration and Mid-term demo.
@@ -369,7 +453,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 <span className="text-[80px] filter drop-shadow-lg relative z-10 duration-300 hover:scale-110">🚀</span>
               </div>
               <div className="flex-1 space-y-2">
-                <h3 className="text-xl font-black text-[#111827]">8th Semester</h3>
+                <h3 className="text-xl font-black text-[#111827]">Capstone Project Phase 3</h3>
                 <p className="text-sm font-bold text-slate-500">Final Project & Completion</p>
                 <p className="text-xs text-slate-500 leading-relaxed min-h-[60px]">
                   Performance benchmarking, Final viva presentation, Thesis submission and Publication.
@@ -432,16 +516,10 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                       <Sparkles className="w-5 h-5 text-[#FF5F38]" />
                       📊 6th Semester Progress Tracker
                     </h2>
-                    <p className="text-xs text-slate-500">Track real-time completion of your 6-step project setup</p>
+                    <p className="text-xs text-slate-500">Track real-time completion of your 5-step project setup</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-xl font-extrabold text-[#FF5F38] font-mono">{progressPercentage}%</span>
-                    <button
-                      onClick={() => setShowEReportModal(true)}
-                      className="px-4 py-2 bg-[#0B2E26] hover:bg-[#071f1a] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer py-1.5 text-xs"
-                    >
-                      <FileText className="w-4 h-4" /> View Structured E-Report
-                    </button>
                   </div>
                 </div>
 
@@ -452,7 +530,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                   />
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 pt-2 text-center text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-2 text-center text-xs">
                   {steps.map(s => (
                     <div
                       key={s.id}
@@ -473,6 +551,72 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
 
               {/* Step-by-Step Module */}
               <div className="space-y-4">
+                {isSemesterCompleted ? (
+                   <div className="p-8 rounded-[24px] border border-[#EADBD0] bg-white shadow-lg space-y-6 animate-fade-in relative overflow-hidden">
+                     <div className="absolute top-0 left-0 w-2 h-full bg-[#FF5F38]"></div>
+                     <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#EADBD0] pb-4 gap-4">
+                        <h2 className="text-xl font-black text-[#111827] flex items-center gap-2">
+                           <CheckCircle2 className="w-6 h-6 text-[#FF5F38]" /> Final Submitted Details Summary
+                        </h2>
+                        <button onClick={() => setIsSemesterCompleted(false)} className="px-5 py-2.5 bg-[#FFF8F4] hover:bg-[#FADCC7] border border-[#FADCC7] text-[#D94625] text-xs font-bold rounded-xl transition-all cursor-pointer">
+                           Edit Details
+                        </button>
+                     </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-[#FAF2EC] p-5 rounded-2xl border border-[#EADBD0]">
+                           <h3 className="text-xs font-bold text-[#FF5F38] mb-3 uppercase tracking-wider">Team & Mentor</h3>
+                           <p className="text-sm font-semibold text-[#111827] mb-1"><span className="text-slate-500 font-medium">Team ID:</span> {userTeam?.id}</p>
+                           <p className="text-sm font-semibold text-[#111827] mb-1"><span className="text-slate-500 font-medium">Name:</span> {userTeam?.name}</p>
+                           <p className="text-sm font-semibold text-[#111827] mt-3 pt-3 border-t border-[#EADBD0]"><span className="text-slate-500 font-medium">Mentor:</span> {userTeam?.mentorName || "Pending Setup"}</p>
+                        </div>
+                        <div className="bg-[#FAF2EC] p-5 rounded-2xl border border-[#EADBD0]">
+                           <h3 className="text-xs font-bold text-[#FF5F38] mb-3 uppercase tracking-wider">Domain & Topic</h3>
+                           <p className="text-sm font-semibold text-[#111827] mb-1"><span className="text-slate-500 font-medium">Domain:</span> {userTeam?.domain || "Not Selected"}</p>
+                           <p className="text-sm font-semibold text-[#111827] mt-2 leading-relaxed"><span className="text-slate-500 font-medium">Topic:</span> {userTeam?.projectTitle || "Not Selected"}</p>
+                        </div>
+                     </div>
+                     <div className="bg-[#FAF2EC] p-5 rounded-2xl border border-[#EADBD0]">
+                         <h3 className="text-xs font-bold text-[#FF5F38] mb-3 uppercase tracking-wider">Members ({userTeam?.members?.length || 0})</h3>
+                         <div className="flex flex-wrap gap-2">
+                            {userTeam?.members?.map((m, idx) => (
+                               <span key={idx} className="text-xs font-bold bg-white border border-[#EADBD0] text-slate-700 px-3 py-1.5 rounded-lg">{m.name}</span>
+                            ))}
+                         </div>
+                     </div>
+                     <div className="bg-[#FAF2EC] p-5 rounded-2xl border border-[#EADBD0] md:col-span-2">
+                         <h3 className="text-xs font-bold text-[#FF5F38] mb-3 uppercase tracking-wider">Literature Survey ({userTeam?.researchPapers?.length || 0} Papers)</h3>
+                         {userTeam?.researchPapers?.length > 0 ? (
+                           <div className="overflow-x-auto bg-white rounded-xl border border-[#EADBD0] p-1">
+                             <table className="w-full text-left text-xs border-collapse">
+                               <thead>
+                                 <tr className="border-b border-[#EADBD0] text-slate-500 bg-slate-50/50">
+                                   <th className="py-2 px-3">No.</th>
+                                   <th className="py-2 px-3">Paper Title</th>
+                                   <th className="py-2 px-3">Author(s)</th>
+                                   <th className="py-2 px-3">Publication / Journal</th>
+                                   <th className="py-2 px-3">Year</th>
+                                 </tr>
+                               </thead>
+                               <tbody className="divide-y divide-slate-100">
+                                 {userTeam?.researchPapers?.map((p, idx) => (
+                                   <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                                     <td className="py-2.5 px-3 font-mono font-bold text-[#FF5F38]">{idx + 1}</td>
+                                     <td className="py-2.5 px-3 font-semibold text-[#111827]">{p.title}</td>
+                                     <td className="py-2.5 px-3 text-slate-700">{p.authors}</td>
+                                     <td className="py-2.5 px-3 text-slate-500">{p.publication}</td>
+                                     <td className="py-2.5 px-3 font-mono text-slate-600">{p.year}</td>
+                                   </tr>
+                                 ))}
+                               </tbody>
+                             </table>
+                           </div>
+                         ) : (
+                           <div className="text-xs text-slate-500 font-medium italic">No research papers added.</div>
+                         )}
+                     </div>
+                   </div>
+                ) : (
+                  <>
                 
                 {/* STEP 1 & 2 */}
                 {(activeSection === 'all' || activeSection === 'team') && (
@@ -498,13 +642,13 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                     <form onSubmit={handleCreateTeamSubmit} className="flex gap-3 max-w-md">
                       <input
                         type="text"
-                        placeholder="Enter Proposed Team Name (e.g. Team Alpha)"
-                        className="form-input flex-1"
+                        placeholder="Enter Team Name (e.g. CodeCrafters Alpha)"
+                        className="flex-1 px-4 py-3 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl text-sm focus:outline-none focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition-colors"
                         value={newTeamName}
                         onChange={(e) => setNewTeamName(e.target.value)}
                         required
                       />
-                      <button type="submit" className="px-5 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer py-2 text-xs">
+                      <button type="submit" className="px-5 py-3 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-bold text-sm rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap">
                         Create Team
                       </button>
                     </form>
@@ -599,50 +743,23 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                       </div>
                       <div>
                         <h3 className="text-sm font-bold text-[#111827]">Step 3: Select Faculty Mentor 👨‍🏫</h3>
-                        <p className="text-xs text-slate-500">Team selects a mentor from department directory</p>
+                        <p className="text-xs text-slate-500">Enter the name of your desired faculty mentor</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {data.mentors.map((m) => {
-                      const isSelectedMentor = userTeam?.mentorId === m.id;
-                      return (
-                        <div
-                          key={m.id}
-                          className={`p-4 rounded-2xl border transition-all ${
-                            isSelectedMentor
-                              ? 'bg-[#FF5F38]/10/70 border-blue-300 shadow-sm'
-                              : 'bg-[#FAF2EC] border-[#EADBD0]'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-bold text-[#111827]">{m.name}</h4>
-                            <span className="text-[10px] text-slate-500 font-mono">{m.department}</span>
-                          </div>
-                          <p className="text-xs text-slate-600 mb-3">{m.designation}</p>
-                          
-                          <div className="flex items-center justify-between pt-2 border-t border-[#EADBD0]">
-                            <span className="text-[11px] text-slate-500">
-                              Workload: {m.assignedTeamsCount}/{m.maxTeams} Teams
-                            </span>
-
-                            {isSelectedMentor ? (
-                              <span className="text-xs text-emerald-700 font-bold flex items-center gap-1">
-                                <CheckCircle2 className="w-3.5 h-3.5" /> Selected
-                              </span>
-                            ) : (
-                              <button
-                                onClick={() => selectMentor(userTeam?.id, m.id)}
-                                className="px-4 py-2 bg-white hover:bg-slate-100 text-[#0B2E26] font-bold text-xs rounded-xl border border-[#EADBD0] shadow-sm transition-all cursor-pointer py-1 text-xs"
-                              >
-                                Send Request
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Dr. Sarah Jenkins" 
+                      className="flex-1 px-4 py-3 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl text-sm focus:outline-none focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition-colors"
+                    />
+                    <button 
+                      onClick={() => alert("Mentor request sent!")}
+                      className="px-6 py-3 bg-[#0B2E26] hover:bg-[#0B2E26]/90 text-white font-bold text-sm rounded-xl transition-colors whitespace-nowrap"
+                    >
+                      Send Request
+                    </button>
                   </div>
                 </div>
                 )}
@@ -653,11 +770,10 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                   <div className="flex items-center justify-between border-b border-[#EADBD0] pb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs">
-                        4 & 5
+                        4
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-[#111827]">Step 4 & 5: Domain Selection & Problem Statement 💡</h3>
-                        <p className="text-xs text-slate-500">Define domain, topic, and problem statement</p>
+                        <h3 className="text-sm font-bold text-[#111827]">Step 4: Domain Selection 💡</h3>
                       </div>
                     </div>
                   </div>
@@ -665,7 +781,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                   <form onSubmit={handleDomainTopicSubmit} className="space-y-5 pt-2">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label className="text-[13px] font-bold text-[#111827] mb-2 block tracking-tight">Broad Project Domain</label>
+                        <label className="text-[13px] font-bold text-[#111827] mb-2 block tracking-tight">Project Domain</label>
                         <select
                           className="w-full px-4 py-3 bg-[#FCFAF8] border border-[#FADCC7] rounded-2xl text-[14px] font-semibold text-[#111827] focus:outline-none focus:border-[#FF5F38] focus:ring-4 focus:ring-[#FF5F38]/10 shadow-sm hover:border-[#FADCC7] transition-all cursor-pointer"
                           value={domain}
@@ -678,7 +794,18 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                           <option value="IoT">IoT (Internet of Things)</option>
                           <option value="Cloud Computing">Cloud Computing</option>
                           <option value="Data Science">Data Science</option>
+                          <option value="Others">Others</option>
                         </select>
+                        {domain === 'Others' && (
+                          <input
+                            type="text"
+                            placeholder="Type your custom domain..."
+                            className="w-full px-4 py-3 mt-3 bg-[#FCFAF8] border border-[#FADCC7] rounded-2xl text-[14px] font-semibold text-[#111827] focus:outline-none focus:border-[#FF5F38] focus:ring-4 focus:ring-[#FF5F38]/10 shadow-sm hover:border-[#FADCC7] transition-all"
+                            value={customDomain}
+                            onChange={(e) => setCustomDomain(e.target.value)}
+                            required
+                          />
+                        )}
                       </div>
 
                       <div>
@@ -694,45 +821,13 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                       </div>
                     </div>
 
-                    <div>
-                      <label className="text-[13px] font-bold text-[#111827] mb-2 block tracking-tight">Domain Interest Rationale</label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-3 bg-[#FCFAF8] border border-[#FADCC7] rounded-2xl text-[14px] font-semibold text-[#111827] focus:outline-none focus:border-[#FF5F38] focus:ring-4 focus:ring-[#FF5F38]/10 shadow-sm hover:border-[#FADCC7] transition-all placeholder-slate-400"
-                        placeholder="Why did you choose this specific domain?"
-                        value={domainReason}
-                        onChange={(e) => setDomainReason(e.target.value)}
-                        required
-                      />
-                    </div>
 
-                    <div>
-                      <label className="text-[13px] font-bold text-[#111827] mb-2 block tracking-tight">Problem Statement</label>
-                      <textarea
-                        className="w-full px-4 py-3 bg-[#FCFAF8] border border-[#FADCC7] rounded-2xl text-[14px] font-semibold text-[#111827] focus:outline-none focus:border-[#FF5F38] focus:ring-4 focus:ring-[#FF5F38]/10 shadow-sm hover:border-[#FADCC7] transition-all placeholder-slate-400 resize-none h-24 leading-relaxed"
-                        placeholder="Describe the exact problem you are trying to solve..."
-                        value={problemStatement}
-                        onChange={(e) => setProblemStatement(e.target.value)}
-                        required
-                      ></textarea>
-                    </div>
-
-                    <div>
-                      <label className="text-[13px] font-bold text-[#111827] mb-2 block tracking-tight">Technical Scope & Short Description</label>
-                      <textarea
-                        className="w-full px-4 py-3 bg-[#FCFAF8] border border-[#FADCC7] rounded-2xl text-[14px] font-semibold text-[#111827] focus:outline-none focus:border-[#FF5F38] focus:ring-4 focus:ring-[#FF5F38]/10 shadow-sm hover:border-[#FADCC7] transition-all placeholder-slate-400 resize-none h-24 leading-relaxed"
-                        placeholder="Summarize the technical approach and methodology..."
-                        value={shortDescription}
-                        onChange={(e) => setShortDescription(e.target.value)}
-                        required
-                      ></textarea>
-                    </div>
 
                     <div className="flex items-center justify-end gap-4 pt-3">
                       {saveStatus === 'success' && <span className="text-[13px] font-bold text-emerald-600 animate-pulse">✓ Saved Successfully!</span>}
                       {saveStatus === 'error' && <span className="text-[13px] font-bold text-rose-500">Error: Create a Team first!</span>}
-                      <button type="button" onClick={handleDomainTopicSubmit} className="px-6 py-3 bg-[#FF5F38] hover:bg-[#E54D26] hover:-translate-y-0.5 hover:shadow-lg text-white font-black text-[13px] tracking-wide rounded-2xl shadow-md transition-all flex items-center gap-2 cursor-pointer">
-                        <Save className="w-4 h-4" />
+                      <button type="button" onClick={handleDomainTopicSubmit} className="px-8 py-4 bg-[#FF5F38] hover:bg-[#E54D26] hover:-translate-y-0.5 hover:shadow-lg text-white font-black text-[15px] tracking-wide rounded-2xl shadow-md transition-all flex items-center gap-2.5 cursor-pointer">
+                        <Save className="w-5 h-5" />
                         Save Domain & Topic Details
                       </button>
                     </div>
@@ -746,11 +841,11 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                   <div className="flex items-center justify-between border-b border-[#EADBD0] pb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
-                        6
+                        5
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-[#111827]">Step 6: Research Paper Literature Survey 📚</h3>
-                        <p className="text-xs text-slate-500">Enter details of at least 5 research papers</p>
+                        <h3 className="text-sm font-bold text-[#111827]">Step 5: Research Paper Literature Survey 📚</h3>
+                        <p className="text-xs text-slate-500">Upload all the five research papers</p>
                       </div>
                     </div>
 
@@ -760,101 +855,123 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                   </div>
 
                   {(userTeam?.researchPapers?.length || 0) < 5 ? (
-                  <form onSubmit={handleAddPaperSubmit} className="p-6 rounded-[24px] bg-[#FFF8F4] border border-[#FADCC7]/60 space-y-5 shadow-sm mt-4">
-                    <h4 className="text-[14px] font-black text-[#D94625] uppercase tracking-wide flex items-center gap-2">
-                      <span>➕</span> Add Research Paper Citation
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <div>
-                        <label className="text-[13px] font-bold text-[#111827] mb-2 block tracking-tight">Paper Title</label>
-                        <input
-                          type="text"
-                          className="w-full px-4 py-3 bg-white border border-[#FADCC7] rounded-2xl text-[14px] font-semibold text-[#111827] focus:outline-none focus:border-[#FF5F38] focus:ring-4 focus:ring-[#FF5F38]/10 shadow-sm hover:border-[#FADCC7] transition-all placeholder-slate-400"
-                          value={paperTitle}
-                          onChange={(e) => setPaperTitle(e.target.value)}
-                          placeholder="Full title of the research paper"
-                          required
-                        />
+                  <div className="p-6 rounded-[24px] bg-[#FFF8F4] border border-[#FADCC7]/60 shadow-sm mt-4">
+                    <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[#FADCC7] rounded-2xl bg-white hover:bg-slate-50 transition-all cursor-pointer relative">
+                      <input 
+                        type="file" 
+                        multiple
+                        accept="application/pdf"
+                        onChange={handleUploadFile}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                      />
+                      <div className="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mb-3">
+                        <FileText className="w-6 h-6" />
                       </div>
-
-                      <div>
-                        <label className="text-[13px] font-bold text-[#111827] mb-2 block tracking-tight">Author(s)</label>
-                        <input
-                          type="text"
-                          className="w-full px-4 py-3 bg-white border border-[#FADCC7] rounded-2xl text-[14px] font-semibold text-[#111827] focus:outline-none focus:border-[#FF5F38] focus:ring-4 focus:ring-[#FF5F38]/10 shadow-sm hover:border-[#FADCC7] transition-all placeholder-slate-400"
-                          value={paperAuthors}
-                          onChange={(e) => setPaperAuthors(e.target.value)}
-                          placeholder="e.g. Smith, J., Doe, A."
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[13px] font-bold text-[#111827] mb-2 block tracking-tight">Publication / Journal Name</label>
-                        <input
-                          type="text"
-                          className="w-full px-4 py-3 bg-white border border-[#FADCC7] rounded-2xl text-[14px] font-semibold text-[#111827] focus:outline-none focus:border-[#FF5F38] focus:ring-4 focus:ring-[#FF5F38]/10 shadow-sm hover:border-[#FADCC7] transition-all placeholder-slate-400"
-                          value={paperPublication}
-                          onChange={(e) => setPaperPublication(e.target.value)}
-                          placeholder="e.g. IEEE Access or ACM"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[13px] font-bold text-[#111827] mb-2 block tracking-tight">Publication Year</label>
-                        <input
-                          type="text"
-                          className="w-full px-4 py-3 bg-white border border-[#FADCC7] rounded-2xl text-[14px] font-mono font-semibold text-[#111827] focus:outline-none focus:border-[#FF5F38] focus:ring-4 focus:ring-[#FF5F38]/10 shadow-sm hover:border-[#FADCC7] transition-all placeholder-slate-400"
-                          value={paperYear}
-                          onChange={(e) => setPaperYear(e.target.value)}
-                          placeholder="e.g. 2024"
-                          required
-                        />
-                      </div>
+                      <h4 className="text-[15px] font-black text-[#D94625] uppercase tracking-wide">
+                        Upload Research Papers
+                      </h4>
+                      <p className="text-xs text-slate-500 font-semibold mt-1">Drag and drop or click to upload 5 PDFs</p>
                     </div>
+                    
+                    {uploadedFiles.length > 0 && (
+                      <div className="mt-5 space-y-3">
+                        {uploadedFiles.map((file, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-3 bg-white border border-[#FADCC7] rounded-xl shadow-sm">
+                            <div className="flex items-center gap-3">
+                              <FileText className="w-4 h-4 text-slate-400" />
+                              <span className="text-sm font-semibold text-slate-700 truncate max-w-[200px] sm:max-w-md">{file.name}</span>
+                            </div>
+                            <button onClick={() => removeUploadedFile(idx)} className="text-rose-400 hover:text-rose-600">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-                    <div className="flex justify-end pt-2">
-                      <button type="submit" className="px-6 py-2.5 bg-white hover:bg-slate-50 text-[#D94625] font-black text-[13px] tracking-wide rounded-2xl border border-[#FADCC7] shadow-sm hover:shadow-md transition-all">
-                        Add Paper
+                    <div className="flex justify-end pt-5">
+                      <button 
+                        onClick={handleExtractDetails} 
+                        disabled={uploadedFiles.length < 5 || isExtracting}
+                        className="px-8 py-3.5 bg-[#FF5F38] disabled:bg-[#FADCC7] disabled:cursor-not-allowed hover:bg-[#E54D26] text-white font-black text-[14px] tracking-wide rounded-2xl shadow-md transition-all flex items-center gap-2"
+                      >
+                        {isExtracting ? (
+                          <>
+                            <Sparkles className="w-5 h-5 animate-pulse" />
+                            Extracting AI Details...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-5 h-5" />
+                            Extract Details
+                          </>
+                        )}
                       </button>
                     </div>
-                  </form>
+                  </div>
                   ) : (
-                    <div className="p-8 rounded-[24px] bg-emerald-50 border border-emerald-200 shadow-sm mt-4 text-emerald-800 text-center flex flex-col items-center justify-center gap-2">
-                       <CheckCircle2 className="w-8 h-8 text-emerald-600 mb-1" />
-                       <p className="font-black text-sm tracking-wide uppercase">Literature Survey Completed</p>
-                       <p className="text-xs font-semibold text-emerald-700 opacity-90">All 5 required research papers have been uploaded successfully.</p>
+                    <div className="p-4 px-5 rounded-2xl bg-emerald-50 border border-emerald-200 shadow-sm mt-4 flex items-center justify-between">
+                       <div className="flex items-center gap-4">
+                         <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
+                           <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                         </div>
+                         <div>
+                           <p className="font-black text-sm text-emerald-900 tracking-wide uppercase">Literature Survey Completed</p>
+                           <p className="text-[13px] font-medium text-emerald-700 mt-0.5">All 5 research papers extracted successfully.</p>
+                         </div>
+                       </div>
+                       <button 
+                         onClick={() => clearResearchPapers(userTeam.id)}
+                         className="px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[13px] rounded-xl transition-colors shrink-0"
+                       >
+                         Clear Papers
+                       </button>
                     </div>
                   )}
 
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs border-collapse">
-                      <thead>
-                        <tr className="border-b border-[#EADBD0] text-slate-500">
-                          <th className="py-2 px-2">No.</th>
-                          <th className="py-2 px-3">Paper Title</th>
-                          <th className="py-2 px-3">Author(s)</th>
-                          <th className="py-2 px-3">Publication / Journal</th>
-                          <th className="py-2 px-2">Year</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {userTeam?.researchPapers?.map((p, idx) => (
-                          <tr key={idx}>
-                            <td className="py-2 px-2 font-mono font-bold text-[#FF5F38]">{idx + 1}</td>
-                            <td className="py-2 px-3 font-semibold text-[#111827]">{p.title}</td>
-                            <td className="py-2 px-3 text-slate-700">{p.authors}</td>
-                            <td className="py-2 px-3 text-slate-500">{p.publication}</td>
-                            <td className="py-2 px-2 font-mono text-slate-600">{p.year}</td>
+                  {userTeam?.researchPapers?.length > 0 && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse mt-4">
+                        <thead>
+                          <tr className="border-b border-[#EADBD0] text-slate-500">
+                            <th className="py-2 px-2">No.</th>
+                            <th className="py-2 px-3">Paper Title</th>
+                            <th className="py-2 px-3">Author(s)</th>
+                            <th className="py-2 px-3">Publication / Journal</th>
+                            <th className="py-2 px-2">Year</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {userTeam?.researchPapers?.map((p, idx) => (
+                            <tr key={idx}>
+                              <td className="py-2 px-2 font-mono font-bold text-[#FF5F38]">{idx + 1}</td>
+                              <td className="py-2 px-3 font-semibold text-[#111827]">{p.title}</td>
+                              <td className="py-2 px-3 text-slate-700">{p.authors}</td>
+                              <td className="py-2 px-3 text-slate-500">{p.publication}</td>
+                              <td className="py-2 px-2 font-mono text-slate-600">{p.year}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
 
                 </div>
+                )}
+
+                {/* Final Submit Button */}
+                {userTeam && (
+                  <div className="flex justify-end pt-4 mt-8 pb-4">
+                     <button
+                       onClick={() => setIsSemesterCompleted(true)}
+                       className="px-8 py-3.5 bg-[#0B2E26] hover:bg-[#071f1a] text-white font-black text-sm tracking-wide rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2 cursor-pointer"
+                     >
+                        <CheckCircle2 className="w-5 h-5" />
+                        Complete & Submit Details
+                     </button>
+                  </div>
+                )}
+                </>
                 )}
 
                 {/* MARKS DISPLAY */}
@@ -950,77 +1067,6 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </div>
                 )}
 
-                {/* READ-ONLY OFFICIAL PROJECT DIARY VIEW FOR STUDENTS */}
-                {(activeSection === 'all' || activeSection === 'mentor') && userTeam && (
-                <div className="p-6 rounded-[24px] bg-white border border-[#EADBD0] shadow-md space-y-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EADBD0] pb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-[#0B2E26] text-white rounded-xl flex items-center justify-center font-bold text-sm">
-                        📖
-                      </div>
-                      <div>
-                        <h3 className="text-base font-extrabold text-[#111827] flex items-center gap-2">
-                          Official Project Diary & Mentor Guidance History
-                          <span className="text-[10px] bg-amber-100 text-amber-800 font-mono font-bold px-2 py-0.5 rounded-full border border-amber-200">
-                            🔒 Read-Only Official Log
-                          </span>
-                        </h3>
-                        <p className="text-xs text-slate-500">
-                          Mentor: <strong className="text-[#0B2E26]">{userTeam.mentorName || 'Dr. Sarah Jenkins'}</strong> • Total Reviews: {data.projectDiary.filter(d => d.teamId === userTeam.id).length}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {data.projectDiary.filter(d => d.teamId === userTeam.id).length === 0 ? (
-                      <div className="text-center py-8 text-slate-400 text-xs font-medium">
-                        No official project review entries logged by mentor yet.
-                      </div>
-                    ) : (
-                      data.projectDiary
-                        .filter(d => d.teamId === userTeam.id)
-                        .map((entry, eIdx) => (
-                          <div key={entry.id || eIdx} className="p-5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] space-y-3">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EADBD0] pb-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-black bg-[#FF5F38] text-white px-2.5 py-0.5 rounded-lg">
-                                  {entry.reviewNumber || `Review 0${eIdx + 1}`}
-                                </span>
-                                <span className="text-xs font-mono font-bold text-slate-700">Date: {entry.date}</span>
-                              </div>
-                              <span className="text-xs font-mono text-slate-500">Stage: <strong>{entry.stage || 'Development'}</strong></span>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                              <div>
-                                <strong className="text-[#0B2E26] block mb-0.5">Work Demonstrated:</strong>
-                                <p className="text-slate-700 font-medium">{entry.workDemonstrated || entry.workCompleted}</p>
-                              </div>
-                              <div className="bg-[#0B2E26] text-white p-3 rounded-xl">
-                                <strong className="text-[#FF5F38] block mb-0.5">Mentor Feedback:</strong>
-                                <p className="text-slate-200 font-medium text-[11px]">{entry.mentorFeedback}</p>
-                              </div>
-                            </div>
-
-                            {entry.tasksGivenList && entry.tasksGivenList.length > 0 && (
-                              <div className="pt-2 border-t border-[#EADBD0]">
-                                <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Assigned Tasks:</span>
-                                <div className="flex flex-wrap items-center gap-2">
-                                  {entry.tasksGivenList.map((t, tIdx) => (
-                                    <span key={tIdx} className="text-[11px] bg-white border border-[#EADBD0] px-2.5 py-1 rounded-xl text-slate-800 font-medium">
-                                      📌 {t.task} <span className="text-[#FF5F38] font-bold">({t.student})</span>
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ))
-                    )}
-                  </div>
-                </div>
-                )}
 
                 {/* SEMESTER COMPLETE BUTTON */}
                 {activeSection === 'all' && progressPercentage === 100 && (
@@ -1049,6 +1095,8 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                   </div>
                 )}
 
+                {/* MARKS DISPLAY */}
+
               </div>
             </div>
           ) : (
@@ -1061,6 +1109,128 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
             </div>
           )}
 
+        </div>
+      )}
+
+      {/* ==================== C. PROJECT REVIEWS TAB ==================== */}
+      {activeTab === 'reviews' && (
+        <div className="space-y-6 animate-fadeIn">
+          {/* Subtle Banner */}
+          <div className="p-6 sm:p-8 rounded-[24px] bg-[#0B2E26] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md border border-[#0B2E26]">
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 rounded-[16px] bg-[#FF5F38] text-white flex items-center justify-center font-black shrink-0">
+                <FileText className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-white tracking-wide">Project Review Logs</h3>
+                <p className="text-[13px] text-emerald-100/70 mt-1 max-w-sm leading-relaxed">
+                  Submit detailed progress reports to your mentor and maintain an official tracking history.
+                </p>
+              </div>
+            </div>
+            {userTeam && (
+              <button 
+                onClick={() => setShowReviewSubmitModal(true)}
+                className="px-6 py-3.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-black text-sm rounded-xl shadow-lg shadow-[#FF5F38]/20 transition-all flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
+              >
+                + Submit Review Log
+              </button>
+            )}
+          </div>
+          
+          {/* List of Previous Submissions */}
+          <div className="bg-white p-6 sm:p-8 rounded-[24px] border border-[#EADBD0] shadow-sm min-h-[50vh] flex flex-col">
+            <h4 className="text-lg font-black text-[#111827] mb-6 flex items-center gap-2 pb-4 border-b border-[#EADBD0]/60">
+              Your Submitted Reviews
+            </h4>
+            {!userTeam ? (
+               <div className="flex-1 flex flex-col items-center justify-center text-slate-400 opacity-60 pb-10">
+                 <FileText className="w-16 h-16 mb-4" />
+                 <p className="font-bold">You must be in a team to submit reviews.</p>
+               </div>
+            ) : data.projectDiary.filter(d => d.teamId === userTeam.id).length === 0 ? (
+               <div className="flex-1 flex flex-col items-center justify-center text-slate-400 opacity-80 pb-10 mt-8 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-10">
+                 <Clock className="w-12 h-12 mb-3 text-slate-300" />
+                 <h3 className="text-base font-black text-slate-500 mb-1">No Reviews Submitted</h3>
+                 <p className="text-xs font-medium text-slate-400 text-center max-w-xs">
+                   When you submit a review log, it will appear here for your mentor to evaluate and approve.
+                 </p>
+               </div>
+            ) : (
+               <div className="space-y-4">
+                 {data.projectDiary.filter(d => d.teamId === userTeam.id).map((entry, idx) => (
+                   <div key={entry.id} className="p-5 rounded-[20px] bg-[#FAF2EC] border border-[#EADBD0] flex flex-col sm:flex-row justify-between gap-4">
+                     <div>
+                       <div className="flex items-center gap-3 mb-2">
+                         <span className="bg-[#111827] text-white text-xs font-bold px-3 py-1 rounded-full">{entry.reviewNumber || `Review ${idx + 1}`}</span>
+                         <span className="text-xs text-slate-500 font-bold">{entry.date}</span>
+                         {entry.status === 'Pending' ? (
+                           <span className="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-full font-bold">Pending Approval</span>
+                         ) : (
+                           <span className="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-bold flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Approved</span>
+                         )}
+                       </div>
+                       <p className="text-sm font-bold text-slate-800">Stage: {entry.stage}</p>
+                       <p className="text-xs text-slate-600 mt-1 line-clamp-2">{entry.workCompleted}</p>
+                     </div>
+                     {entry.status === 'Approved' && entry.mentorFeedback && (
+                       <div className="sm:w-1/3 bg-white p-4 rounded-xl border border-[#EADBD0] text-xs shadow-sm">
+                         <span className="font-bold text-[#FF5F38] block mb-1 flex items-center gap-1">
+                           <CheckCircle2 className="w-3 h-3" /> Mentor Feedback
+                         </span>
+                         <span className="text-slate-700 leading-relaxed line-clamp-3">{entry.mentorFeedback}</span>
+                       </div>
+                     )}
+                   </div>
+                 ))}
+               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* STUDENT REVIEW SUBMISSION MODAL */}
+      {showReviewSubmitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm shadow-2xl">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-[#EADBD0] animate-fade-in flex flex-col max-h-[90vh]">
+            <div className="bg-[#FAF2EC] px-6 py-4 flex items-center justify-between border-b border-[#EADBD0]">
+              <h2 className="text-lg font-black text-[#111827] flex items-center gap-2">
+                <FileText className="w-5 h-5 text-[#FF5F38]" /> Submit Review Log
+              </h2>
+              <button onClick={() => setShowReviewSubmitModal(false)} className="text-slate-400 hover:text-slate-700 transition">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleReviewSubmit} className="p-6 overflow-y-auto space-y-4">
+               <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Date of Review</label>
+                  <input type="date" required value={reviewFormData.date} onChange={e => setReviewFormData({...reviewFormData, date: e.target.value})} className="w-full form-input" />
+               </div>
+               <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Current Stage</label>
+                  <select value={reviewFormData.stage} onChange={e => setReviewFormData({...reviewFormData, stage: e.target.value})} className="w-full form-input">
+                     <option>Problem Identification</option>
+                     <option>Design & Prototype</option>
+                     <option>Development</option>
+                  </select>
+               </div>
+               <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Work Demonstrated</label>
+                  <textarea required rows="3" placeholder="What progress was shown?" value={reviewFormData.workCompleted} onChange={e => setReviewFormData({...reviewFormData, workCompleted: e.target.value})} className="w-full form-input resize-none"></textarea>
+               </div>
+               <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Problems Faced (Optional)</label>
+                  <textarea rows="2" placeholder="Any issues discussed?" value={reviewFormData.problemsFaced} onChange={e => setReviewFormData({...reviewFormData, problemsFaced: e.target.value})} className="w-full form-input resize-none"></textarea>
+               </div>
+               <div className="pt-4 border-t border-[#EADBD0] flex justify-end gap-3">
+                 <button type="button" onClick={() => setShowReviewSubmitModal(false)} className="px-5 py-2.5 bg-slate-100 font-bold text-slate-700 text-sm hover:bg-slate-200 rounded-xl">Cancel</button>
+                 <button type="submit" className="px-5 py-2.5 bg-[#FF5F38] text-white text-sm font-bold hover:bg-[#E54D26] rounded-xl flex items-center gap-2">
+                   <Send className="w-4 h-4" /> Submit for Approval
+                 </button>
+               </div>
+            </form>
+          </div>
         </div>
       )}
 
