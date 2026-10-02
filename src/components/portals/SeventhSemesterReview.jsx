@@ -43,13 +43,7 @@ export default function SeventhSemesterReview() {
       
       {/* Header & Breadcrumbs */}
       <div className="flex flex-col gap-2 mb-8">
-        <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-          <span>Dashboard</span>
-          <ChevronRight className="w-3 h-3" />
-          <span className="text-[#FF5F38]">7th Semester</span>
-          <ChevronRight className="w-3 h-3" />
-          <span className="text-slate-400">Project Review</span>
-        </div>
+
         <div className="bg-[#0B2E26] p-8 rounded-[24px] text-white shadow-md relative overflow-hidden border border-[#0B2E26]">
           <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
             <BarChart className="w-48 h-48" />
