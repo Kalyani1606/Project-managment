@@ -53,7 +53,7 @@ export default function SeventhSemesterReview({ userTeam }) {
             <BarChart className="w-48 h-48 text-[#FF5F38]" />
           </div>
           <div className="relative z-10">
-            <h1 className="text-xl font-black text-[#111827] flex items-center gap-2 mb-1">7th Semester – Project Review</h1>
+            <h2 className="text-lg font-bold text-[#111827] flex items-center gap-2 mb-1">7th Semester – Project Review</h2>
             <p className="text-xs font-bold text-[#0B2E26]/70 max-w-xl">Project Review & Evaluation. Secure your grades by completing both review phases successfully.</p>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function SeventhSemesterReview({ userTeam }) {
         {/* Review 1 Card */}
         <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 group flex flex-col">
           <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
-            <h2 className="text-xl font-black text-[#111827]">{evaluationData.review1.title}</h2>
+            <h2 className="text-lg font-bold text-[#111827]">{evaluationData.review1.title}</h2>
             <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-black text-xs rounded-full">Total: {evaluationData.review1.totalMarks}</span>
           </div>
           <div className="p-6 space-y-4 flex-1">
@@ -138,7 +138,7 @@ export default function SeventhSemesterReview({ userTeam }) {
         {/* Review 2 Card */}
         <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 group flex flex-col">
           <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
-            <h2 className="text-xl font-black text-[#111827]">{evaluationData.review2.title}</h2>
+            <h2 className="text-lg font-bold text-[#111827]">{evaluationData.review2.title}</h2>
             <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-black text-xs rounded-full">Total: {evaluationData.review2.totalMarks}</span>
           </div>
           <div className="p-6 space-y-4 flex-1">
@@ -172,7 +172,7 @@ export default function SeventhSemesterReview({ userTeam }) {
 
       {/* Review Schedule / Additional Info */}
       <div className="mt-10">
-        <h3 className="text-lg font-black text-[#111827] mb-4 px-2">Review Schedule</h3>
+        <h3 className="text-lg font-bold text-[#111827] mb-4 px-2">Review Schedule</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
            {/* Date */}
            <div className="bg-white p-5 rounded-[24px] border border-[#EADBD0] shadow-sm flex items-center gap-4 hover:border-[#FF5F38] transition-colors duration-300 cursor-pointer">
