@@ -66,7 +66,16 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
     setActiveTab(defaultTab);
   }, [defaultTab]);
 
-  const [selectedSemester, setSelectedSemester] = useState('6th Semester');
+  const [selectedSemester, setSelectedSemester] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('targetSemester');
+      if (stored) {
+        localStorage.removeItem('targetSemester');
+        return stored;
+      }
+    }
+    return '6th Semester';
+  });
   const [showEReportModal, setShowEReportModal] = useState(false);
   const [showReviewSubmitModal, setShowReviewSubmitModal] = useState(false);
   const [reviewFormData, setReviewFormData] = useState({
@@ -411,7 +420,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { setSelectedSemester('6th Semester'); router.push('/student/events'); }}
+                onClick={() => { localStorage.setItem('targetSemester', '6th Semester'); router.push('/student/events'); }}
                 className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group"
               >
                 Click to view tasks
@@ -436,7 +445,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { setSelectedSemester('7th Semester'); router.push('/student/events'); }}
+                onClick={() => { localStorage.setItem('targetSemester', '7th Semester'); router.push('/student/events'); }}
                 className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group opacity-80 hover:opacity-100"
               >
                 Click to view tasks
@@ -461,7 +470,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { setSelectedSemester('8th Semester'); router.push('/student/events'); }}
+                onClick={() => { localStorage.setItem('targetSemester', '8th Semester'); router.push('/student/events'); }}
                 className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group opacity-80 hover:opacity-100"
               >
                 Click to view tasks
