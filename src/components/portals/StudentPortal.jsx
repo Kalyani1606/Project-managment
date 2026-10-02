@@ -505,10 +505,9 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                       : 'text-slate-600 hover:text-[#111827] hover:bg-slate-100'
                   }`}
                 >
-                  {sem.startsWith('6') && '🟢 '}
-                  {sem.startsWith('7') && '🟡 '}
-                  {sem.startsWith('8') && '🔵 '}
-                  {sem}
+                  {sem.startsWith('6') && '🟢 Capstone Phase 1'}
+                  {sem.startsWith('7') && '🟡 Capstone Phase 2'}
+                  {sem.startsWith('8') && '🔵 Capstone Phase 3'}
                 </button>
               );
             })}
