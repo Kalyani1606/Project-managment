@@ -436,12 +436,12 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { setSelectedSemester('7th Semester'); router.push('/student/events'); }}
-                className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group opacity-80 hover:opacity-100"
+                disabled
+                className="mt-6 flex items-center justify-between text-slate-400 font-bold text-sm cursor-not-allowed group opacity-80"
               >
-                Click to view tasks
-                <div className="w-8 h-8 rounded-full bg-[#FF5F38]/10 flex items-center justify-center group-hover:bg-[#FF5F38]/20 transition-colors">
-                  <ChevronRight className="w-4 h-4" />
+                Upcoming Phase
+                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center transition-colors">
+                  <Lock className="w-3.5 h-3.5 text-slate-400" />
                 </div>
               </button>
             </div>
@@ -461,12 +461,12 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { setSelectedSemester('8th Semester'); router.push('/student/events'); }}
-                className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group opacity-80 hover:opacity-100"
+                disabled
+                className="mt-6 flex items-center justify-between text-slate-400 font-bold text-sm cursor-not-allowed group opacity-80"
               >
-                Click to view tasks
-                <div className="w-8 h-8 rounded-full bg-[#FF5F38]/10 flex items-center justify-center group-hover:bg-[#FF5F38]/20 transition-colors">
-                  <ChevronRight className="w-4 h-4" />
+                Upcoming Phase
+                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center transition-colors">
+                  <Lock className="w-3.5 h-3.5 text-slate-400" />
                 </div>
               </button>
             </div>
