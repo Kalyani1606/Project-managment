@@ -500,14 +500,7 @@ export default function MentorPortal() {
           </div>
 
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* New Review Entry Action Button */}
-            <button
-              onClick={openNewReviewModal}
-              className="bg-[#FF5F38] hover:bg-[#E54D26] text-white px-3 sm:px-4 py-2 rounded-2xl text-xs font-bold shadow-md shadow-[#FF5F38]/20 transition cursor-pointer flex items-center gap-1.5"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span className="hidden md:inline">New Review Entry</span>
-            </button>
+
 
             {/* Top Corner Notification Icon & Dropdown Window */}
             <div className="relative" ref={notificationDropdownRef}>
@@ -1005,10 +998,7 @@ export default function MentorPortal() {
                       key={sem.id}
                       onClick={() => {
                         setSelectedSemester(sem.id);
-                        const firstTeam = assignedTeams.find(t => t.currentSemester === sem.id);
-                        if (firstTeam) {
-                          setSelectedTeamId(firstTeam.id);
-                        }
+                        setSelectedTeamId(null);
                       }}
                       className="bg-white rounded-3xl p-7 flex flex-col relative overflow-hidden transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-[#FF5F38] shadow-sm hover:shadow-xl hover:-translate-y-1.5 group"
                     >
@@ -1132,45 +1122,18 @@ export default function MentorPortal() {
                 </div>
               </div>
 
-              {/* Teams Detailed Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                {/* Left Column: Team Selection List */}
-                <div className="lg:col-span-4 space-y-3">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 px-1 flex items-center justify-between">
-                    <span>{selectedSemester} Teams ({filteredTeams.length})</span>
-                  </h3>
-                  
-                  {filteredTeams.length === 0 ? (
-                    <div className="bg-white p-8 rounded-3xl border border-[#EADBD0] text-center space-y-2">
-                      <Users className="w-8 h-8 mx-auto text-slate-300" />
-                      <div className="text-xs font-bold text-slate-600">No teams assigned for {selectedSemester}</div>
-                      <p className="text-[10px] text-slate-400">Clear search query or select another semester</p>
+              {/* Teams List / Detail View */}
+              <div className="w-full">
+                {selectedTeamId && currentTeam ? (
+                  <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBD0] shadow-sm space-y-6 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="mb-2">
+                      <button 
+                        onClick={() => setSelectedTeamId(null)}
+                        className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-[#FF5F38] transition cursor-pointer"
+                      >
+                        <ChevronLeft className="w-4 h-4" /> Back to Teams
+                      </button>
                     </div>
-                  ) : (
-                    filteredTeams.map(t => {
-                      const isSel = currentTeam?.id === t.id;
-                      return (
-                        <button
-                          key={t.id}
-                          onClick={() => setSelectedTeamId(t.id)}
-                          className={`w-full text-left p-4 rounded-3xl border transition-all cursor-pointer ${
-                            isSel
-                              ? 'bg-[#0B2E26] text-white border-[#0B2E26] shadow-lg'
-                              : 'bg-white text-slate-800 border-[#EADBD0] hover:bg-[#FAF2EC]'
-                          }`}
-                        >
-                          <div className="font-extrabold text-sm">{t.name}</div>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-
-                {/* Right Column: Complete Team Information Card */}
-                {currentTeam ? (
-                  <div className="lg:col-span-8 bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBD0] shadow-sm space-y-6">
-                    
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EADBD0] pb-5">
                       <div>
@@ -1281,12 +1244,34 @@ export default function MentorPortal() {
 
                   </div>
                 ) : (
-                  <div className="lg:col-span-8 bg-white p-12 rounded-3xl border border-[#EADBD0] text-center space-y-3 flex flex-col items-center justify-center">
-                    <Users className="w-12 h-12 text-slate-300" />
-                    <h3 className="text-base font-extrabold text-[#111827]">No Team Selected</h3>
-                    <p className="text-xs text-slate-500 max-w-sm">
-                      Select a team from the left column to view assigned student mentees, project objectives, and progress details.
-                    </p>
+                  <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 px-1">
+                      {selectedSemester} Teams ({filteredTeams.length})
+                    </h3>
+                    
+                    {filteredTeams.length === 0 ? (
+                      <div className="bg-white p-8 rounded-3xl border border-[#EADBD0] text-center space-y-2">
+                        <Users className="w-8 h-8 mx-auto text-slate-300" />
+                        <div className="text-xs font-bold text-slate-600">No teams assigned for {selectedSemester}</div>
+                        <p className="text-[10px] text-slate-400">Clear search query or select another semester</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {filteredTeams.map(t => (
+                          <button
+                            key={t.id}
+                            onClick={() => setSelectedTeamId(t.id)}
+                            className="text-left p-5 rounded-3xl bg-white border border-[#EADBD0] hover:border-[#FF5F38] hover:shadow-md transition-all cursor-pointer group flex flex-col h-full"
+                          >
+                            <div className="font-extrabold text-[#111827] mb-auto group-hover:text-[#FF5F38] transition-colors">{t.name}</div>
+                            <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5 mt-3 border-t border-[#EADBD0] pt-3">
+                              <User className="w-3 h-3 text-slate-400" />
+                              <span className="truncate">Leader: {t.members.find(m=>m.role==='Team Leader')?.name || t.members[0]?.name}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
