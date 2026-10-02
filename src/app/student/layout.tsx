@@ -219,7 +219,7 @@ export default function AppPortalLayout({
              </div>
 
              <Link href={isMentor ? "/mentor" : "/student/profile"} className="flex items-center gap-3 p-1.5 rounded-2xl hover:bg-white border border-transparent hover:border-[#EADBD0] transition-colors cursor-pointer">
-               <img src={user?.studentProfile?.profilePicture || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80"} alt="Profile" className="w-10 h-10 rounded-full object-cover shadow-sm border border-slate-200" />
+               <img src={user?.studentProfile?.profilePicture || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80"} alt="Profile" className="w-10 h-10 shrink-0 rounded-full object-cover object-top shadow-sm border border-slate-200 bg-slate-50" />
                <div className="hidden sm:block text-right">
                  <div className="text-sm font-bold text-[#111827]">{user.name}</div>
                  <div className="text-xs font-semibold text-slate-500">
