@@ -76,18 +76,19 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
     problemsFaced: ''
   });
   const [saveStatus, setSaveStatus] = useState('');
+  const storageKey = `isSemesterCompleted_${profile.email}`;
   const [isSemesterCompleted, setIsSemesterCompleted] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('isSemesterCompleted') === 'true';
+      return localStorage.getItem(storageKey) === 'true';
     }
     return false;
   });
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('isSemesterCompleted', isSemesterCompleted);
+      localStorage.setItem(storageKey, isSemesterCompleted);
     }
-  }, [isSemesterCompleted]);
+  }, [isSemesterCompleted, storageKey]);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ ...profile });
