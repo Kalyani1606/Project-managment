@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '@/context/AuthContext';
+import { useNotification } from '@/context/NotificationContext';
 import {
   User,
   Users,
@@ -12,11 +13,13 @@ import {
   Calendar,
   Clock,
   ChevronRight,
+  ChevronDown,
   Target,
   FileText,
   AlertCircle,
   TrendingUp,
   Check,
+  CheckCheck,
   Send,
   Award,
   Upload,
@@ -51,6 +54,39 @@ const PROJECT_STAGES = [
   'Final Submission'
 ];
 
+const SEMESTERS_CONFIG = [
+  {
+    id: '6th Semester',
+    badgeNum: '01',
+    badgeBg: 'bg-[#FF5F38]/10 text-[#FF5F38]',
+    glowBg: 'bg-yellow-400/20',
+    emoji: '📚',
+    title: '6th Semester',
+    subtitle: 'Approvals & Feasibility',
+    description: 'Review incoming team requests, approve project domains, and validate problem statements and literature surveys.'
+  },
+  {
+    id: '7th Semester',
+    badgeNum: '02',
+    badgeBg: 'bg-slate-100 text-slate-600',
+    glowBg: 'bg-blue-400/15',
+    emoji: '💻',
+    title: '7th Semester',
+    subtitle: 'Tracking & Guidance',
+    description: 'Monitor development progress, evaluate system architecture, and conduct mid-term technical reviews.'
+  },
+  {
+    id: '8th Semester',
+    badgeNum: '03',
+    badgeBg: 'bg-slate-100 text-slate-600',
+    glowBg: 'bg-[#FF5F38]/15',
+    emoji: '🚀',
+    title: '8th Semester',
+    subtitle: 'Evaluation & Sign-off',
+    description: 'Assess final performance metrics, grade viva presentations, and formally approve the project thesis.'
+  }
+];
+
 export default function MentorPortal() {
   const {
     data,
@@ -60,19 +96,33 @@ export default function MentorPortal() {
     addMentorTaskToTeam,
     updateMentorTaskStatus,
     uploadTeamProjectDocument,
-    updateMentorProfile
+    updateMentorProfile,
+    markNotificationRead,
+    clearAllNotifications
   } = useApp();
 
   const { user, logout } = useAuth();
+
+  // Safely hook into NotificationContext if available
+  let notificationCtx = null;
+  try {
+    notificationCtx = useNotification();
+  } catch (e) {
+    // fallback if outside NotificationProvider
+  }
+
+  // Exact details entered while registering (Full Name, Email, Dept, Designation, Role - nothing extra)
   const profile = {
-    ...data.mentorProfile,
-    fullName: user?.name || data.mentorProfile.fullName,
-    department: user?.teacherProfile?.department || data.mentorProfile.department,
-    designation: user?.teacherProfile?.designation || data.mentorProfile.designation,
-    employeeId: user?.teacherProfile?.designation || data.mentorProfile.employeeId,
+    fullName: user?.name || data.mentorProfile?.fullName || 'Faculty Mentor',
+    email: user?.email || data.mentorProfile?.email || 'faculty.mentor@college.edu',
+    department: user?.teacherProfile?.department || data.mentorProfile?.department || 'Computer Science & Engineering',
+    designation: user?.teacherProfile?.designation || data.mentorProfile?.designation || 'Assistant Professor',
+    role: user?.role === 'TEACHER' ? 'Faculty Mentor' : (user?.role || 'Faculty Mentor'),
+    employeeId: user?.teacherProfile?.designation || data.mentorProfile?.employeeId || 'EMP-FACULTY',
   };
 
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedSemester, setSelectedSemester] = useState(null);
   const [selectedTeamId, setSelectedTeamId] = useState(data.teams[0]?.id || '');
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -80,15 +130,101 @@ export default function MentorPortal() {
   const [editingProfile, setEditingProfile] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  // Top Corner Small Window Dropdowns
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
+  const [notifTab, setNotifTab] = useState('requests'); // 'requests' | 'alerts'
+  const profileDropdownRef = useRef(null);
+  const notificationDropdownRef = useRef(null);
+
+  // Close dropdowns on outside click or Escape key
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
+      }
+      if (notificationDropdownRef.current && !notificationDropdownRef.current.contains(event.target)) {
+        setShowNotificationDropdown(false);
+      }
+    }
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setShowProfileDropdown(false);
+        setShowNotificationDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   // Search & Filter
   const [teamSearchQuery, setTeamSearchQuery] = useState('');
   const [stageFilter, setStageFilter] = useState('All');
+  const [semesterFilter, setSemesterFilter] = useState('ALL');
 
-  // Selected Team Object
+  // Selected Team Object & Pending Student Requests
   const assignedTeams = data.teams.filter(t => t.mentorStatus === 'Accepted' || t.mentorId === 'MENTOR-01');
   const pendingRequests = data.teams.filter(t => t.mentorStatus === 'Pending' || t.status === 'Pending Approval');
+
+  // Combine notifications from API and local AppContext
+  const apiNotifications = notificationCtx?.notifications || [];
+  const localNotifications = (data.notifications || []).map(n => ({
+    id: n.id,
+    title: n.text?.split(':')[0] || 'Portal Update',
+    message: n.text || '',
+    time: n.time || 'Recently',
+    read: n.read || false,
+    isApi: false
+  }));
+
+  const allAlerts = [
+    ...apiNotifications.map(n => ({
+      id: n.id,
+      title: n.title,
+      message: n.message,
+      time: new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      read: n.read,
+      isApi: true
+    })),
+    ...localNotifications
+  ];
+
+  const unreadAlertsCount = allAlerts.filter(a => !a.read).length;
+  const totalNotificationBadge = pendingRequests.length + unreadAlertsCount;
+
+  const handleMarkSingleRead = (id, isApi) => {
+    if (isApi && notificationCtx?.markAsRead) {
+      notificationCtx.markAsRead(id);
+    } else if (markNotificationRead) {
+      markNotificationRead(id);
+    }
+  };
+
+  const handleMarkAllRead = () => {
+    if (notificationCtx?.markAllAsRead) {
+      notificationCtx.markAllAsRead();
+    }
+    if (clearAllNotifications) {
+      clearAllNotifications();
+    }
+  };
   
-  const currentTeam = data.teams.find(t => t.id === selectedTeamId) || assignedTeams[0] || data.teams[0];
+  // Filtered Teams based on selected semester, search query, and stage
+  const filteredTeams = assignedTeams.filter(t => {
+    const matchesSemester = !selectedSemester || selectedSemester === 'All' || t.currentSemester === selectedSemester;
+    const matchesSearch =
+      t.name.toLowerCase().includes(teamSearchQuery.toLowerCase()) ||
+      (t.projectTitle || '').toLowerCase().includes(teamSearchQuery.toLowerCase()) ||
+      t.members.some(m => m.name.toLowerCase().includes(teamSearchQuery.toLowerCase()) || (m.regNo || '').toLowerCase().includes(teamSearchQuery.toLowerCase()));
+    const matchesStage = stageFilter === 'All' || t.currentStage === stageFilter;
+    return matchesSemester && matchesSearch && matchesStage;
+  });
+
+  const currentTeam = filteredTeams.find(t => t.id === selectedTeamId) || filteredTeams[0] || assignedTeams[0] || data.teams[0];
 
   // Diary Review Form State
   const [reviewForm, setReviewForm] = useState({
@@ -220,16 +356,6 @@ export default function MentorPortal() {
     setEditingProfile(false);
   };
 
-  // Filtered Teams List
-  const filteredTeams = assignedTeams.filter(t => {
-    const matchesSearch =
-      t.name.toLowerCase().includes(teamSearchQuery.toLowerCase()) ||
-      (t.projectTitle || '').toLowerCase().includes(teamSearchQuery.toLowerCase()) ||
-      t.members.some(m => m.name.toLowerCase().includes(teamSearchQuery.toLowerCase()));
-    const matchesStage = stageFilter === 'All' || t.currentStage === stageFilter;
-    return matchesSearch && matchesStage;
-  });
-
   const sidebarNavItems = [
     { id: 'dashboard', name: 'Dashboard', icon: Home },
     { id: 'teams', name: 'My Teams', count: assignedTeams.length, icon: Users },
@@ -271,13 +397,20 @@ export default function MentorPortal() {
         </div>
 
         {/* Mentor Mini Badge */}
-        <div className="p-4 mx-4 my-4 rounded-2xl bg-white border border-[#EADBD0] flex items-center gap-3 shadow-xs">
-          <div className="w-10 h-10 rounded-xl bg-[#0A1628] text-[#FF5F38] flex items-center justify-center font-black text-sm">
-            {profile.fullName.split(' ').map(n => n[0]).join('')}
+        <div 
+          onClick={() => {
+            setShowProfileDropdown(prev => !prev);
+            setShowNotificationDropdown(false);
+          }}
+          className="p-4 mx-4 my-4 rounded-2xl bg-white border border-[#EADBD0] flex items-center gap-3 shadow-xs cursor-pointer hover:border-[#FF5F38]/50 transition group"
+          title="Click to view registration details"
+        >
+          <div className="w-10 h-10 rounded-xl bg-[#0A1628] text-[#FF5F38] flex items-center justify-center font-black text-sm group-hover:scale-105 transition-transform">
+            {profile.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'M'}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-bold text-[#111827] truncate">{profile.fullName}</div>
-            <div className="text-[10px] text-slate-500 font-mono truncate">{profile.employeeId}</div>
+            <div className="text-[10px] text-slate-500 font-mono truncate">{profile.designation}</div>
           </div>
         </div>
 
@@ -290,6 +423,15 @@ export default function MentorPortal() {
               <button
                 key={item.id}
                 onClick={() => {
+                  if (item.id === 'profile') {
+                    setShowProfileDropdown(true);
+                    setShowNotificationDropdown(false);
+                    setMobileSidebarOpen(false);
+                    return;
+                  }
+                  if (item.id === 'teams') {
+                    setSelectedSemester(null);
+                  }
                   setActiveTab(item.id);
                   setMobileSidebarOpen(false);
                 }}
@@ -357,14 +499,340 @@ export default function MentorPortal() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* New Review Entry Action Button */}
             <button
               onClick={openNewReviewModal}
-              className="bg-[#FF5F38] hover:bg-[#E54D26] text-white px-4 py-2 rounded-2xl text-xs font-bold shadow-md shadow-[#FF5F38]/20 transition cursor-pointer flex items-center gap-1.5"
+              className="bg-[#FF5F38] hover:bg-[#E54D26] text-white px-3 sm:px-4 py-2 rounded-2xl text-xs font-bold shadow-md shadow-[#FF5F38]/20 transition cursor-pointer flex items-center gap-1.5"
             >
               <PlusCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">New Review Entry</span>
+              <span className="hidden md:inline">New Review Entry</span>
             </button>
+
+            {/* Top Corner Notification Icon & Dropdown Window */}
+            <div className="relative" ref={notificationDropdownRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNotificationDropdown(prev => !prev);
+                  setShowProfileDropdown(false);
+                }}
+                className={`relative p-2 sm:p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-center ${
+                  showNotificationDropdown
+                    ? 'bg-[#FF5F38] text-white border-[#FF5F38] shadow-md shadow-[#FF5F38]/25'
+                    : 'bg-white hover:bg-white/90 border-[#EADBD0] text-slate-700 hover:text-[#FF5F38] shadow-xs'
+                }`}
+                title="Notifications & Student Requests"
+                aria-label="Notifications"
+              >
+                <Bell className={`w-4 h-4 ${showNotificationDropdown ? 'text-white' : 'text-[#111827]'}`} />
+                {totalNotificationBadge > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-[#FF5F38] text-white text-[10px] font-black flex items-center justify-center shadow-xs border-2 border-[#FAF2EC] animate-pulse">
+                    {totalNotificationBadge > 9 ? '9+' : totalNotificationBadge}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Small Window */}
+              {showNotificationDropdown && (
+                <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white border border-[#EADBD0] rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                  {/* Header */}
+                  <div className="p-4 bg-[#FAF2EC] border-b border-[#EADBD0] flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-[#0A1628] text-[#FF5F38] flex items-center justify-center">
+                        <Bell className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-[#111827]">Notifications & Requests</h4>
+                        <p className="text-[10px] text-slate-500 font-medium">Student supervision & alerts</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {unreadAlertsCount > 0 && (
+                        <button
+                          onClick={handleMarkAllRead}
+                          className="text-[10px] font-bold text-[#FF5F38] hover:underline px-2 py-1 cursor-pointer"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setShowNotificationDropdown(false)}
+                        className="p-1 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-white transition cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Filter Tabs */}
+                  <div className="flex p-1.5 bg-[#FAF2EC]/60 border-b border-[#EADBD0] gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setNotifTab('requests')}
+                      className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                        notifTab === 'requests'
+                          ? 'bg-white text-[#111827] shadow-xs border border-[#EADBD0]'
+                          : 'text-slate-500 hover:text-[#111827]'
+                      }`}
+                    >
+                      <span>Student Requests</span>
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                        pendingRequests.length > 0 ? 'bg-[#FF5F38] text-white' : 'bg-slate-200 text-slate-600'
+                      }`}>
+                        {pendingRequests.length}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNotifTab('alerts')}
+                      className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                        notifTab === 'alerts'
+                          ? 'bg-white text-[#111827] shadow-xs border border-[#EADBD0]'
+                          : 'text-slate-500 hover:text-[#111827]'
+                      }`}
+                    >
+                      <span>All Alerts</span>
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                        unreadAlertsCount > 0 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'
+                      }`}>
+                        {allAlerts.length}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Body Content */}
+                  <div className="max-h-[360px] overflow-y-auto p-3 space-y-2.5">
+                    {notifTab === 'requests' ? (
+                      pendingRequests.length === 0 ? (
+                        <div className="py-8 text-center text-slate-400">
+                          <Users className="w-8 h-8 mx-auto mb-2 opacity-30 text-slate-400" />
+                          <p className="text-xs font-semibold text-slate-600">No pending student requests</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">When students send supervision requests, they will appear here.</p>
+                        </div>
+                      ) : (
+                        pendingRequests.map(team => (
+                          <div
+                            key={team.id}
+                            className="p-3.5 rounded-2xl bg-[#FAF2EC]/70 border border-amber-200 hover:border-amber-300 transition space-y-2.5"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <span className="text-[9px] font-mono font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
+                                  {team.id}
+                                </span>
+                                <h5 className="text-xs font-black text-[#111827] mt-1">{team.name}</h5>
+                                <p className="text-[11px] text-slate-600 font-medium line-clamp-1">
+                                  {team.projectTitle || team.domain || 'Academic Project Supervision'}
+                                </p>
+                              </div>
+                              <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shrink-0">
+                                Pending
+                              </span>
+                            </div>
+
+                            <div className="text-[10px] text-slate-500">
+                              <span className="font-semibold text-slate-600">Students: </span>
+                              {team.members?.map(m => m.name).join(', ') || 'Team Members'}
+                            </div>
+
+                            <div className="pt-2 border-t border-[#EADBD0]/60 flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => respondToMentorRequest(team.id, true)}
+                                className="flex-1 py-1.5 px-3 rounded-xl bg-[#0B2E26] hover:bg-[#071f1a] text-white text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs cursor-pointer transition"
+                              >
+                                <Check className="w-3.5 h-3.5" /> Accept
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => respondToMentorRequest(team.id, false)}
+                                className="py-1.5 px-3 rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-[11px] font-bold flex items-center justify-center gap-1 cursor-pointer transition"
+                              >
+                                <X className="w-3.5 h-3.5" /> Decline
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )
+                    ) : (
+                      allAlerts.length === 0 ? (
+                        <div className="py-8 text-center text-slate-400">
+                          <Bell className="w-8 h-8 mx-auto mb-2 opacity-30 text-slate-400" />
+                          <p className="text-xs font-semibold text-slate-600">No alerts right now</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">Diary submissions, document uploads, and updates will show up here.</p>
+                        </div>
+                      ) : (
+                        allAlerts.map(alert => (
+                          <div
+                            key={alert.id}
+                            onClick={() => handleMarkSingleRead(alert.id, alert.isApi)}
+                            className={`p-3 rounded-2xl border transition-all cursor-pointer ${
+                              alert.read
+                                ? 'bg-white border-[#EADBD0]/60 opacity-70 hover:opacity-100'
+                                : 'bg-[#FF5F38]/5 border-[#FF5F38]/20 shadow-xs'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-start gap-2 min-w-0">
+                                <div
+                                  className="w-2 h-2 rounded-full mt-1.5 shrink-0 bg-[#FF5F38]"
+                                  style={{ opacity: alert.read ? 0 : 1 }}
+                                />
+                                <div className="min-w-0">
+                                  <h5 className="text-xs font-bold text-[#111827] leading-snug">{alert.title}</h5>
+                                  <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">{alert.message}</p>
+                                </div>
+                              </div>
+                              <span className="text-[9px] font-mono text-slate-400 shrink-0">{alert.time}</span>
+                            </div>
+                          </div>
+                        ))
+                      )
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-3 bg-[#FAF2EC]/50 border-t border-[#EADBD0] flex items-center justify-between text-xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('requests');
+                        setShowNotificationDropdown(false);
+                      }}
+                      className="text-[11px] font-bold text-[#FF5F38] hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>Open full requests page</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-[10px] text-slate-400 font-mono">Live updates</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Top Corner Profile Option & Small Window */}
+            <div className="relative" ref={profileDropdownRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileDropdown(prev => !prev);
+                  setShowNotificationDropdown(false);
+                }}
+                className={`flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 rounded-2xl border transition-all cursor-pointer ${
+                  showProfileDropdown
+                    ? 'bg-white border-[#FF5F38] shadow-md ring-2 ring-[#FF5F38]/10'
+                    : 'bg-white hover:bg-white/90 border-[#EADBD0] shadow-xs'
+                }`}
+                title="Faculty Profile & Registration Details"
+                aria-label="Faculty Profile"
+              >
+                <div className="w-8 h-8 rounded-xl bg-[#0A1628] text-[#FF5F38] flex items-center justify-center font-black text-xs shadow-xs shrink-0">
+                  {profile.fullName.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'M'}
+                </div>
+                <div className="hidden sm:flex flex-col text-left">
+                  <span className="text-xs font-bold text-[#111827] leading-tight max-w-[120px] truncate">
+                    {profile.fullName}
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium leading-tight max-w-[120px] truncate">
+                    {profile.designation}
+                  </span>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Profile Small Window (Details entered while registering, nothing extra) */}
+              {showProfileDropdown && (
+                <div className="absolute right-0 top-12 w-80 sm:w-88 bg-white border border-[#EADBD0] rounded-3xl shadow-2xl z-50 p-5 animate-in fade-in zoom-in-95 duration-150">
+                  {/* Popover Header */}
+                  <div className="flex items-center justify-between pb-3.5 border-b border-[#EADBD0]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-[#0A1628] text-[#FF5F38] flex items-center justify-center font-black text-base shadow-xs">
+                        {profile.fullName.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'M'}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-extrabold text-[#111827] leading-tight">{profile.fullName}</h4>
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 mt-1">
+                          <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                          Faculty Mentor
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowProfileDropdown(false)}
+                      className="p-1 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-[#FAF2EC] transition cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Registered Details (Name, Email, Dept, Designation, Role) */}
+                  <div className="py-3.5 space-y-2.5">
+                    <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#FAF2EC]/70 border border-[#EADBD0]/60">
+                      <div className="w-7 h-7 rounded-xl bg-white flex items-center justify-center text-[#FF5F38] shadow-xs shrink-0">
+                        <User className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Full Name</div>
+                        <div className="text-xs font-extrabold text-[#111827] truncate">{profile.fullName}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#FAF2EC]/70 border border-[#EADBD0]/60">
+                      <div className="w-7 h-7 rounded-xl bg-white flex items-center justify-center text-[#FF5F38] shadow-xs shrink-0">
+                        <Mail className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Faculty Email</div>
+                        <div className="text-xs font-bold text-[#111827] truncate font-mono">{profile.email}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#FAF2EC]/70 border border-[#EADBD0]/60">
+                      <div className="w-7 h-7 rounded-xl bg-white flex items-center justify-center text-[#FF5F38] shadow-xs shrink-0">
+                        <GraduationCap className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Department</div>
+                        <div className="text-xs font-bold text-[#111827] truncate">{profile.department}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#FAF2EC]/70 border border-[#EADBD0]/60">
+                      <div className="w-7 h-7 rounded-xl bg-white flex items-center justify-center text-[#FF5F38] shadow-xs shrink-0">
+                        <Award className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Designation</div>
+                        <div className="text-xs font-bold text-[#111827] truncate">{profile.designation}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#FAF2EC]/70 border border-[#EADBD0]/60">
+                      <div className="w-7 h-7 rounded-xl bg-white flex items-center justify-center text-[#FF5F38] shadow-xs shrink-0">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Role</div>
+                        <div className="text-xs font-bold text-[#111827]">{profile.role}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer with Sign Out */}
+                  <div className="pt-3 border-t border-[#EADBD0] flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400 font-medium">Registration Details</span>
+                    <button
+                      onClick={logout}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200/60 transition cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
@@ -422,15 +890,15 @@ export default function MentorPortal() {
                 </div>
               </div>
 
-              {/* Active Teams Overview Section */}
-              <div className="bg-white p-6 rounded-3xl border border-[#EADBD0] shadow-sm space-y-4">
+              {/* Recent Activity & Quick Reminders Section */}
+              <div className="bg-white p-6 rounded-3xl border border-[#EADBD0] shadow-sm space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EADBD0] pb-4">
                   <div>
                     <h2 className="text-base font-extrabold text-[#111827] flex items-center gap-2">
-                      <Users className="w-5 h-5 text-[#FF5F38]" /> Managed Project Teams Overview
+                      <TrendingUp className="w-5 h-5 text-[#FF5F38]" /> Recent Activity & Reminders
                     </h2>
                     <p className="text-xs text-slate-500">
-                      Select a team to open its official Project Diary, update stage progress, or issue tasks
+                      Stay updated with the latest submissions and upcoming mentor duties.
                     </p>
                   </div>
                   <button
@@ -441,93 +909,188 @@ export default function MentorPortal() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {assignedTeams.map(team => {
-                    const teamDiaryCount = data.projectDiary.filter(d => d.teamId === team.id).length;
-                    const pendingTasksCount = (team.tasks || []).filter(tk => tk.status !== 'Completed').length;
-
-                    return (
-                      <div
-                        key={team.id}
-                        className={`p-5 rounded-3xl border transition-all ${
-                          selectedTeamId === team.id
-                            ? 'bg-[#FAF2EC] border-[#FF5F38] shadow-md'
-                            : 'bg-white border-[#EADBD0] hover:border-slate-400'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-mono font-bold text-[#FF5F38] bg-[#FF5F38]/10 px-2 py-0.5 rounded-md">
-                                {team.id}
-                              </span>
-                              <span className="text-xs font-bold text-slate-500">Team #{team.teamNumber || '01'}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column: Activity Timeline */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                      <Clock className="w-4 h-4" /> Latest Project Updates
+                    </h3>
+                    <div className="space-y-3 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-[#EADBD0] before:to-transparent">
+                      {[1, 2, 3].map((_, idx) => (
+                        <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                          <div className="flex items-center justify-center w-5 h-5 rounded-full border border-white bg-[#FAF2EC] text-[#FF5F38] shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                            <CheckCircle2 className="w-3 h-3" />
+                          </div>
+                          <div className="w-[calc(100%-2.5rem)] md:w-[calc(50%-1.5rem)] p-3 rounded-2xl bg-[#FAF2EC]/50 border border-[#EADBD0] hover:border-[#FF5F38]/30 transition-colors shadow-sm">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] font-bold text-[#FF5F38]">Team #0{idx + 1}</span>
+                              <span className="text-[9px] text-slate-400 font-mono">2 hrs ago</span>
                             </div>
-                            <h3 className="text-base font-extrabold text-[#111827] mt-1">{team.name}</h3>
-                          </div>
-                          <span className="text-xs px-3 py-1 rounded-full font-bold bg-[#0B2E26]/10 text-[#0B2E26]">
-                            {team.currentStage || 'Development'}
-                          </span>
-                        </div>
-
-                        <p className="text-xs text-slate-600 line-clamp-2 font-medium mb-3">
-                          <strong className="text-slate-800">Project:</strong> {team.projectTitle || 'Topic Pending'}
-                        </p>
-
-                        {/* Members Pill List */}
-                        <div className="flex flex-wrap items-center gap-1.5 mb-4">
-                          {team.members.map(m => (
-                            <span key={m.regNo} className="text-[11px] bg-white border border-[#EADBD0] px-2.5 py-1 rounded-xl font-medium text-slate-700 flex items-center gap-1">
-                              <User className="w-3 h-3 text-[#FF5F38]" />
-                              <span>{m.name}</span>
-                              <span className="text-[9px] text-slate-400 font-mono">({m.regNo})</span>
-                            </span>
-                          ))}
-                        </div>
-
-                        {/* Progress Bar */}
-                        <div className="space-y-1.5 mb-4">
-                          <div className="flex justify-between text-xs font-bold text-slate-700">
-                            <span>Overall Progress</span>
-                            <span className="text-[#FF5F38] font-mono">{team.progress || 50}%</span>
-                          </div>
-                          <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-[#FF5F38] to-[#0B2E26] rounded-full transition-all duration-500"
-                              style={{ width: `${team.progress || 50}%` }}
-                            />
+                            <p className="text-xs text-slate-700 font-medium">Uploaded Draft SRS Document for review.</p>
                           </div>
                         </div>
+                      ))}
+                    </div>
+                  </div>
 
-                        {/* Footer Info & Actions */}
-                        <div className="pt-3 border-t border-[#EADBD0] flex items-center justify-between text-xs">
-                          <div className="text-slate-500 text-[11px]">
-                            <span>Reviews: <strong>{teamDiaryCount}</strong></span> • <span>Pending Tasks: <strong>{pendingTasksCount}</strong></span>
-                          </div>
-                          <button
-                            onClick={() => {
-                              setSelectedTeamId(team.id);
-                              setActiveTab('diary');
-                            }}
-                            className="text-[#FF5F38] hover:text-[#E54D26] font-bold flex items-center gap-1 cursor-pointer"
-                          >
-                            <span>Open Project Diary</span>
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
+                  {/* Right Column: Quick Reminders / Upcoming */}
+                  <div className="space-y-4">
+                     <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                      <Calendar className="w-4 h-4" /> Upcoming Deadlines
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 flex gap-3 items-start shadow-sm">
+                        <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                          <AlertCircle className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-amber-900">Mid-Term Presentation Evaluation</h4>
+                          <p className="text-[10px] text-amber-700 mt-1">Due in 3 days. Ensure all teams have submitted their presentation decks.</p>
                         </div>
                       </div>
-                    );
-                  })}
+                      <div className="p-3 rounded-2xl bg-blue-50 border border-blue-200 flex gap-3 items-start shadow-sm">
+                        <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-blue-900">Review Synopsis (Team 04)</h4>
+                          <p className="text-[10px] text-blue-700 mt-1">Pending review. Student is waiting for mentor feedback.</p>
+                        </div>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex gap-3 items-start shadow-sm">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                          <Target className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-emerald-900">Finalize Problem Statements</h4>
+                          <p className="text-[10px] text-emerald-700 mt-1">Due next week for 6th Semester batches.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
             </div>
           )}
 
-          {/* 2. MY TEAMS TAB */}
-          {activeTab === 'teams' && (
+          {/* 2A. MY TEAMS TAB - OVERVIEW (ONLY THE 3 SEMESTER CARDS) */}
+          {activeTab === 'teams' && !selectedSemester && (
             <div className="space-y-6">
               
+              {/* Header Title & Subtitle */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
+                <div>
+                  <h2 className="text-2xl font-black text-[#111827]">Academic Project Semesters</h2>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                    Select a semester below to view assigned project teams, mentees, and supervisory records.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <span className="text-xs font-bold px-3.5 py-1.5 rounded-full bg-white border border-[#EADBD0] text-slate-700 shadow-xs flex items-center gap-2">
+                    <Users className="w-3.5 h-3.5 text-[#FF5F38]" />
+                    <span>Total {assignedTeams.length} Assigned Teams</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Semester Cards Grid (ONLY the 3 cards here) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                {SEMESTERS_CONFIG.map(sem => {
+                  const semTeams = assignedTeams.filter(t => t.currentSemester === sem.id);
+                  const totalStudents = semTeams.reduce((acc, t) => acc + (t.members?.length || 0), 0);
+
+                  return (
+                    <div
+                      key={sem.id}
+                      onClick={() => {
+                        setSelectedSemester(sem.id);
+                        const firstTeam = assignedTeams.find(t => t.currentSemester === sem.id);
+                        if (firstTeam) {
+                          setSelectedTeamId(firstTeam.id);
+                        }
+                      }}
+                      className="bg-white rounded-3xl p-7 flex flex-col relative overflow-hidden transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-[#FF5F38] shadow-sm hover:shadow-xl hover:-translate-y-1.5 group"
+                    >
+                      {/* Number Badge Top Left */}
+                      <div className={`absolute top-6 left-6 px-3 py-1 font-black text-sm rounded-lg ${sem.badgeBg}`}>
+                        {sem.badgeNum}
+                      </div>
+
+                      {/* Assigned Count Badge Top Right */}
+                      <div className="absolute top-6 right-6 flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#FAF2EC] text-slate-700 border border-[#EADBD0]">
+                        <Users className="w-3.5 h-3.5 text-[#FF5F38]" />
+                        <span>{semTeams.length} {semTeams.length === 1 ? 'Team' : 'Teams'} ({totalStudents} Students)</span>
+                      </div>
+
+                      {/* Center Graphic with Glow */}
+                      <div className="flex justify-center mt-10 mb-6 relative">
+                        <div className={`absolute inset-0 blur-2xl rounded-full ${sem.glowBg} transform scale-125`} />
+                        <span className="text-[85px] filter drop-shadow-lg relative z-10 duration-300 group-hover:scale-110 select-none transition-transform">
+                          {sem.emoji}
+                        </span>
+                      </div>
+
+                      {/* Title, Subtitle, Description */}
+                      <div className="flex-1 space-y-2 text-left">
+                        <h3 className="text-xl font-black text-[#111827] group-hover:text-[#FF5F38] transition-colors">
+                          {sem.title}
+                        </h3>
+                        <p className="text-sm font-bold text-slate-500">{sem.subtitle}</p>
+                        <p className="text-xs text-slate-500 leading-relaxed min-h-[50px]">
+                          {sem.description}
+                        </p>
+                      </div>
+
+                      {/* Bottom Button / Indicator */}
+                      <div className="mt-6 pt-4 border-t border-[#EADBD0]/60 flex items-center justify-between text-xs font-bold text-slate-600 group-hover:text-[#FF5F38] transition-colors">
+                        <span>Click to view {sem.title} teams</span>
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#FF5F38]/10 text-[#FF5F38] group-hover:bg-[#FF5F38] group-hover:text-white transition-all shadow-xs">
+                          <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* 2B. DETAILED TEAMS & STUDENTS VIEW FOR THE SELECTED SEMESTER */}
+          {activeTab === 'teams' && selectedSemester && (
+            <div className="space-y-6">
+              
+              {/* Header Navigation Bar with "← Back to Semesters" */}
+              <div className="p-4 sm:p-5 bg-white rounded-3xl border border-[#EADBD0] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSelectedSemester(null)}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#FAF2EC] hover:bg-[#FF5F38] hover:text-white text-[#111827] text-xs font-extrabold transition-all cursor-pointer group shadow-xs border border-[#EADBD0]"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-[#FF5F38] group-hover:text-white group-hover:-translate-x-0.5 transition-all" />
+                    <span>Back to Semesters</span>
+                  </button>
+
+                  <div className="h-6 w-[1px] bg-[#EADBD0] hidden sm:block" />
+
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-2xl bg-[#0A1628] text-[#FF5F38] flex items-center justify-center font-bold text-xs shadow-xs">
+                      {selectedSemester.replace(' Semester', '')}
+                    </div>
+                    <div>
+                      <h2 className="text-base sm:text-lg font-black text-[#111827]">
+                        {selectedSemester} Assigned Teams & Students
+                      </h2>
+                      <p className="text-[11px] text-slate-500 font-medium">
+                        {filteredTeams.length} {filteredTeams.length === 1 ? 'team' : 'teams'} assigned • {filteredTeams.reduce((sum, t) => sum + (t.members?.length || 0), 0)} student mentees
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+
               {/* Filter Bar */}
               <div className="bg-white p-4 rounded-3xl border border-[#EADBD0] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="relative w-full sm:w-80">
@@ -541,18 +1104,31 @@ export default function MentorPortal() {
                   <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Filter className="w-4 h-4 text-slate-400" />
-                  <select
-                    value={stageFilter}
-                    onChange={e => setStageFilter(e.target.value)}
-                    className="px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-2xl text-xs text-slate-700 font-medium focus:outline-none"
-                  >
-                    <option value="All">All Stages</option>
-                    {PROJECT_STAGES.map(st => (
-                      <option key={st} value={st}>{st}</option>
-                    ))}
-                  </select>
+                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                  <div className="relative w-full md:w-64">
+                    <input
+                      type="text"
+                      placeholder="Search teams or USN..."
+                      value={teamSearchQuery}
+                      onChange={e => setTeamSearchQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-2xl text-xs focus:outline-none focus:border-[#FF5F38]"
+                    />
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <Filter className="w-4 h-4 text-slate-400" />
+                    <select
+                      value={stageFilter}
+                      onChange={e => setStageFilter(e.target.value)}
+                      className="px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-2xl text-xs text-slate-700 font-medium focus:outline-none"
+                    >
+                      <option value="All">All Stages</option>
+                      {PROJECT_STAGES.map(st => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -561,40 +1137,38 @@ export default function MentorPortal() {
                 
                 {/* Left Column: Team Selection List */}
                 <div className="lg:col-span-4 space-y-3">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 px-1">
-                    Assigned Teams ({filteredTeams.length})
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 px-1 flex items-center justify-between">
+                    <span>{selectedSemester} Teams ({filteredTeams.length})</span>
                   </h3>
-                  {filteredTeams.map(t => {
-                    const isSel = currentTeam?.id === t.id;
-                    return (
-                      <button
-                        key={t.id}
-                        onClick={() => setSelectedTeamId(t.id)}
-                        className={`w-full text-left p-4 rounded-3xl border transition-all cursor-pointer ${
-                          isSel
-                            ? 'bg-[#0B2E26] text-white border-[#0B2E26] shadow-lg'
-                            : 'bg-white text-slate-800 border-[#EADBD0] hover:bg-[#FAF2EC]'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between text-xs mb-1">
-                          <span className={`font-mono font-bold ${isSel ? 'text-[#FF5F38]' : 'text-slate-500'}`}>
-                            {t.id}
-                          </span>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isSel ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                            {t.currentStage || 'Development'}
-                          </span>
-                        </div>
-                        <div className="font-extrabold text-sm mb-1">{t.name}</div>
-                        <div className={`text-xs line-clamp-1 opacity-80 ${isSel ? 'text-slate-200' : 'text-slate-600'}`}>
-                          {t.projectTitle || 'No Title Set'}
-                        </div>
-                      </button>
-                    );
-                  })}
+                  
+                  {filteredTeams.length === 0 ? (
+                    <div className="bg-white p-8 rounded-3xl border border-[#EADBD0] text-center space-y-2">
+                      <Users className="w-8 h-8 mx-auto text-slate-300" />
+                      <div className="text-xs font-bold text-slate-600">No teams assigned for {selectedSemester}</div>
+                      <p className="text-[10px] text-slate-400">Clear search query or select another semester</p>
+                    </div>
+                  ) : (
+                    filteredTeams.map(t => {
+                      const isSel = currentTeam?.id === t.id;
+                      return (
+                        <button
+                          key={t.id}
+                          onClick={() => setSelectedTeamId(t.id)}
+                          className={`w-full text-left p-4 rounded-3xl border transition-all cursor-pointer ${
+                            isSel
+                              ? 'bg-[#0B2E26] text-white border-[#0B2E26] shadow-lg'
+                              : 'bg-white text-slate-800 border-[#EADBD0] hover:bg-[#FAF2EC]'
+                          }`}
+                        >
+                          <div className="font-extrabold text-sm">{t.name}</div>
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
 
                 {/* Right Column: Complete Team Information Card */}
-                {currentTeam && (
+                {currentTeam ? (
                   <div className="lg:col-span-8 bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBD0] shadow-sm space-y-6">
                     
                     {/* Header */}
@@ -603,6 +1177,9 @@ export default function MentorPortal() {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="bg-[#FF5F38] text-white font-mono font-bold text-xs px-2.5 py-0.5 rounded-full">
                             {currentTeam.id}
+                          </span>
+                          <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs px-2.5 py-0.5 rounded-full">
+                            {currentTeam.currentSemester || selectedSemester}
                           </span>
                           <span className="text-xs font-bold text-slate-500">Team Leader: {currentTeam.members.find(m=>m.role==='Team Leader')?.name || currentTeam.members[0]?.name}</span>
                         </div>
@@ -667,24 +1244,33 @@ export default function MentorPortal() {
 
                     {/* Team Members List with USN */}
                     <div className="space-y-3 pt-2">
-                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                        Team Members & Registration Numbers
-                      </h4>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                          Assigned Student Mentees ({currentTeam.members.length})
+                        </h4>
+                        <span className="text-[11px] font-bold text-slate-400">
+                          Enrolled in {currentTeam.currentSemester || selectedSemester}
+                        </span>
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {currentTeam.members.map(m => (
-                          <div key={m.regNo} className="p-3.5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] flex items-center justify-between">
-                            <div>
-                              <div className="font-bold text-xs text-[#111827] flex items-center gap-1.5">
-                                <span>{m.name}</span>
+                          <div key={m.regNo} className="p-3.5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] flex items-center justify-between hover:border-[#FF5F38]/40 transition">
+                            <div className="min-w-0 flex-1 pr-2">
+                              <div className="font-bold text-xs text-[#111827] flex items-center gap-1.5 truncate">
+                                <span className="truncate">{m.name}</span>
                                 {m.role === 'Team Leader' && (
-                                  <span className="text-[10px] bg-[#0B2E26] text-white px-2 py-0.5 rounded-full font-bold">
+                                  <span className="text-[10px] bg-[#0B2E26] text-white px-2 py-0.5 rounded-full font-bold shrink-0">
                                     Leader
                                   </span>
                                 )}
                               </div>
-                              <div className="text-[11px] font-mono text-slate-500 mt-0.5">USN: {m.regNo}</div>
+                              <div className="text-[11px] font-mono text-slate-500 mt-0.5 flex items-center gap-2">
+                                <span>USN: <strong>{m.regNo}</strong></span>
+                                <span>•</span>
+                                <span className="text-[10px] text-slate-400 truncate">{m.email}</span>
+                              </div>
                             </div>
-                            <div className="text-right">
+                            <div className="text-right shrink-0">
                               <span className="text-[10px] text-slate-400 font-semibold block">Attendance</span>
                               <span className="text-xs font-bold text-emerald-600 font-mono">{m.attendanceRate || '100%'}</span>
                             </div>
@@ -693,6 +1279,14 @@ export default function MentorPortal() {
                       </div>
                     </div>
 
+                  </div>
+                ) : (
+                  <div className="lg:col-span-8 bg-white p-12 rounded-3xl border border-[#EADBD0] text-center space-y-3 flex flex-col items-center justify-center">
+                    <Users className="w-12 h-12 text-slate-300" />
+                    <h3 className="text-base font-extrabold text-[#111827]">No Team Selected</h3>
+                    <p className="text-xs text-slate-500 max-w-sm">
+                      Select a team from the left column to view assigned student mentees, project objectives, and progress details.
+                    </p>
                   </div>
                 )}
               </div>
@@ -1123,88 +1717,46 @@ export default function MentorPortal() {
             </div>
           )}
 
-          {/* 8. MENTOR PROFILE TAB */}
+          {/* 8. MENTOR PROFILE TAB (Registration Details) */}
           {activeTab === 'profile' && (
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBD0] shadow-sm max-w-3xl mx-auto space-y-6">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBD0] shadow-sm max-w-xl mx-auto space-y-6">
               <div className="flex items-center justify-between border-b border-[#EADBD0] pb-4">
-                <h2 className="text-xl font-black text-[#111827]">Faculty Mentor Profile Information</h2>
-                <button
-                  onClick={() => setEditingProfile(!editingProfile)}
-                  className="text-xs font-bold text-[#FF5F38] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <Edit3 className="w-4 h-4" /> {editingProfile ? 'Cancel Edit' : 'Edit Profile'}
-                </button>
-              </div>
-
-              {!editingProfile ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
-                  <div className="space-y-1">
-                    <span className="text-slate-400 font-semibold">Faculty Mentor Name</span>
-                    <p className="font-extrabold text-base text-[#111827]">{profile.fullName}</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-[#0A1628] text-[#FF5F38] flex items-center justify-center font-black text-lg shadow-xs">
+                    {profile.fullName.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'M'}
                   </div>
-
-                  <div className="space-y-1">
-                    <span className="text-slate-400 font-semibold">Faculty Employee ID</span>
-                    <p className="font-mono font-bold text-[#FF5F38] text-sm">{profile.employeeId}</p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-slate-400 font-semibold">Department</span>
-                    <p className="font-bold text-slate-800">{profile.department}</p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-slate-400 font-semibold">Designation</span>
-                    <p className="font-bold text-slate-800">{profile.designation}</p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-slate-400 font-semibold">Email Address</span>
-                    <p className="font-semibold text-slate-700">{profile.email}</p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-slate-400 font-semibold">Contact Information</span>
-                    <p className="font-semibold text-slate-700">{profile.phone || '+91 98450 12345'}</p>
-                  </div>
-
-                  <div className="col-span-2 space-y-1">
-                    <span className="text-slate-400 font-semibold">Areas of Specialization & Research</span>
-                    <p className="bg-[#FAF2EC] p-3 rounded-2xl border border-[#EADBD0] text-slate-700 font-medium">
-                      {profile.areaOfExpertise}
-                    </p>
+                  <div>
+                    <h2 className="text-base font-extrabold text-[#111827]">{profile.fullName}</h2>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 mt-0.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      Faculty Mentor
+                    </span>
                   </div>
                 </div>
-              ) : (
-                <form onSubmit={handleProfileSave} className="space-y-4 text-xs">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold mb-1">Full Name</label>
-                      <input
-                        type="text"
-                        value={profileForm.fullName}
-                        onChange={e => setProfileForm({ ...profileForm, fullName: e.target.value })}
-                        className="w-full px-4 py-2.5 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-semibold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold mb-1">Contact Phone</label>
-                      <input
-                        type="text"
-                        value={profileForm.phone || ''}
-                        onChange={e => setProfileForm({ ...profileForm, phone: e.target.value })}
-                        className="w-full px-4 py-2.5 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-semibold"
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    className="bg-[#0B2E26] text-white px-5 py-2.5 rounded-xl font-bold text-xs cursor-pointer"
-                  >
-                    Save Profile Changes
-                  </button>
-                </form>
-              )}
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div className="p-3.5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] flex items-center justify-between">
+                  <span className="text-slate-500 font-bold uppercase text-[10px]">Full Name</span>
+                  <span className="font-extrabold text-[#111827]">{profile.fullName}</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] flex items-center justify-between">
+                  <span className="text-slate-500 font-bold uppercase text-[10px]">Faculty Email</span>
+                  <span className="font-bold text-[#111827] font-mono">{profile.email}</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] flex items-center justify-between">
+                  <span className="text-slate-500 font-bold uppercase text-[10px]">Department</span>
+                  <span className="font-bold text-[#111827]">{profile.department}</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] flex items-center justify-between">
+                  <span className="text-slate-500 font-bold uppercase text-[10px]">Designation</span>
+                  <span className="font-bold text-[#111827]">{profile.designation}</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] flex items-center justify-between">
+                  <span className="text-slate-500 font-bold uppercase text-[10px]">Role</span>
+                  <span className="font-bold text-[#111827]">{profile.role}</span>
+                </div>
+              </div>
             </div>
           )}
 

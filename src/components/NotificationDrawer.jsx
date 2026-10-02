@@ -43,7 +43,7 @@ export default function NotificationDrawer({ onClose }) {
                   className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
                     notif.read
                       ? 'bg-[#FAF2EC] border-[#EADBD0] opacity-75'
-                      : 'bg-[#FF5F38]/10/70 border-blue-200 shadow-sm'
+                      : 'bg-[#FF5F38]/10 border-[#EADBD0] shadow-xs'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">

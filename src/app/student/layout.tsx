@@ -137,9 +137,6 @@ export default function AppPortalLayout({
               <Link href="/mentor" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/mentor' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
                 <Home className={`w-5 h-5 ${pathname === '/mentor' ? 'text-white' : 'text-slate-400'}`} /> Mentor Dashboard
               </Link>
-              <Link href="/student" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-                <Users className={`w-5 h-5 ${pathname === '/student' ? 'text-white' : 'text-slate-400'}`} /> Student Directory
-              </Link>
             </>
           ) : (
             <>
