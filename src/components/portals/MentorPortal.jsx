@@ -98,7 +98,8 @@ export default function MentorPortal() {
     uploadTeamProjectDocument,
     updateMentorProfile,
     markNotificationRead,
-    clearAllNotifications
+    clearAllNotifications,
+    approveStudentReviewLog
   } = useApp();
 
   const { user, logout } = useAuth();
@@ -1439,17 +1440,32 @@ export default function MentorPortal() {
                             </div>
 
                             {/* Official Mentor Feedback Box */}
-                            <div className="bg-[#0B2E26] text-white p-4.5 rounded-2xl space-y-1.5 shadow-md">
-                              <span className="text-xs font-extrabold tracking-wider text-[#FF5F38] uppercase block">
-                                💬 Official Mentor Feedback & Instructions
-                              </span>
-                              <p className="text-xs text-slate-200 leading-relaxed font-medium">{entry.mentorFeedback}</p>
-                              {entry.improvementsSuggested && (
-                                <div className="text-xs text-amber-300 pt-1 border-t border-white/10 font-medium">
-                                  <strong>Improvements Suggested:</strong> {entry.improvementsSuggested}
-                                </div>
-                              )}
-                            </div>
+                            {entry.status === 'Pending' ? (
+                               <div className="bg-[#FAF2EC] border border-[#FF5F38] p-4.5 rounded-2xl flex flex-col items-center justify-between shadow-md">
+                                  <span className="text-sm font-black text-[#FF5F38] mb-3 uppercase tracking-wider block text-center w-full">Pending Mentor Evaluation</span>
+                                  <button onClick={() => {
+                                      approveStudentReviewLog(entry.id, {
+                                          mentorObservations: 'Verified by mentor. Project logs match the work demonstrated.',
+                                          mentorFeedback: 'Student review submitted log is accepted and recorded in the official project diary.',
+                                          mentorName: profile.fullName
+                                      });
+                                  }} className="px-5 py-2.5 bg-[#FF5F38] shadow-md hover:bg-[#E54D26] text-white font-bold rounded-xl text-xs w-full transition-all">
+                                    Approve & Record Official Diary Entry
+                                  </button>
+                               </div>
+                            ) : (
+                               <div className="bg-[#0B2E26] text-white p-4.5 rounded-2xl space-y-1.5 shadow-md">
+                                 <span className="text-xs font-extrabold tracking-wider text-[#FF5F38] uppercase block">
+                                   💬 Official Mentor Feedback & Instructions
+                                 </span>
+                                 <p className="text-xs text-slate-200 leading-relaxed font-medium">{entry.mentorFeedback}</p>
+                                 {entry.improvementsSuggested && (
+                                   <div className="text-xs text-amber-300 pt-1 border-t border-white/10 font-medium">
+                                     <strong>Improvements Suggested:</strong> {entry.improvementsSuggested}
+                                   </div>
+                                 )}
+                               </div>
+                            )}
 
                             {/* Tasks Given Table/List */}
                             {entry.tasksGivenList && entry.tasksGivenList.length > 0 && (

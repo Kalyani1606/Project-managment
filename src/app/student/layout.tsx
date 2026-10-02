@@ -152,21 +152,9 @@ export default function AppPortalLayout({
               <Link href="/student/events" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/events' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
                 <Calendar className={`w-5 h-5 ${pathname === '/student/events' ? 'text-white' : 'text-slate-400'}`} /> Events & Tasks
               </Link>
-              
-              <Link href="/student/team" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/team' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-                <Users className={`w-5 h-5 ${pathname === '/student/team' ? 'text-white' : 'text-slate-400'}`} /> My Team
-              </Link>
 
-              <Link href="/student/domain" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/domain' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-                <Lightbulb className={`w-5 h-5 ${pathname === '/student/domain' ? 'text-white' : 'text-slate-400'}`} /> Domain & Topic
-              </Link>
-
-              <Link href="/student/papers" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/papers' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-                <BookOpen className={`w-5 h-5 ${pathname === '/student/papers' ? 'text-white' : 'text-slate-400'}`} /> Research Papers
-              </Link>
-
-              <Link href="/student/reports" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/reports' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-                <FileText className={`w-5 h-5 ${pathname === '/student/reports' ? 'text-white' : 'text-slate-400'}`} /> Report & Marks
+              <Link href="/student/reviews" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/reviews' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
+                <FileText className={`w-5 h-5 ${pathname === '/student/reviews' ? 'text-white' : 'text-slate-400'}`} /> Project Review Logs
               </Link>
             </>
           )}
@@ -266,8 +254,8 @@ export default function AppPortalLayout({
               <Link href="/student/events" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-4 rounded-3xl text-base font-bold ${pathname === '/student/events' ? 'bg-[#FF5F38] text-white shadow-md' : 'text-slate-600 bg-white shadow-sm'}`}>
                 <Calendar className="w-5 h-5" /> Events & Tasks
               </Link>
-              <Link href="/student/team" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-4 rounded-3xl text-base font-bold ${pathname === '/student/team' ? 'bg-[#FF5F38] text-white shadow-md' : 'text-slate-600 bg-white shadow-sm'}`}>
-                <Users className="w-5 h-5" /> My Team
+              <Link href="/student/reviews" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-4 rounded-3xl text-base font-bold ${pathname === '/student/reviews' ? 'bg-[#FF5F38] text-white shadow-md' : 'text-slate-600 bg-white shadow-sm'}`}>
+                <FileText className="w-5 h-5" /> Project Review Logs
               </Link>
             </nav>
           </div>
