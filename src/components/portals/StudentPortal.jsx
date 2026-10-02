@@ -29,6 +29,8 @@ import {
 } from 'lucide-react';
 import Roadmap3D from '../Roadmap3D';
 import EReportView from '../common/EReportView';
+import SeventhSemesterReview from './SeventhSemesterReview';
+import EighthSemesterReview from './EighthSemesterReview';
 
 export default function StudentPortal({ defaultTab = 'dashboard', activeSection = 'all' }) {
   const router = useRouter();
@@ -66,7 +68,16 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
     setActiveTab(defaultTab);
   }, [defaultTab]);
 
-  const [selectedSemester, setSelectedSemester] = useState('6th Semester');
+  const [selectedSemester, setSelectedSemester] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('targetSemester');
+      if (stored) {
+        localStorage.removeItem('targetSemester');
+        return stored;
+      }
+    }
+    return '6th Semester';
+  });
   const [showEReportModal, setShowEReportModal] = useState(false);
   const [showReviewSubmitModal, setShowReviewSubmitModal] = useState(false);
   const [reviewFormData, setReviewFormData] = useState({
@@ -83,9 +94,10 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
     tasks: [{ task: '', student: '', deadline: '' }]
   });
   const [saveStatus, setSaveStatus] = useState('');
+  const storageKey = `isSemesterCompleted_${profile.email}`;
   const [isSemesterCompleted, setIsSemesterCompleted] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('isSemesterCompleted') === 'true';
+      return localStorage.getItem(storageKey) === 'true';
     }
     return false;
   });
@@ -102,9 +114,9 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('isSemesterCompleted', isSemesterCompleted);
+      localStorage.setItem(storageKey, isSemesterCompleted);
     }
-  }, [isSemesterCompleted]);
+  }, [isSemesterCompleted, storageKey]);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ ...profile });
@@ -444,7 +456,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { setSelectedSemester('6th Semester'); router.push('/student/events'); }}
+                onClick={() => { localStorage.setItem('targetSemester', '6th Semester'); router.push('/student/events'); }}
                 className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group"
               >
                 Click to view tasks
@@ -469,7 +481,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { setSelectedSemester('7th Semester'); router.push('/student/events'); }}
+                onClick={() => { localStorage.setItem('targetSemester', '7th Semester'); router.push('/student/events'); }}
                 className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group opacity-80 hover:opacity-100"
               >
                 Click to view tasks
@@ -494,7 +506,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { setSelectedSemester('8th Semester'); router.push('/student/events'); }}
+                onClick={() => { localStorage.setItem('targetSemester', '8th Semester'); router.push('/student/events'); }}
                 className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group opacity-80 hover:opacity-100"
               >
                 Click to view tasks
@@ -527,10 +539,9 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                       : 'text-slate-600 hover:text-[#111827] hover:bg-slate-100'
                   }`}
                 >
-                  {sem.startsWith('6') && '🟢 '}
-                  {sem.startsWith('7') && '🟡 '}
-                  {sem.startsWith('8') && '🔵 '}
-                  {sem}
+                  {sem.startsWith('6') && '🟢 Capstone Phase 1'}
+                  {sem.startsWith('7') && '🟡 Capstone Phase 2'}
+                  {sem.startsWith('8') && '🔵 Capstone Phase 3'}
                 </button>
               );
             })}
@@ -1133,6 +1144,10 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
 
               </div>
             </div>
+          ) : selectedSemester === '7th Semester' ? (
+            <SeventhSemesterReview userTeam={userTeam} />
+          ) : selectedSemester === '8th Semester' ? (
+            <EighthSemesterReview userTeam={userTeam} />
           ) : (
             <div className="bg-white border border-[#EADBD0] shadow-sm p-12 text-center rounded-3xl border border-[#EADBD0] bg-white text-slate-500">
               <Clock className="w-12 h-12 mx-auto mb-3 text-[#FF5F38] opacity-50" />

@@ -113,6 +113,7 @@ export default function StudentProfilePage() {
           github,
           linkedin,
           skills,
+          profilePicture: profileImage || undefined,
         }),
       });
 
@@ -165,9 +166,12 @@ export default function StudentProfilePage() {
               <input type="file" accept="image/*" className="hidden" onChange={(e) => {
                  if (e.target.files && e.target.files[0]) {
                    const file = e.target.files[0];
-                   const imageUrl = URL.createObjectURL(file);
-                   setProfileImage(imageUrl);
-                   showToast("Profile photo selected for upload", "success");
+                   const reader = new FileReader();
+                   reader.onloadend = () => {
+                     setProfileImage(reader.result as string);
+                     showToast("Profile photo selected for upload", "success");
+                   };
+                   reader.readAsDataURL(file);
                  }
               }} />
             </label>
