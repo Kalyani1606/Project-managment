@@ -114,8 +114,6 @@ export default function AppPortalLayout({
     },
   ];
 
-  const isMentor = user?.role === "TEACHER" || pathname.startsWith("/mentor");
-
   return (
     <div className="min-h-screen bg-[#FAF2EC] text-[#111827] font-sans selection:bg-[#FF5F38] selection:text-white flex">
       {/* LEFT SIDEBAR (Desktop) */}
@@ -126,38 +124,28 @@ export default function AppPortalLayout({
               PROJECT<br />HUB<span className="text-[#FF5F38]">.</span>
             </span>
             <span className="text-[10px] sm:text-xs font-extrabold tracking-wider bg-[#FF5F38]/15 text-[#FF5F38] px-3 py-1 rounded-full mt-3 self-start">
-              {isMentor ? "Faculty Mentor Portal" : "Student Portal"}
+              Student Portal
             </span>
           </Link>
         </div>
         
         <nav className="flex-1 px-4 space-y-1.5 mt-2">
-          {isMentor ? (
-            <>
-              <Link href="/mentor" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/mentor' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-                <Home className={`w-5 h-5 ${pathname === '/mentor' ? 'text-white' : 'text-slate-400'}`} /> Mentor Dashboard
-              </Link>
-            </>
-          ) : (
-            <>
-              {/* Dashboard */}
-              <Link href="/student" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-                <Home className={`w-5 h-5 ${pathname === '/student' ? 'text-white' : 'text-slate-400'}`} /> Dashboard
-              </Link>
-              
-              <Link href="/student/profile" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/profile' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-                <User className={`w-5 h-5 ${pathname === '/student/profile' ? 'text-white' : 'text-slate-400'}`} /> My Profile
-              </Link>
-              
-              <Link href="/student/events" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/events' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-                <Calendar className={`w-5 h-5 ${pathname === '/student/events' ? 'text-white' : 'text-slate-400'}`} /> Events & Tasks
-              </Link>
+          {/* Dashboard */}
+          <Link href="/student" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
+            <Home className={`w-5 h-5 ${pathname === '/student' ? 'text-white' : 'text-slate-400'}`} /> Dashboard
+          </Link>
+          
+          <Link href="/student/profile" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/profile' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
+            <User className={`w-5 h-5 ${pathname === '/student/profile' ? 'text-white' : 'text-slate-400'}`} /> My Profile
+          </Link>
+          
+          <Link href="/student/events" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/events' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
+            <Calendar className={`w-5 h-5 ${pathname === '/student/events' ? 'text-white' : 'text-slate-400'}`} /> Events & Tasks
+          </Link>
 
-              <Link href="/student/reviews" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/reviews' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
-                <FileText className={`w-5 h-5 ${pathname === '/student/reviews' ? 'text-white' : 'text-slate-400'}`} /> Project Review Logs
-              </Link>
-            </>
-          )}
+          <Link href="/student/reviews" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${pathname === '/student/reviews' ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20' : 'text-slate-500 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]'}`}>
+            <FileText className={`w-5 h-5 ${pathname === '/student/reviews' ? 'text-white' : 'text-slate-400'}`} /> Project Review Logs
+          </Link>
         </nav>
 
         <div className="p-6 mt-auto">
@@ -223,7 +211,7 @@ export default function AppPortalLayout({
                <div className="hidden sm:block text-right">
                  <div className="text-sm font-bold text-[#111827]">{user.name}</div>
                  <div className="text-xs font-semibold text-slate-500">
-                    {isMentor ? (user?.teacherProfile?.designation || "Faculty Mentor") : `${user?.studentProfile?.semester || 6}th Semester`}
+                    {`${user?.studentProfile?.semester || 6}th Semester`}
                   </div>
                  {!profileComplete && pathname !== "/student/profile" && (
                    <Link href="/student/profile" className="text-[10px] bg-[#FF5F38] text-white px-2 py-0.5 rounded-full font-bold mt-1 inline-block hover:bg-[#E54D26] transition-colors shadow-sm">

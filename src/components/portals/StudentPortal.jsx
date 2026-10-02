@@ -58,7 +58,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
   const userTeam = data.teams.find(t => 
     t.leaderEmail === profile.email || 
     t.members?.some(m => m.email === profile.email)
-  ) || null;
+  ) || data.teams[0]; // Fallback to first team for testing purposes
 
   const [activeTab, setActiveTab] = useState(defaultTab);
   
@@ -71,9 +71,16 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
   const [showReviewSubmitModal, setShowReviewSubmitModal] = useState(false);
   const [reviewFormData, setReviewFormData] = useState({
     date: new Date().toISOString().split('T')[0],
-    stage: 'Development',
+    nextReviewDate: '',
+    attendanceMap: {},
     workCompleted: '',
-    problemsFaced: ''
+    workDemonstrated: '',
+    progressPercent: 50,
+    stage: 'Development',
+    problemsFaced: '',
+    mentorObservations: '',
+    mentorFeedback: '',
+    tasks: [{ task: '', student: '', deadline: '' }]
   });
   const [saveStatus, setSaveStatus] = useState('');
   const [isSemesterCompleted, setIsSemesterCompleted] = useState(() => {
@@ -82,6 +89,16 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
     }
     return false;
   });
+
+  useEffect(() => {
+    if (showReviewSubmitModal && userTeam) {
+      const initialAttendance = {};
+      (userTeam.members || []).forEach(m => {
+        initialAttendance[m.name] = 'Present';
+      });
+      setReviewFormData(prev => ({ ...prev, attendanceMap: initialAttendance }));
+    }
+  }, [showReviewSubmitModal, userTeam]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -211,17 +228,34 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
   const handleReviewSubmit = (e) => {
     e.preventDefault();
     if (!userTeam || !reviewFormData.workCompleted) return;
+    
+    const studentsPresentList = Object.keys(reviewFormData.attendanceMap).filter(
+      name => reviewFormData.attendanceMap[name] === 'Present'
+    );
+
     submitStudentReviewLog(userTeam.id, {
       ...reviewFormData,
       reviewNumber: `Review ${String(data.projectDiary.filter(d => d.teamId === userTeam.id).length + 1).padStart(2, '0')}`,
-      studentsPresent: [profile.fullName],
-      attendanceMap: { [profile.fullName]: 'Present' },
-      progressPercent: progressPercentage
+      studentsPresent: studentsPresentList,
+      tasksGivenList: reviewFormData.tasks.filter(t => t.task.trim() !== '')
     });
+    
     setShowReviewSubmitModal(false);
     setSaveStatus('success');
     setTimeout(() => setSaveStatus(''), 4000);
-    setReviewFormData({ date: new Date().toISOString().split('T')[0], stage: 'Development', workCompleted: '', problemsFaced: ''});
+    setReviewFormData({
+      date: new Date().toISOString().split('T')[0],
+      nextReviewDate: '',
+      attendanceMap: {},
+      workCompleted: '',
+      workDemonstrated: '',
+      progressPercent: 50,
+      stage: 'Development',
+      problemsFaced: '',
+      mentorObservations: '',
+      mentorFeedback: '',
+      tasks: [{ task: '', student: '', deadline: '' }]
+    });
   };
 
   return (
@@ -1189,46 +1223,128 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
         </div>
       )}
 
-      {/* STUDENT REVIEW SUBMISSION MODAL */}
       {showReviewSubmitModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm shadow-2xl">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-[#EADBD0] animate-fade-in flex flex-col max-h-[90vh]">
-            <div className="bg-[#FAF2EC] px-6 py-4 flex items-center justify-between border-b border-[#EADBD0]">
-              <h2 className="text-lg font-black text-[#111827] flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#FF5F38]" /> Submit Review Log
-              </h2>
-              <button onClick={() => setShowReviewSubmitModal(false)} className="text-slate-400 hover:text-slate-700 transition">
-                <XCircle className="w-6 h-6" />
+          <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-4xl overflow-hidden border border-[#EADBD0] animate-fade-in flex flex-col max-h-[90vh]">
+            <div className="bg-white px-8 py-5 flex items-center justify-between border-b border-[#EADBD0]">
+              <div>
+                <h2 className="text-xl font-black text-[#111827]">
+                  New Official Project Review Entry — {userTeam?.name}
+                </h2>
+                <p className="text-xs text-slate-500 mt-1 font-medium">Record attendance, demonstrated progress, mentor feedback & assigned tasks</p>
+              </div>
+              <button onClick={() => setShowReviewSubmitModal(false)} className="bg-slate-100 hover:bg-slate-200 p-2 rounded-full text-slate-500 transition">
+                <X className="w-5 h-5" />
               </button>
             </div>
             
-            <form onSubmit={handleReviewSubmit} className="p-6 overflow-y-auto space-y-4">
-               <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Date of Review</label>
-                  <input type="date" required value={reviewFormData.date} onChange={e => setReviewFormData({...reviewFormData, date: e.target.value})} className="w-full form-input" />
-               </div>
-               <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Current Stage</label>
-                  <select value={reviewFormData.stage} onChange={e => setReviewFormData({...reviewFormData, stage: e.target.value})} className="w-full form-input">
-                     <option>Problem Identification</option>
-                     <option>Design & Prototype</option>
-                     <option>Development</option>
+            <form onSubmit={handleReviewSubmit} className="p-8 overflow-y-auto space-y-6 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Review Number</label>
+                  <input type="text" readOnly value={`Review ${String(data.projectDiary.filter(d => d.teamId === userTeam?.id).length + 1).padStart(2, '0')}`} className="w-full px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-mono font-bold" />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Review Date</label>
+                  <input type="date" required value={reviewFormData.date} onChange={e => setReviewFormData({...reviewFormData, date: e.target.value})} className="w-full px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-mono font-bold" />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Next Review Date</label>
+                  <input type="date" value={reviewFormData.nextReviewDate} onChange={e => setReviewFormData({...reviewFormData, nextReviewDate: e.target.value})} className="w-full px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-mono font-bold" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-2">Record Student Attendance</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(userTeam?.members || []).map(m => {
+                    const status = reviewFormData.attendanceMap[m.name] || 'Absent';
+                    return (
+                      <div key={m.regNo} className="bg-[#FAF2EC] p-3 rounded-2xl border border-[#EADBD0] flex items-center justify-between">
+                        <div>
+                          <div className="font-bold text-sm text-[#111827]">{m.name}</div>
+                          <div className="text-[10px] text-slate-500 font-mono">USN: {m.regNo}</div>
+                        </div>
+                        <div className="flex bg-white rounded-xl overflow-hidden border border-[#EADBD0] shadow-sm">
+                          <button type="button" onClick={() => setReviewFormData(prev => ({...prev, attendanceMap: {...prev.attendanceMap, [m.name]: 'Present'}}))} className={`px-3 py-1 text-xs font-bold transition ${status === 'Present' ? 'bg-[#0B2E26] text-white' : 'text-slate-500 hover:bg-slate-50'}`}>Present</button>
+                          <button type="button" onClick={() => setReviewFormData(prev => ({...prev, attendanceMap: {...prev.attendanceMap, [m.name]: 'Absent'}}))} className={`px-3 py-1 text-xs font-bold transition ${status === 'Absent' ? 'bg-red-50 text-red-600' : 'text-slate-500 hover:bg-slate-50'}`}>Absent</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Work Completed Since Last Review</label>
+                  <textarea rows="3" required placeholder="Students completed database setup..." value={reviewFormData.workCompleted} onChange={e => setReviewFormData({...reviewFormData, workCompleted: e.target.value})} className="w-full p-3 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-medium"></textarea>
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Work Demonstrated by Students</label>
+                  <textarea rows="3" placeholder="Demonstrated user login..." value={reviewFormData.workDemonstrated} onChange={e => setReviewFormData({...reviewFormData, workDemonstrated: e.target.value})} className="w-full p-3 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-medium"></textarea>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Current Progress %</label>
+                  <input type="number" min="0" max="100" value={reviewFormData.progressPercent} onChange={e => setReviewFormData({...reviewFormData, progressPercent: e.target.value})} className="w-full px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-mono font-bold" />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Current Project Stage</label>
+                  <select value={reviewFormData.stage} onChange={e => setReviewFormData({...reviewFormData, stage: e.target.value})} className="w-full px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-bold">
+                    <option>Project Selection</option>
+                    <option>Problem Identification</option>
+                    <option>Research & SRS</option>
+                    <option>Planning & Architecture</option>
+                    <option>Design & Prototype</option>
+                    <option>Development</option>
+                    <option>Testing & QA</option>
+                    <option>Documentation</option>
+                    <option>Final Presentation</option>
+                    <option>Final Submission</option>
                   </select>
-               </div>
-               <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Work Demonstrated</label>
-                  <textarea required rows="3" placeholder="What progress was shown?" value={reviewFormData.workCompleted} onChange={e => setReviewFormData({...reviewFormData, workCompleted: e.target.value})} className="w-full form-input resize-none"></textarea>
-               </div>
-               <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Problems Faced (Optional)</label>
-                  <textarea rows="2" placeholder="Any issues discussed?" value={reviewFormData.problemsFaced} onChange={e => setReviewFormData({...reviewFormData, problemsFaced: e.target.value})} className="w-full form-input resize-none"></textarea>
-               </div>
-               <div className="pt-4 border-t border-[#EADBD0] flex justify-end gap-3">
-                 <button type="button" onClick={() => setShowReviewSubmitModal(false)} className="px-5 py-2.5 bg-slate-100 font-bold text-slate-700 text-sm hover:bg-slate-200 rounded-xl">Cancel</button>
-                 <button type="submit" className="px-5 py-2.5 bg-[#FF5F38] text-white text-sm font-bold hover:bg-[#E54D26] rounded-xl flex items-center gap-2">
-                   <Send className="w-4 h-4" /> Submit for Approval
-                 </button>
-               </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Problems & Challenges Faced by Students</label>
+                <input type="text" placeholder="Students are facing issues with..." value={reviewFormData.problemsFaced} onChange={e => setReviewFormData({...reviewFormData, problemsFaced: e.target.value})} className="w-full px-3.5 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-medium" />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Mentor Observations</label>
+                <input type="text" placeholder="Authentication module is working..." value={reviewFormData.mentorObservations} onChange={e => setReviewFormData({...reviewFormData, mentorObservations: e.target.value})} className="w-full px-3.5 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-medium" />
+              </div>
+
+              <div>
+                <label className="block font-extrabold text-[#0B2E26] mb-1">Official Mentor Feedback & Instructions</label>
+                <textarea rows="3" placeholder="Complete the dashboard and improve API..." value={reviewFormData.mentorFeedback} onChange={e => setReviewFormData({...reviewFormData, mentorFeedback: e.target.value})} className="w-full p-3 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-medium"></textarea>
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-[#EADBD0]">
+                <div className="flex items-center justify-between">
+                  <label className="block font-extrabold text-slate-800">Tasks Given to Students</label>
+                  <button type="button" onClick={() => setReviewFormData({...reviewFormData, tasks: [...reviewFormData.tasks, { task: '', student: userTeam?.members[0]?.name || '', deadline: '' }]})} className="text-xs font-bold text-[#FF5F38] hover:underline cursor-pointer">
+                    + Add Task Row
+                  </button>
+                </div>
+                {reviewFormData.tasks.map((tk, tIdx) => (
+                  <div key={tIdx} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input type="text" placeholder="Task description..." value={tk.task} onChange={e => { const copy = [...reviewFormData.tasks]; copy[tIdx].task = e.target.value; setReviewFormData({ ...reviewFormData, tasks: copy }); }} className="px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl text-xs" />
+                    <select value={tk.student} onChange={e => { const copy = [...reviewFormData.tasks]; copy[tIdx].student = e.target.value; setReviewFormData({ ...reviewFormData, tasks: copy }); }} className="px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl text-xs font-semibold">
+                      {(userTeam?.members || []).map(m => <option key={m.regNo} value={m.name}>{m.name}</option>)}
+                    </select>
+                    <input type="date" value={tk.deadline} onChange={e => { const copy = [...reviewFormData.tasks]; copy[tIdx].deadline = e.target.value; setReviewFormData({ ...reviewFormData, tasks: copy }); }} className="px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl text-xs font-mono" />
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-4 border-t border-[#EADBD0] flex justify-end gap-3">
+                <button type="button" onClick={() => setShowReviewSubmitModal(false)} className="px-6 py-2.5 rounded-xl border border-[#EADBD0] text-slate-600 font-bold hover:bg-slate-100 cursor-pointer text-sm">Cancel</button>
+                <button type="submit" className="px-6 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white text-sm font-extrabold shadow-md cursor-pointer rounded-xl">Save Permanent Diary Entry</button>
+              </div>
             </form>
           </div>
         </div>

@@ -266,64 +266,6 @@ export default function MentorPortal() {
   // Profile Form State
   const [profileForm, setProfileForm] = useState({ ...profile });
 
-  // Update Review Form when currentTeam changes or Modal opens
-  const openNewReviewModal = () => {
-    if (!currentTeam) return;
-    const existingCount = data.projectDiary.filter(d => d.teamId === currentTeam.id).length;
-    const initialAttendance = {};
-    (currentTeam.members || []).forEach(m => {
-      initialAttendance[m.name] = 'Present';
-    });
-
-    setReviewForm({
-      reviewNumber: `Review ${String(existingCount + 1).padStart(2, '0')}`,
-      date: new Date().toISOString().split('T')[0],
-      attendanceMap: initialAttendance,
-      workCompleted: '',
-      workDemonstrated: '',
-      progressPercent: currentTeam.progress || 50,
-      stage: currentTeam.currentStage || 'Development',
-      problemsFaced: '',
-      mentorObservations: '',
-      mentorFeedback: '',
-      improvementsSuggested: '',
-      nextReviewDate: '',
-      remarks: '',
-      tasks: [{ task: '', student: currentTeam.members[0]?.name || '', deadline: '' }]
-    });
-    setShowReviewModal(true);
-  };
-
-  const handleReviewSubmit = (e) => {
-    e.preventDefault();
-    if (!currentTeam || !reviewForm.workCompleted || !reviewForm.mentorFeedback) return;
-
-    const studentsPresentList = Object.keys(reviewForm.attendanceMap).filter(
-      name => reviewForm.attendanceMap[name] === 'Present'
-    );
-
-    addComprehensiveReviewDiaryEntry({
-      teamId: currentTeam.id,
-      teamName: currentTeam.name,
-      reviewNumber: reviewForm.reviewNumber,
-      date: reviewForm.date,
-      studentsPresent: studentsPresentList,
-      attendanceMap: reviewForm.attendanceMap,
-      workCompleted: reviewForm.workCompleted,
-      workDemonstrated: reviewForm.workDemonstrated,
-      progressPercent: reviewForm.progressPercent,
-      stage: reviewForm.stage,
-      problemsFaced: reviewForm.problemsFaced,
-      mentorObservations: reviewForm.mentorObservations,
-      mentorFeedback: reviewForm.mentorFeedback,
-      improvementsSuggested: reviewForm.improvementsSuggested,
-      tasksGivenList: reviewForm.tasks.filter(t => t.task.trim() !== ''),
-      nextReviewDate: reviewForm.nextReviewDate || 'TBD',
-      remarks: reviewForm.remarks
-    });
-
-    setShowReviewModal(false);
-  };
 
   const handleTaskSubmit = (e) => {
     e.preventDefault();
@@ -895,12 +837,6 @@ export default function MentorPortal() {
                       Stay updated with the latest submissions and upcoming mentor duties.
                     </p>
                   </div>
-                  <button
-                    onClick={openNewReviewModal}
-                    className="bg-[#FF5F38] hover:bg-[#E54D26] text-white px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-md shadow-[#FF5F38]/20 transition cursor-pointer self-start sm:self-auto"
-                  >
-                    <PlusCircle className="w-4 h-4" /> Record New Review Entry
-                  </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1151,96 +1087,65 @@ export default function MentorPortal() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={openNewReviewModal}
-                          className="bg-[#FF5F38] hover:bg-[#E54D26] text-white px-4 py-2 rounded-2xl text-xs font-bold shadow-md shadow-[#FF5F38]/20 transition cursor-pointer"
-                        >
-                          + Add Review Entry
-                        </button>
                       </div>
                     </div>
 
-                    {/* Grid Info Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-                      <div className="space-y-1">
-                        <span className="text-slate-400 font-semibold">Project Title</span>
-                        <p className="font-bold text-slate-800 text-sm">{currentTeam.projectTitle || 'N/A'}</p>
-                      </div>
-
-                      <div className="space-y-1">
-                        <span className="text-slate-400 font-semibold">Domain & Technologies</span>
-                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                          <span className="bg-[#0B2E26] text-white px-2 py-0.5 rounded-md font-bold text-[11px]">
-                            {currentTeam.domain || 'Domain Set'}
-                          </span>
-                          {(currentTeam.technologies || []).map(tech => (
-                            <span key={tech} className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium text-[11px]">
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="col-span-2 space-y-1">
-                        <span className="text-slate-400 font-semibold">Problem Statement</span>
-                        <p className="bg-[#FAF2EC] p-3 rounded-2xl border border-[#EADBD0] text-slate-700 leading-relaxed font-medium">
-                          {currentTeam.problemStatement || 'Problem statement pending mentor confirmation.'}
-                        </p>
-                      </div>
-
-                      <div className="col-span-2 space-y-1">
-                        <span className="text-slate-400 font-semibold">Project Objectives & Expected Outcome</span>
-                        <p className="bg-[#FAF2EC] p-3 rounded-2xl border border-[#EADBD0] text-slate-700 leading-relaxed font-medium whitespace-pre-line">
-                          {currentTeam.objectives || currentTeam.expectedOutcome || 'Objectives defined during initial review.'}
-                        </p>
-                      </div>
-
-                      <div className="space-y-1">
-                        <span className="text-slate-400 font-semibold">Project Start Date</span>
-                        <p className="font-mono font-bold text-slate-800">{currentTeam.startDate || '2026-08-01'}</p>
-                      </div>
-
-                      <div className="space-y-1">
-                        <span className="text-slate-400 font-semibold">Expected Completion Date</span>
-                        <p className="font-mono font-bold text-[#FF5F38]">{currentTeam.expectedCompletionDate || '2026-11-30'}</p>
-                      </div>
-                    </div>
-
-                    {/* Team Members List with USN */}
-                    <div className="space-y-3 pt-2">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                          Assigned Student Mentees ({currentTeam.members.length})
-                        </h4>
-                        <span className="text-[11px] font-bold text-slate-400">
-                          Enrolled in {currentTeam.currentSemester || selectedSemester}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {currentTeam.members.map(m => (
-                          <div key={m.regNo} className="p-3.5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] flex items-center justify-between hover:border-[#FF5F38]/40 transition">
-                            <div className="min-w-0 flex-1 pr-2">
-                              <div className="font-bold text-xs text-[#111827] flex items-center gap-1.5 truncate">
-                                <span className="truncate">{m.name}</span>
-                                {m.role === 'Team Leader' && (
-                                  <span className="text-[10px] bg-[#0B2E26] text-white px-2 py-0.5 rounded-full font-bold shrink-0">
-                                    Leader
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-[11px] font-mono text-slate-500 mt-0.5 flex items-center gap-2">
-                                <span>USN: <strong>{m.regNo}</strong></span>
-                                <span>•</span>
-                                <span className="text-[10px] text-slate-400 truncate">{m.email}</span>
-                              </div>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <span className="text-[10px] text-slate-400 font-semibold block">Attendance</span>
-                              <span className="text-xs font-bold text-emerald-600 font-mono">{m.attendanceRate || '100%'}</span>
-                            </div>
+                    {/* Replicated Student Final View */}
+                    <div className="space-y-4 pt-2">
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="bg-[#FAF2EC] p-5 rounded-2xl border border-[#EADBD0]">
+                             <h3 className="text-xs font-bold text-[#FF5F38] mb-3 uppercase tracking-wider">Team & Mentor</h3>
+                             <p className="text-sm font-semibold text-[#111827] mb-1"><span className="text-slate-500 font-medium">Team ID:</span> {currentTeam.id}</p>
+                             <p className="text-sm font-semibold text-[#111827] mb-1"><span className="text-slate-500 font-medium">Name:</span> {currentTeam.name}</p>
+                             <p className="text-sm font-semibold text-[#111827] mt-3 pt-3 border-t border-[#EADBD0]"><span className="text-slate-500 font-medium">Mentor:</span> {currentTeam.mentorName || "Pending Setup"}</p>
                           </div>
-                        ))}
-                      </div>
+                          <div className="bg-[#FAF2EC] p-5 rounded-2xl border border-[#EADBD0]">
+                             <h3 className="text-xs font-bold text-[#FF5F38] mb-3 uppercase tracking-wider">Domain & Topic</h3>
+                             <p className="text-sm font-semibold text-[#111827] mb-1"><span className="text-slate-500 font-medium">Domain:</span> {currentTeam.domain || "Not Selected"}</p>
+                             <p className="text-sm font-semibold text-[#111827] mt-2 leading-relaxed"><span className="text-slate-500 font-medium">Topic:</span> {currentTeam.projectTitle || "Not Selected"}</p>
+                          </div>
+                       </div>
+                       <div className="bg-[#FAF2EC] p-5 rounded-2xl border border-[#EADBD0]">
+                           <h3 className="text-xs font-bold text-[#FF5F38] mb-3 uppercase tracking-wider">Members ({currentTeam.members?.length || 0})</h3>
+                           <div className="flex flex-wrap gap-2">
+                              {currentTeam.members?.map((m, idx) => (
+                                 <span key={idx} className="text-xs font-bold bg-white border border-[#EADBD0] text-slate-700 px-3 py-1.5 rounded-lg">{m.name}</span>
+                              ))}
+                           </div>
+                       </div>
+                       <div className="bg-[#FAF2EC] p-5 rounded-2xl border border-[#EADBD0]">
+                           <h3 className="text-xs font-bold text-[#FF5F38] mb-3 uppercase tracking-wider">Literature Survey ({(currentTeam.researchPapers || []).length} Papers)</h3>
+                           {(currentTeam.researchPapers && currentTeam.researchPapers.length > 0) ? (
+                             <div className="overflow-x-auto bg-white rounded-xl border border-[#EADBD0] p-1">
+                               <table className="w-full text-left text-xs border-collapse">
+                                 <thead>
+                                   <tr className="border-b border-[#EADBD0] text-slate-500 bg-slate-50/50">
+                                     <th className="py-2 px-3">No.</th>
+                                     <th className="py-2 px-3">Paper Title</th>
+                                     <th className="py-2 px-3">Author(s)</th>
+                                     <th className="py-2 px-3">Publication / Journal</th>
+                                     <th className="py-2 px-3">Year</th>
+                                   </tr>
+                                 </thead>
+                                 <tbody className="divide-y divide-slate-100">
+                                   {currentTeam.researchPapers.map((paper, idx) => (
+                                     <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                                       <td className="py-2.5 px-3 font-bold text-[#FF5F38]">{idx + 1}</td>
+                                       <td className="py-2.5 px-3 font-bold text-slate-800">{paper.title}</td>
+                                       <td className="py-2.5 px-3 text-slate-600">{paper.authors}</td>
+                                       <td className="py-2.5 px-3 text-slate-500">{paper.publication}</td>
+                                       <td className="py-2.5 px-3 font-mono font-medium text-slate-500">{paper.year}</td>
+                                     </tr>
+                                   ))}
+                                 </tbody>
+                               </table>
+                             </div>
+                           ) : (
+                             <div className="text-center py-4 bg-white rounded-xl border border-[#EADBD0] text-slate-400 text-xs font-medium">
+                               No papers uploaded yet
+                             </div>
+                           )}
+                       </div>
                     </div>
 
                   </div>
@@ -1297,12 +1202,7 @@ export default function MentorPortal() {
                   </div>
                 </div>
 
-                <button
-                  onClick={openNewReviewModal}
-                  className="bg-[#FF5F38] hover:bg-[#E54D26] text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-lg shadow-[#FF5F38]/30 transition cursor-pointer self-stretch sm:self-auto"
-                >
-                  + Create New Review Entry
-                </button>
+
               </div>
 
               {/* Team Switcher for Diary */}
