@@ -30,6 +30,7 @@ import {
 import Roadmap3D from '../Roadmap3D';
 import EReportView from '../common/EReportView';
 import SeventhSemesterReview from './SeventhSemesterReview';
+import EighthSemesterReview from './EighthSemesterReview';
 
 export default function StudentPortal({ defaultTab = 'dashboard', activeSection = 'all' }) {
   const router = useRouter();
@@ -1112,6 +1113,8 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
             </div>
           ) : selectedSemester === '7th Semester' ? (
             <SeventhSemesterReview userTeam={userTeam} />
+          ) : selectedSemester === '8th Semester' ? (
+            <EighthSemesterReview userTeam={userTeam} />
           ) : (
             <div className="bg-white border border-[#EADBD0] shadow-sm p-12 text-center rounded-3xl border border-[#EADBD0] bg-white text-slate-500">
               <Clock className="w-12 h-12 mx-auto mb-3 text-[#FF5F38] opacity-50" />
