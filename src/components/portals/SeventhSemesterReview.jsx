@@ -44,13 +44,17 @@ export default function SeventhSemesterReview({ userTeam }) {
       {/* Header & Breadcrumbs */}
       <div className="flex flex-col gap-2 mb-8">
 
-        <div className="bg-[#0B2E26] p-8 rounded-[24px] text-white shadow-md relative overflow-hidden border border-[#0B2E26]">
+        <div className="bg-[#FADCC7]/70 p-8 rounded-[24px] text-[#0B2E26] shadow-sm relative overflow-hidden border border-[#FADCC7]">
+          {/* Decorative dots from reference */}
+          <div className="absolute top-6 right-12 w-3 h-3 rounded-full bg-[#FF5F38]"></div>
+          <div className="absolute -bottom-3 left-16 w-8 h-8 rounded-full bg-[#FF5F38]/40"></div>
+
           <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-            <BarChart className="w-48 h-48" />
+            <BarChart className="w-48 h-48 text-[#FF5F38]" />
           </div>
           <div className="relative z-10">
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2">7th Semester – Project Review</h1>
-            <p className="text-emerald-100/70 font-medium text-sm sm:text-base max-w-xl">Project Review & Evaluation. Secure your grades by completing both review phases successfully.</p>
+            <p className="text-[#0B2E26]/80 font-medium text-sm sm:text-base max-w-xl">Project Review & Evaluation. Secure your grades by completing both review phases successfully.</p>
           </div>
         </div>
       </div>
