@@ -1111,7 +1111,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
               </div>
             </div>
           ) : selectedSemester === '7th Semester' ? (
-            <SeventhSemesterReview />
+            <SeventhSemesterReview userTeam={userTeam} />
           ) : (
             <div className="bg-white border border-[#EADBD0] shadow-sm p-12 text-center rounded-3xl border border-[#EADBD0] bg-white text-slate-500">
               <Clock className="w-12 h-12 mx-auto mb-3 text-[#FF5F38] opacity-50" />

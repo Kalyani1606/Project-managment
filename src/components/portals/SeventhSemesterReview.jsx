@@ -37,7 +37,7 @@ function Book(props) {
   return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
 }
 
-export default function SeventhSemesterReview() {
+export default function SeventhSemesterReview({ userTeam }) {
   return (
     <div className="animate-fade-in w-full max-w-6xl mx-auto space-y-6">
       
@@ -177,7 +177,7 @@ export default function SeventhSemesterReview() {
              </div>
              <div>
                <p className="text-xs font-bold text-slate-500 uppercase">Review Dates</p>
-               <p className="font-bold text-[#111827] mt-0.5">{evaluationData.schedule.dates}</p>
+               <p className="font-bold text-[#111827] mt-0.5">{userTeam?.reviewDate || evaluationData.schedule.dates}</p>
              </div>
            </div>
            
@@ -188,7 +188,7 @@ export default function SeventhSemesterReview() {
              </div>
              <div>
                <p className="text-xs font-bold text-slate-500 uppercase">Review Conducted On</p>
-               <p className="font-bold text-[#111827] mt-0.5">{evaluationData.schedule.conductedOn}</p>
+               <p className="font-bold text-[#111827] mt-0.5">{userTeam?.reviewConductedOn || evaluationData.schedule.conductedOn}</p>
              </div>
            </div>
 
@@ -199,7 +199,7 @@ export default function SeventhSemesterReview() {
              </div>
              <div>
                <p className="text-xs font-bold text-slate-500 uppercase">Reviewed By</p>
-               <p className="font-bold text-[#111827] mt-0.5">{evaluationData.schedule.reviewedBy}</p>
+               <p className="font-bold text-[#111827] mt-0.5">{userTeam?.mentorName || evaluationData.schedule.reviewedBy}</p>
              </div>
            </div>
         </div>
