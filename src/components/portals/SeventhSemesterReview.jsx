@@ -53,8 +53,8 @@ export default function SeventhSemesterReview({ userTeam }) {
             <BarChart className="w-48 h-48 text-[#FF5F38]" />
           </div>
           <div className="relative z-10">
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2">7th Semester – Project Review</h1>
-            <p className="text-[#0B2E26]/80 font-medium text-sm sm:text-base max-w-xl">Project Review & Evaluation. Secure your grades by completing both review phases successfully.</p>
+            <h1 className="text-xl font-black text-[#111827] flex items-center gap-2 mb-1">7th Semester – Project Review</h1>
+            <p className="text-xs font-bold text-[#0B2E26]/70 max-w-xl">Project Review & Evaluation. Secure your grades by completing both review phases successfully.</p>
           </div>
         </div>
       </div>

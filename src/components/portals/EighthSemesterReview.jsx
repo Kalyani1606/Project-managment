@@ -69,13 +69,13 @@ export default function EighthSemesterReview() {
           <div className="absolute -bottom-3 left-16 w-8 h-8 rounded-full bg-[#FF5F38]/40"></div>
 
           <div className="relative z-10">
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2">8th Semester</h1>
-            <p className="text-[#0B2E26]/80 font-bold text-sm sm:text-lg">Final Project Evaluation</p>
+            <h1 className="text-xl font-black text-[#111827] flex items-center gap-2 mb-1">8th Semester</h1>
+            <p className="text-xs font-bold text-[#0B2E26]/70 max-w-xl">Final Project Evaluation</p>
           </div>
           
-          <div className="relative z-10 bg-white/60 px-6 py-4 rounded-xl border border-white flex flex-col items-end">
+          <div className="relative z-10 bg-white/60 px-5 py-3 rounded-xl border border-white flex flex-col items-end">
             <p className="text-xs font-bold text-[#FF5F38] uppercase tracking-wider mb-1">Total Weight</p>
-            <p className="text-3xl font-black text-[#0B2E26]">{evaluationData.summary.total} <span className="text-lg">Marks</span></p>
+            <p className="text-xl font-black text-[#0B2E26]">{evaluationData.summary.total} <span className="text-sm">Marks</span></p>
           </div>
         </div>
       </div>
