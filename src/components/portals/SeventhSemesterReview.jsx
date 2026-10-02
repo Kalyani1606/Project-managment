@@ -8,7 +8,7 @@ const evaluationData = {
     total: 100
   },
   review1: {
-    title: "Review 1",
+    title: "CIA (Review 1)",
     totalMarks: 50,
     items: [
       { id: 1, title: "Project Planning & Proposal", marks: 20, icon: Target },
@@ -17,7 +17,7 @@ const evaluationData = {
     ]
   },
   review2: {
-    title: "Review 2",
+    title: "ESE (Review 2)",
     totalMarks: 50,
     items: [
       { id: 1, title: "Literature Survey", type: "Paper", marks: 15, icon: FileText },
@@ -63,7 +63,7 @@ export default function SeventhSemesterReview() {
                <Target className="w-5 h-5" />
              </div>
              <div>
-               <p className="text-xs font-bold text-slate-500 uppercase">Review 1</p>
+               <p className="text-xs font-bold text-slate-500 uppercase">CIA</p>
                <p className="text-lg font-black text-[#111827]">{evaluationData.summary.r1} <span className="text-sm font-medium text-slate-500">Marks</span></p>
              </div>
           </div>
@@ -74,7 +74,7 @@ export default function SeventhSemesterReview() {
                <Target className="w-5 h-5" />
              </div>
              <div>
-               <p className="text-xs font-bold text-slate-500 uppercase">Review 2</p>
+               <p className="text-xs font-bold text-slate-500 uppercase">ESE</p>
                <p className="text-lg font-black text-[#111827]">{evaluationData.summary.r2} <span className="text-sm font-medium text-slate-500">Marks</span></p>
              </div>
           </div>
