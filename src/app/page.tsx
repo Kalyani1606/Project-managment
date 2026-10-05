@@ -21,7 +21,7 @@ export default function SingleHeroLandingPage() {
       {/* ========================================================================= */}
       {/* TOP NAVIGATION HEADER                                                     */}
       {/* ========================================================================= */}
-      <header className="w-full bg-[#FAF2EC] z-50 py-4 px-4 sm:px-8">
+      <header className="relative w-full bg-[#FAF2EC] z-50 py-4 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           
           {/* Brand Logo */}
@@ -57,6 +57,7 @@ export default function SingleHeroLandingPage() {
               </Link>
             ) : (
               <button
+                type="button"
                 onClick={() => openAuthModal("login")}
                 className="bg-[#111827] hover:bg-black text-white px-6 py-2.5 rounded-full font-bold text-xs tracking-wide transition shadow-sm cursor-pointer"
               >
@@ -97,6 +98,7 @@ export default function SingleHeroLandingPage() {
               <div className="pt-2 flex flex-wrap items-center gap-5">
                 {/* Primary CTA */}
                 <button
+                  type="button"
                   onClick={() => openAuthModal("register")}
                   className="bg-[#0B2E26] hover:bg-[#07211C] text-white px-7 py-3.5 rounded-full font-bold text-sm flex items-center gap-2.5 shadow-lg shadow-[#0B2E26]/25 transition transform hover:-translate-y-0.5 cursor-pointer"
                 >
@@ -106,6 +108,7 @@ export default function SingleHeroLandingPage() {
 
                 {/* Secondary CTA */}
                 <button
+                  type="button"
                   onClick={() => openAuthModal("login")}
                   className="flex items-center gap-3 group cursor-pointer"
                 >

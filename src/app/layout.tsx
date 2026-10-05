@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { AcademicDataProvider } from "@/context/AcademicDataContext";
+import { AppProvider } from "@/context/AppContext";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { DevMailboxModal } from "@/components/common/DevMailboxModal";
 
@@ -37,9 +38,11 @@ export default function RootLayout({
         <AuthProvider>
           <NotificationProvider>
             <AcademicDataProvider>
-              {children}
-              <AuthModal />
-              <DevMailboxModal />
+              <AppProvider>
+                {children}
+                <AuthModal />
+                <DevMailboxModal />
+              </AppProvider>
             </AcademicDataProvider>
           </NotificationProvider>
         </AuthProvider>

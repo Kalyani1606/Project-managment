@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
@@ -484,6 +486,22 @@ export const AppProvider = ({ children }) => {
     setIsLoaded(true);
   }, []);
 
+  // Multi-tab real-time sync
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'nexus_academic_data_v4' && e.newValue) {
+        try {
+          const updated = JSON.parse(e.newValue);
+          setData(updated);
+        } catch (err) {
+          console.error("Storage parse error:", err);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem('nexus_academic_data_v4', JSON.stringify(data));
@@ -624,15 +642,38 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
-  const selectMentor = (teamId, mentorId) => {
-    const selectedMentorObj = data.mentors.find(m => m.id === mentorId);
-    if (!selectedMentorObj) return;
+  const selectMentor = (teamId, mentorInput) => {
+    if (!mentorInput || !mentorInput.trim()) return;
+    const cleanInput = mentorInput.trim();
+
+    const foundById = data.mentors.find(m => m.id === cleanInput);
+    const foundByEmail = data.mentors.find(m => m.email?.toLowerCase() === cleanInput.toLowerCase());
+    const foundByName = data.mentors.find(m => m.name?.toLowerCase() === cleanInput.toLowerCase());
+    const foundObj = foundById || foundByEmail || foundByName;
+
+    const mentorId = foundObj ? foundObj.id : `MENTOR-${Date.now()}`;
+    const mentorName = foundObj ? foundObj.name : cleanInput;
+    const mentorEmail = foundObj ? foundObj.email : (cleanInput.includes('@') ? cleanInput : '');
 
     setData(prev => ({
       ...prev,
-      teams: prev.teams.map(t => t.id === teamId ? { ...t, mentorId: selectedMentorObj.id, mentorName: selectedMentorObj.name, mentorStatus: 'Pending' } : t),
+      teams: prev.teams.map(t => t.id === teamId ? {
+        ...t,
+        mentorId,
+        mentorName,
+        mentorEmail: mentorEmail || mentorName,
+        mentorStatus: 'Pending',
+        marks: {
+          ...t.marks,
+          cia: {
+            ...t.marks?.cia,
+            mentorSelection: 5
+          }
+        }
+      } : t),
       notifications: [
-        { id: `N-${Date.now()}`, text: `📤 Mentor request sent to ${selectedMentorObj.name}.`, time: 'Just now', read: false, role: 'student' },
+        { id: `N-${Date.now()}`, text: `📤 Mentor supervision request sent to ${mentorName || mentorEmail}.`, time: 'Just now', read: false, role: 'student' },
+        { id: `N-${Date.now()}-m`, text: `📬 New mentor supervision request from ${prev.teams.find(t => t.id === teamId)?.name || 'Team'} for ${mentorName}!`, time: 'Just now', read: false, role: 'mentor' },
         ...prev.notifications
       ]
     }));
@@ -728,6 +769,109 @@ export const AppProvider = ({ children }) => {
         ...prev.notifications
       ]
     }));
+  };
+
+  const submitProjectProgressUpdate = (teamId, updateData) => {
+    setData(prev => {
+      const targetTeam = prev.teams.find(t => t.id === teamId);
+      const teamName = targetTeam ? targetTeam.name : `Team ${teamId}`;
+      const newPending = {
+        stage: updateData.stage || 'Development',
+        progress: Number(updateData.progress || 50),
+        notes: updateData.notes || '',
+        submittedBy: updateData.submittedBy || 'Student Team Leader',
+        submittedAt: new Date().toISOString().split('T')[0],
+        status: 'Pending'
+      };
+
+      return {
+        ...prev,
+        teams: prev.teams.map(t => t.id === teamId ? { ...t, pendingProgressUpdate: newPending } : t),
+        notifications: [
+          {
+            id: `N-${Date.now()}`,
+            text: `📈 ${teamName} submitted a Progress & Stage update: ${newPending.stage} (${newPending.progress}%). Awaiting mentor approval.`,
+            time: 'Just now',
+            read: false,
+            role: 'mentor'
+          },
+          ...prev.notifications
+        ]
+      };
+    });
+  };
+
+  const approveProjectProgressUpdate = (teamId, mentorRemarks = '') => {
+    setData(prev => {
+      const targetTeam = prev.teams.find(t => t.id === teamId);
+      if (!targetTeam || !targetTeam.pendingProgressUpdate) return prev;
+      
+      const newStage = targetTeam.pendingProgressUpdate.stage;
+      const newProgress = targetTeam.pendingProgressUpdate.progress;
+
+      return {
+        ...prev,
+        teams: prev.teams.map(t => {
+          if (t.id === teamId) {
+            return {
+              ...t,
+              currentStage: newStage,
+              progress: newProgress,
+              pendingProgressUpdate: {
+                ...t.pendingProgressUpdate,
+                status: 'Approved',
+                mentorRemarks
+              }
+            };
+          }
+          return t;
+        }),
+        notifications: [
+          {
+            id: `N-${Date.now()}`,
+            text: `✅ Mentor approved progress update for ${targetTeam.name}: ${newStage} (${newProgress}%).`,
+            time: 'Just now',
+            read: false,
+            role: 'student'
+          },
+          ...prev.notifications
+        ]
+      };
+    });
+  };
+
+  const rejectProjectProgressUpdate = (teamId, reason = '') => {
+    setData(prev => {
+      const targetTeam = prev.teams.find(t => t.id === teamId);
+      if (!targetTeam || !targetTeam.pendingProgressUpdate) return prev;
+
+      return {
+        ...prev,
+        teams: prev.teams.map(t => {
+          if (t.id === teamId) {
+            return {
+              ...t,
+              pendingProgressUpdate: {
+                ...t.pendingProgressUpdate,
+                status: 'Rejected',
+                rejectionReason: reason || 'Mentor requested revisions on the submitted progress.'
+              }
+            };
+          }
+          return t;
+        }),
+        notifications: [
+          {
+            id: `N-${Date.now()}`,
+            text: `⚠️ Progress update for ${targetTeam.name} requires revision: ${reason || 'See mentor comments.'}`,
+            time: 'Just now',
+            read: false,
+            role: 'student'
+          },
+          ...prev.notifications
+        ]
+      };
+    });
   };
 
   const addComprehensiveReviewDiaryEntry = (entryData) => {
@@ -994,6 +1138,9 @@ export const AppProvider = ({ children }) => {
       respondToMentorRequest,
       addProjectDiaryEntry,
       updateProjectProgress,
+      submitProjectProgressUpdate,
+      approveProjectProgressUpdate,
+      rejectProjectProgressUpdate,
       addComprehensiveReviewDiaryEntry,
       addMentorTaskToTeam,
       updateMentorTaskStatus,

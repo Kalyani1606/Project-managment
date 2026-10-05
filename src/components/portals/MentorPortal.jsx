@@ -99,7 +99,9 @@ export default function MentorPortal() {
     updateMentorProfile,
     markNotificationRead,
     clearAllNotifications,
-    approveStudentReviewLog
+    approveStudentReviewLog,
+    approveProjectProgressUpdate,
+    rejectProjectProgressUpdate
   } = useApp();
 
   const { user, logout } = useAuth();
@@ -126,8 +128,12 @@ export default function MentorPortal() {
   const [selectedSemester, setSelectedSemester] = useState(null);
   const [selectedTeamId, setSelectedTeamId] = useState(data.teams[0]?.id || '');
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [showTaskModal, setShowTaskModal] = useState(false);
   const [showDocModal, setShowDocModal] = useState(false);
+  const [showTeamDiaryModal, setShowTeamDiaryModal] = useState(false);
+  const [showTeamDocsModal, setShowTeamDocsModal] = useState(false);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [progressRemarks, setProgressRemarks] = useState('');
+  const [evaluatingEntry, setEvaluatingEntry] = useState(null);
   const [editingProfile, setEditingProfile] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -227,33 +233,62 @@ export default function MentorPortal() {
 
   const currentTeam = filteredTeams.find(t => t.id === selectedTeamId) || filteredTeams[0] || assignedTeams[0] || data.teams[0];
 
-  // Diary Review Form State
-  const [reviewForm, setReviewForm] = useState({
-    reviewNumber: `Review ${String((data.projectDiary.filter(d => d.teamId === (currentTeam?.id || '')).length + 1)).padStart(2, '0')}`,
-    date: new Date().toISOString().split('T')[0],
-    attendanceMap: {},
-    workCompleted: '',
-    workDemonstrated: '',
-    progressPercent: currentTeam?.progress || 50,
-    stage: currentTeam?.currentStage || 'Development',
-    problemsFaced: '',
-    mentorObservations: '',
-    mentorFeedback: '',
+  // Real-time 5-Step 6th Semester Progress Calculation
+  const getTeamSetupSteps = (team) => {
+    if (!team) return [];
+    return [
+      { id: 1, title: 'Create Team', isDone: !!team.name, detail: team.name ? `${team.name} (${team.id})` : 'Not created' },
+      { id: 2, title: 'Add Members', isDone: (team.members || []).length >= 2, detail: `${(team.members || []).length} Member(s)` },
+      { id: 3, title: 'Select Mentor', isDone: !!team.mentorId || team.mentorStatus === 'Accepted', detail: team.mentorName || 'Pending Selection' },
+      { id: 4, title: 'Domain & Topic', isDone: !!team.domain && !!team.projectTitle, detail: team.domain ? `${team.domain}` : 'Not Defined' },
+      { id: 5, title: '5 Research Papers', isDone: (team.researchPapers || []).length >= 5, detail: `${(team.researchPapers || []).length}/5 Uploaded` }
+    ];
+  };
+
+  const getTeamProgressPercentage = (team) => {
+    const steps = getTeamSetupSteps(team);
+    if (!steps.length) return 0;
+    const completed = steps.filter(s => s.isDone).length;
+    return Math.round((completed / steps.length) * 100);
+  };
+
+  // Approval Form State (Teacher evaluates & approves student submissions)
+  const [approvalForm, setApprovalForm] = useState({
+    mentorObservations: 'Verified by mentor. Project logs match the work demonstrated.',
+    mentorFeedback: 'Student review submitted log is accepted and recorded in the official project diary.',
     improvementsSuggested: '',
     nextReviewDate: '',
-    remarks: '',
-    tasks: [
-      { task: '', student: '', deadline: '' }
-    ]
+    tasks: [{ task: '', student: '', deadline: '' }]
   });
 
-  // Task Form State
-  const [newTaskForm, setNewTaskForm] = useState({
-    description: '',
-    assignedStudent: '',
-    deadline: '',
-    mentorRemarks: ''
-  });
+  const openEvaluationModal = (entry) => {
+    setEvaluatingEntry(entry);
+    setApprovalForm({
+      mentorObservations: entry.mentorObservations || 'Verified by mentor. Project logs match the work demonstrated.',
+      mentorFeedback: entry.mentorFeedback || 'Student review submitted log is accepted and recorded in the official project diary.',
+      improvementsSuggested: entry.improvementsSuggested || '',
+      nextReviewDate: entry.nextReviewDate || '',
+      tasks: (entry.tasksGivenList && entry.tasksGivenList.length > 0)
+        ? entry.tasksGivenList
+        : [{ task: '', student: '', deadline: '' }]
+    });
+  };
+
+  const handleApproveWithFeedback = (e) => {
+    e.preventDefault();
+    if (!evaluatingEntry) return;
+
+    approveStudentReviewLog(evaluatingEntry.id, {
+      mentorObservations: approvalForm.mentorObservations,
+      mentorFeedback: approvalForm.mentorFeedback,
+      improvementsSuggested: approvalForm.improvementsSuggested,
+      nextReviewDate: approvalForm.nextReviewDate,
+      tasksGivenList: approvalForm.tasks.filter(t => t.task && t.task.trim() !== ''),
+      mentorName: profile.fullName
+    });
+
+    setEvaluatingEntry(null);
+  };
 
   // Document Form State
   const [newDocForm, setNewDocForm] = useState({
@@ -265,20 +300,6 @@ export default function MentorPortal() {
 
   // Profile Form State
   const [profileForm, setProfileForm] = useState({ ...profile });
-
-
-  const handleTaskSubmit = (e) => {
-    e.preventDefault();
-    if (!currentTeam || !newTaskForm.description) return;
-    addMentorTaskToTeam(currentTeam.id, {
-      description: newTaskForm.description,
-      assignedStudent: newTaskForm.assignedStudent || currentTeam.members[0]?.name || 'All Members',
-      deadline: newTaskForm.deadline || currentTeam.nextReviewDate,
-      mentorRemarks: newTaskForm.mentorRemarks
-    });
-    setNewTaskForm({ description: '', assignedStudent: '', deadline: '', mentorRemarks: '' });
-    setShowTaskModal(false);
-  };
 
   const handleDocSubmit = (e) => {
     e.preventDefault();
@@ -302,11 +323,6 @@ export default function MentorPortal() {
   const sidebarNavItems = [
     { id: 'dashboard', name: 'Dashboard', icon: Home },
     { id: 'teams', name: 'My Teams', count: assignedTeams.length, icon: Users },
-    { id: 'diary', name: 'Official Project Diary', count: data.projectDiary.length, icon: BookOpen, badgeColor: 'bg-[#FF5F38]' },
-    { id: 'progress', name: 'Progress & Stages', icon: TrendingUp },
-    { id: 'tasks', name: 'Mentor Tasks', icon: Target },
-    { id: 'documents', name: 'Project Documents', icon: FileText },
-    { id: 'requests', name: 'Requests', count: pendingRequests.length, icon: Bell, badgeColor: 'bg-amber-500' },
     { id: 'profile', name: 'Profile', icon: User },
   ];
 
@@ -630,17 +646,10 @@ export default function MentorPortal() {
 
                   {/* Footer */}
                   <div className="p-3 bg-[#FAF2EC]/50 border-t border-[#EADBD0] flex items-center justify-between text-xs">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveTab('requests');
-                        setShowNotificationDropdown(false);
-                      }}
-                      className="text-[11px] font-bold text-[#FF5F38] hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>Open full requests page</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
+                    <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#FF5F38] animate-pulse"></span>
+                      <span>{pendingRequests.length} pending request{pendingRequests.length === 1 ? '' : 's'}</span>
+                    </span>
                     <span className="text-[10px] text-slate-400 font-mono">Live updates</span>
                   </div>
                 </div>
@@ -780,7 +789,7 @@ export default function MentorPortal() {
             <div className="space-y-6">
               
               {/* Quick Metrics Bar */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white p-5 rounded-3xl border border-[#EADBD0] shadow-sm flex items-center justify-between">
                   <div>
                     <div className="text-xs text-slate-500 font-semibold mb-1">Assigned Student Teams</div>
@@ -810,18 +819,6 @@ export default function MentorPortal() {
                   </div>
                   <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
                     <BookOpen className="w-6 h-6" />
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-3xl border border-[#EADBD0] shadow-sm flex items-center justify-between">
-                  <div>
-                    <div className="text-xs text-slate-500 font-semibold mb-1">Active Assigned Tasks</div>
-                    <div className="text-2xl font-black text-[#111827] font-mono">
-                      {assignedTeams.reduce((acc, t) => acc + (t.tasks?.filter(tk => tk.status !== 'Completed').length || 0), 0)}
-                    </div>
-                  </div>
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-                    <Target className="w-6 h-6" />
                   </div>
                 </div>
               </div>
@@ -1087,6 +1084,55 @@ export default function MentorPortal() {
                       </div>
 
                       <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowProgressModal(true)}
+                          className="flex items-center gap-2 px-4 py-2.5 bg-[#0A1628] hover:bg-[#152338] text-white text-xs font-extrabold rounded-2xl shadow-md transition-all cursor-pointer"
+                        >
+                          <TrendingUp className="w-4 h-4 text-[#FF5F38]" />
+                          <span>View Progress</span>
+                          <span className="bg-[#FF5F38] text-white text-[11px] font-mono px-2.5 py-0.5 rounded-full font-bold">
+                            {getTeamProgressPercentage(currentTeam)}%
+                          </span>
+                          {getTeamProgressPercentage(currentTeam) === 100 && (
+                            <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                              ✓ 100%
+                            </span>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowTeamDocsModal(true)}
+                          className="flex items-center gap-2 px-4 py-2.5 bg-[#0B2E26] hover:bg-[#071f1a] text-white text-xs font-extrabold rounded-2xl shadow-md shadow-[#0B2E26]/20 transition-all cursor-pointer"
+                        >
+                          <FileText className="w-4 h-4" />
+                          <span>View Documents</span>
+                          {(currentTeam.documents || []).length > 0 && (
+                            <span className="bg-white/20 text-white text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
+                              {(currentTeam.documents || []).length}
+                            </span>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowTeamDiaryModal(true)}
+                          className="flex items-center gap-2 px-4 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white text-xs font-extrabold rounded-2xl shadow-md shadow-[#FF5F38]/20 transition-all cursor-pointer"
+                        >
+                          <BookOpen className="w-4 h-4" />
+                          <span>View Project Diary</span>
+                          {data.projectDiary.filter(d => d.teamId === currentTeam.id).length > 0 && (
+                            <span className="bg-white/20 text-white text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
+                              {data.projectDiary.filter(d => d.teamId === currentTeam.id).length}
+                            </span>
+                          )}
+                          {data.projectDiary.some(d => d.teamId === currentTeam.id && d.status === 'Pending') && (
+                            <span className="bg-amber-300 text-slate-900 text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse">
+                              Pending Evaluation
+                            </span>
+                          )}
+                        </button>
                       </div>
                     </div>
 
@@ -1184,439 +1230,14 @@ export default function MentorPortal() {
             </div>
           )}
 
-          {/* 3. OFFICIAL PROJECT DIARY TAB */}
-          {activeTab === 'diary' && (
-            <div className="space-y-6">
-              
-              {/* Banner Notice */}
-              <div className="p-5 rounded-3xl bg-[#0A1628] text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[#FF5F38] text-white flex items-center justify-center font-black">
-                    📖
-                  </div>
-                  <div>
-                    <h3 className="text-base font-extrabold text-white">Official Project Diary System</h3>
-                    <p className="text-xs text-slate-300">
-                      Permanent review history repository. Every review entry remains locked to maintain academic records.
-                    </p>
-                  </div>
-                </div>
 
 
-              </div>
 
-              {/* Team Switcher for Diary */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-2">
-                {assignedTeams.map(t => {
-                  const isSel = currentTeam?.id === t.id;
-                  const reviewCount = data.projectDiary.filter(d => d.teamId === t.id).length;
-                  return (
-                    <button
-                      key={t.id}
-                      onClick={() => setSelectedTeamId(t.id)}
-                      className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
-                        isSel
-                          ? 'bg-[#0B2E26] text-white shadow-md'
-                          : 'bg-white text-slate-700 border border-[#EADBD0] hover:bg-[#FAF2EC]'
-                      }`}
-                    >
-                      <span>{t.name}</span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${isSel ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                        {reviewCount} Reviews
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
 
-              {/* Permanent Diary Entries Timeline */}
-              {currentTeam && (
-                <div className="space-y-6">
-                  <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBD0] shadow-sm space-y-6">
-                    
-                    <div className="flex items-center justify-between border-b border-[#EADBD0] pb-4">
-                      <div>
-                        <h3 className="text-lg font-black text-[#111827]">
-                          Project Diary History — {currentTeam.name}
-                        </h3>
-                        <p className="text-xs text-slate-500">
-                          Project Topic: {currentTeam.projectTitle || 'Topic Pending'}
-                        </p>
-                      </div>
-                      <span className="text-xs font-mono font-bold bg-[#FAF2EC] px-3 py-1.5 rounded-2xl border border-[#EADBD0] text-slate-700">
-                        {data.projectDiary.filter(d => d.teamId === currentTeam.id).length} Entries Recorded
-                      </span>
-                    </div>
 
-                    {/* Diary Entries List */}
-                    <div className="space-y-6">
-                      {data.projectDiary
-                        .filter(d => d.teamId === currentTeam.id)
-                        .map((entry, idx) => (
-                          <div
-                            key={entry.id}
-                            className="bg-[#FAF2EC] p-6 rounded-3xl border border-[#EADBD0] shadow-xs space-y-4 relative overflow-hidden"
-                          >
-                            {/* Entry Top Header Ribbon */}
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EADBD0] pb-3">
-                              <div className="flex items-center gap-3">
-                                <span className="bg-[#FF5F38] text-white font-extrabold text-xs px-3 py-1 rounded-xl shadow-xs">
-                                  {entry.reviewNumber || `Review ${0 + (idx + 1)}`}
-                                </span>
-                                <span className="text-xs font-mono font-bold text-slate-700">
-                                  📅 Date: {entry.date}
-                                </span>
-                              </div>
 
-                              <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
-                                <span>Stage: <strong>{entry.stage || 'Development'}</strong></span> •
-                                <span>Progress: <strong className="text-[#FF5F38]">{entry.progressPercent || 50}%</strong></span>
-                              </div>
-                            </div>
 
-                            {/* Students Present Attendance */}
-                            <div className="space-y-1.5">
-                              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
-                                Student Review Attendance
-                              </span>
-                              <div className="flex flex-wrap items-center gap-2">
-                                {currentTeam.members.map(m => {
-                                  const isPresent = (entry.studentsPresent || []).includes(m.name) || (entry.attendanceMap && entry.attendanceMap[m.name] === 'Present');
-                                  return (
-                                    <span
-                                      key={m.regNo}
-                                      className={`text-xs px-3 py-1 rounded-xl font-bold flex items-center gap-1.5 ${
-                                        isPresent
-                                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                                          : 'bg-red-100 text-red-700 border border-red-200 opacity-70'
-                                      }`}
-                                    >
-                                      <span>{isPresent ? '✓' : '✗'}</span>
-                                      <span>{m.name}</span>
-                                      <span className="text-[10px] opacity-70 font-mono">({m.regNo})</span>
-                                      <span className="text-[10px] font-bold">[{isPresent ? 'Present' : 'Absent'}]</span>
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            </div>
 
-                            {/* Content Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                              <div className="bg-white p-4 rounded-2xl border border-[#EADBD0] space-y-1">
-                                <span className="font-extrabold text-[#0B2E26] block">✓ Work Completed</span>
-                                <p className="text-slate-700 leading-relaxed font-medium">{entry.workCompleted}</p>
-                              </div>
-
-                              <div className="bg-white p-4 rounded-2xl border border-[#EADBD0] space-y-1">
-                                <span className="font-extrabold text-[#FF5F38] block">💻 Work Demonstrated</span>
-                                <p className="text-slate-700 leading-relaxed font-medium">{entry.workDemonstrated || 'Module functionality demonstrated live.'}</p>
-                              </div>
-
-                              <div className="bg-white p-4 rounded-2xl border border-[#EADBD0] space-y-1">
-                                <span className="font-extrabold text-amber-700 block">⚠️ Problems & Challenges Faced</span>
-                                <p className="text-slate-700 leading-relaxed font-medium">{entry.problemsFaced || 'None specified.'}</p>
-                              </div>
-
-                              <div className="bg-white p-4 rounded-2xl border border-[#EADBD0] space-y-1">
-                                <span className="font-extrabold text-[#0B2E26] block">🔍 Mentor Observations</span>
-                                <p className="text-slate-700 leading-relaxed font-medium">{entry.mentorObservations || 'Satisfactory progress maintained.'}</p>
-                              </div>
-                            </div>
-
-                            {/* Official Mentor Feedback Box */}
-                            {entry.status === 'Pending' ? (
-                               <div className="bg-[#FAF2EC] border border-[#FF5F38] p-4.5 rounded-2xl flex flex-col items-center justify-between shadow-md">
-                                  <span className="text-sm font-black text-[#FF5F38] mb-3 uppercase tracking-wider block text-center w-full">Pending Mentor Evaluation</span>
-                                  <button onClick={() => {
-                                      approveStudentReviewLog(entry.id, {
-                                          mentorObservations: 'Verified by mentor. Project logs match the work demonstrated.',
-                                          mentorFeedback: 'Student review submitted log is accepted and recorded in the official project diary.',
-                                          mentorName: profile.fullName
-                                      });
-                                  }} className="px-5 py-2.5 bg-[#FF5F38] shadow-md hover:bg-[#E54D26] text-white font-bold rounded-xl text-xs w-full transition-all">
-                                    Approve & Record Official Diary Entry
-                                  </button>
-                               </div>
-                            ) : (
-                               <div className="bg-[#0B2E26] text-white p-4.5 rounded-2xl space-y-1.5 shadow-md">
-                                 <span className="text-xs font-extrabold tracking-wider text-[#FF5F38] uppercase block">
-                                   💬 Official Mentor Feedback & Instructions
-                                 </span>
-                                 <p className="text-xs text-slate-200 leading-relaxed font-medium">{entry.mentorFeedback}</p>
-                                 {entry.improvementsSuggested && (
-                                   <div className="text-xs text-amber-300 pt-1 border-t border-white/10 font-medium">
-                                     <strong>Improvements Suggested:</strong> {entry.improvementsSuggested}
-                                   </div>
-                                 )}
-                               </div>
-                            )}
-
-                            {/* Tasks Given Table/List */}
-                            {entry.tasksGivenList && entry.tasksGivenList.length > 0 && (
-                              <div className="space-y-1.5 pt-1">
-                                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
-                                  Tasks Assigned During This Review
-                                </span>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                  {entry.tasksGivenList.map((tk, tIdx) => (
-                                    <div key={tIdx} className="bg-white p-3 rounded-2xl border border-[#EADBD0] text-xs flex items-center justify-between">
-                                      <div>
-                                        <div className="font-bold text-slate-800">{tk.task}</div>
-                                        <div className="text-[11px] text-slate-500">Responsible: <strong className="text-[#FF5F38]">{tk.student || 'All'}</strong></div>
-                                      </div>
-                                      <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">
-                                        Due: {tk.deadline || 'Next Review'}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Footer Info */}
-                            <div className="pt-2 border-t border-[#EADBD0] flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 gap-2">
-                              <span>Verified by: <strong>{entry.mentorName || profile.fullName}</strong></span>
-                              <span className="font-mono text-[#FF5F38] font-bold">Next Review Date: {entry.nextReviewDate || 'TBD'}</span>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-
-                  </div>
-                </div>
-              )}
-
-            </div>
-          )}
-
-          {/* 4. PROJECT PROGRESS & STAGES TAB */}
-          {activeTab === 'progress' && currentTeam && (
-            <div className="space-y-6">
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBD0] shadow-sm space-y-6">
-                
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EADBD0] pb-4">
-                  <div>
-                    <h2 className="text-xl font-black text-[#111827]">Project Lifecycle & Stage Tracker</h2>
-                    <p className="text-xs text-slate-500">Track and update the exact stage and progress percentage for {currentTeam.name}</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-slate-700">Current Progress:</span>
-                    <span className="text-lg font-mono font-black text-[#FF5F38]">{currentTeam.progress || 50}%</span>
-                  </div>
-                </div>
-
-                {/* Stage Timeline Flow visualizer */}
-                <div className="space-y-4">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                    10-Stage Academic Project Lifecycle
-                  </h4>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
-                    {PROJECT_STAGES.map((stg, i) => {
-                      const currentStageIdx = PROJECT_STAGES.indexOf(currentTeam.currentStage || 'Development');
-                      const isCompleted = i < currentStageIdx;
-                      const isCurrent = i === currentStageIdx;
-
-                      return (
-                        <button
-                          key={stg}
-                          onClick={() => updateProjectProgress(currentTeam.id, stg, Math.min(100, (i + 1) * 10))}
-                          className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative ${
-                            isCurrent
-                              ? 'bg-[#FF5F38] text-white border-[#FF5F38] shadow-md font-bold'
-                              : isCompleted
-                              ? 'bg-[#0B2E26] text-white border-[#0B2E26]'
-                              : 'bg-[#FAF2EC] text-slate-600 border-[#EADBD0] hover:bg-slate-100'
-                          }`}
-                        >
-                          <div className="text-[10px] opacity-80 font-mono mb-1">Stage 0{i + 1}</div>
-                          <div className="text-xs font-extrabold line-clamp-1">{stg}</div>
-                          <div className="mt-2 text-[10px] font-bold flex items-center gap-1">
-                            {isCompleted && <span>✓ Completed</span>}
-                            {isCurrent && <span>➔ Active Stage</span>}
-                            {!isCompleted && !isCurrent && <span className="opacity-60">Upcoming</span>}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Quick Progress Slider Update */}
-                <div className="bg-[#FAF2EC] p-6 rounded-3xl border border-[#EADBD0] space-y-4">
-                  <h4 className="text-xs font-extrabold text-[#111827]">Quick Update Overall Completion Percentage</h4>
-                  
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={currentTeam.progress || 50}
-                      onChange={e => updateProjectProgress(currentTeam.id, currentTeam.currentStage || 'Development', e.target.value)}
-                      className="w-full accent-[#FF5F38] cursor-pointer"
-                    />
-                    <span className="text-sm font-mono font-extrabold text-[#FF5F38] min-w-[50px]">
-                      {currentTeam.progress || 50}%
-                    </span>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          )}
-
-          {/* 5. MENTOR TASKS TAB */}
-          {activeTab === 'tasks' && currentTeam && (
-            <div className="space-y-6">
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBD0] shadow-sm space-y-6">
-                
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EADBD0] pb-4">
-                  <div>
-                    <h2 className="text-xl font-black text-[#111827]">Tasks Assigned to Students</h2>
-                    <p className="text-xs text-slate-500">Track and assign specific deliverables for members of {currentTeam.name}</p>
-                  </div>
-                  
-                  <button
-                    onClick={() => setShowTaskModal(true)}
-                    className="bg-[#0B2E26] hover:bg-[#071f1a] text-white px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-md cursor-pointer"
-                  >
-                    <PlusCircle className="w-4 h-4" /> Assign New Task
-                  </button>
-                </div>
-
-                {/* Tasks List */}
-                <div className="space-y-3">
-                  {(currentTeam.tasks || []).length === 0 ? (
-                    <div className="text-center py-12 text-slate-400 text-xs">No tasks assigned to this team yet.</div>
-                  ) : (
-                    (currentTeam.tasks || []).map(tk => (
-                      <div key={tk.id} className="p-4.5 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                              tk.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
-                              tk.status === 'In Progress' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-700'
-                            }`}>
-                              {tk.status}
-                            </span>
-                            <span className="text-xs font-bold text-[#FF5F38]">Student: {tk.assignedStudent}</span>
-                          </div>
-                          <div className="font-extrabold text-sm text-[#111827]">{tk.description}</div>
-                          {tk.mentorRemarks && (
-                            <div className="text-xs text-slate-600 font-medium">Remarks: {tk.mentorRemarks}</div>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-3 self-end sm:self-center">
-                          <span className="text-xs font-mono text-slate-500">Deadline: {tk.deadline}</span>
-                          <select
-                            value={tk.status}
-                            onChange={e => updateMentorTaskStatus(currentTeam.id, tk.id, e.target.value)}
-                            className="px-3 py-1.5 bg-white border border-[#EADBD0] rounded-xl text-xs font-bold text-slate-700 cursor-pointer"
-                          >
-                            <option value="Pending">Pending</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Completed">Completed</option>
-                          </select>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-              </div>
-            </div>
-          )}
-
-          {/* 6. PROJECT DOCUMENTS TAB */}
-          {activeTab === 'documents' && currentTeam && (
-            <div className="space-y-6">
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBD0] shadow-sm space-y-6">
-                
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EADBD0] pb-4">
-                  <div>
-                    <h2 className="text-xl font-black text-[#111827]">Project Documents & Submission Repository</h2>
-                    <p className="text-xs text-slate-500">Access SRS, Proposals, Reports and Review Presentations for {currentTeam.name}</p>
-                  </div>
-                  
-                  <button
-                    onClick={() => setShowDocModal(true)}
-                    className="bg-[#0B2E26] hover:bg-[#071f1a] text-white px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-md cursor-pointer"
-                  >
-                    <Upload className="w-4 h-4" /> Upload Document
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {(currentTeam.documents || []).map(doc => (
-                    <div key={doc.id} className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADBD0] space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold bg-[#0B2E26] text-white px-2 py-0.5 rounded-md">
-                          {doc.type}
-                        </span>
-                        <span className="text-[10px] font-mono text-slate-500">{doc.date}</span>
-                      </div>
-
-                      <h4 className="font-extrabold text-sm text-[#111827] line-clamp-1">{doc.title}</h4>
-                      <p className="text-xs text-slate-500">Linked to: {doc.reviewId || 'General'}</p>
-
-                      <div className="pt-2 border-t border-[#EADBD0] flex items-center justify-between text-xs">
-                        <span className="font-mono text-slate-400">{doc.size || '2.0 MB'}</span>
-                        <a href={doc.url || '#'} className="text-[#FF5F38] font-bold flex items-center gap-1 hover:underline">
-                          <span>Download</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            </div>
-          )}
-
-          {/* 7. PENDING REQUESTS TAB */}
-          {activeTab === 'requests' && (
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBD0] shadow-sm space-y-6 max-w-4xl mx-auto">
-              <h2 className="text-xl font-black text-[#111827] border-b border-[#EADBD0] pb-4">
-                🔔 Pending Mentor Supervision Requests ({pendingRequests.length})
-              </h2>
-
-              <div className="space-y-4">
-                {pendingRequests.length === 0 ? (
-                  <div className="text-center py-12 text-slate-400 text-xs">No pending requests right now.</div>
-                ) : (
-                  pendingRequests.map(t => (
-                    <div key={t.id} className="p-5 rounded-3xl bg-[#FAF2EC] border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div>
-                        <span className="text-xs font-mono font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">{t.id}</span>
-                        <h3 className="text-base font-extrabold text-[#111827] mt-1">{t.name}</h3>
-                        <p className="text-xs text-slate-600 mt-1 font-medium">Domain: {t.domain || 'Unspecified'}</p>
-                        <p className="text-xs text-slate-500">Members: {t.members.map(m => m.name).join(', ')}</p>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => respondToMentorRequest(t.id, true)}
-                          className="bg-[#0B2E26] hover:bg-[#071f1a] text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-md cursor-pointer"
-                        >
-                          ✓ Accept Supervision Request
-                        </button>
-                        <button
-                          onClick={() => respondToMentorRequest(t.id, false)}
-                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-2xl text-xs font-bold transition cursor-pointer"
-                        >
-                          ✕ Decline
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
 
           {/* 8. MENTOR PROFILE TAB (Registration Details) */}
           {activeTab === 'profile' && (
@@ -1933,55 +1554,6 @@ export default function MentorPortal() {
         </div>
       )}
 
-      {/* MODAL: ASSIGN TASK */}
-      {showTaskModal && currentTeam && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white border border-[#EADBD0] rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-            <h3 className="text-base font-black text-[#111827]">Assign New Mentor Task</h3>
-            <form onSubmit={handleTaskSubmit} className="space-y-3 text-xs">
-              <div>
-                <label className="block font-bold mb-1">Task Description</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Add validation for DICOM image file uploads"
-                  value={newTaskForm.description}
-                  onChange={e => setNewTaskForm({ ...newTaskForm, description: e.target.value })}
-                  className="w-full p-2.5 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold mb-1">Student Responsible</label>
-                <select
-                  value={newTaskForm.assignedStudent}
-                  onChange={e => setNewTaskForm({ ...newTaskForm, assignedStudent: e.target.value })}
-                  className="w-full p-2.5 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-bold"
-                >
-                  {currentTeam.members.map(m => (
-                    <option key={m.regNo} value={m.name}>{m.name} ({m.regNo})</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-bold mb-1">Deadline Date</label>
-                <input
-                  type="date"
-                  value={newTaskForm.deadline}
-                  onChange={e => setNewTaskForm({ ...newTaskForm, deadline: e.target.value })}
-                  className="w-full p-2.5 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-mono"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowTaskModal(false)} className="px-4 py-2 border rounded-xl font-bold">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-[#0B2E26] text-white rounded-xl font-bold">Assign Task</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* MODAL: UPLOAD DOCUMENT */}
       {showDocModal && currentTeam && (
@@ -2020,6 +1592,534 @@ export default function MentorPortal() {
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setShowDocModal(false)} className="px-4 py-2 border rounded-xl font-bold">Cancel</button>
                 <button type="submit" className="px-5 py-2 bg-[#0B2E26] text-white rounded-xl font-bold">Upload Document</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== TEAM PROJECT DIARY MODAL ==================== */}
+      {showTeamDiaryModal && currentTeam && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm shadow-2xl animate-in fade-in duration-150">
+          <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-5xl overflow-hidden border border-[#EADBD0] flex flex-col max-h-[90vh]">
+            
+            {/* Modal Header */}
+            <div className="bg-[#FAF2EC] px-6 sm:px-8 py-5 flex items-center justify-between border-b border-[#EADBD0]">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-[#FF5F38] text-white flex items-center justify-center font-black shrink-0 shadow-sm">
+                  <BookOpen className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="bg-[#111827] text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">
+                      {currentTeam.id}
+                    </span>
+                    <span className="text-xs font-bold text-slate-500">
+                      {currentTeam.currentSemester || selectedSemester || 'Project Supervision'}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-black text-[#111827]">
+                    Official Project Diary — {currentTeam.name}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Topic: {currentTeam.projectTitle || currentTeam.domain || 'Topic Pending'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold bg-white px-3 py-1.5 rounded-2xl border border-[#EADBD0] text-slate-700 hidden sm:inline-block">
+                  {data.projectDiary.filter(d => d.teamId === currentTeam.id).length} Entries Recorded
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowTeamDiaryModal(false)}
+                  className="bg-white hover:bg-slate-100 p-2 rounded-2xl border border-[#EADBD0] text-slate-500 transition cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body / Table */}
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+              {data.projectDiary.filter(d => d.teamId === currentTeam.id).length === 0 ? (
+                <div className="flex flex-col items-center justify-center text-slate-400 opacity-80 py-12 bg-[#FAF2EC]/50 rounded-2xl border-2 border-dashed border-[#EADBD0] p-8">
+                  <Clock className="w-12 h-12 mb-3 text-slate-300" />
+                  <h3 className="text-base font-black text-slate-600 mb-1">No Reviews Recorded Yet</h3>
+                  <p className="text-xs font-medium text-slate-400 text-center max-w-xs">
+                    Student review submissions for this team will appear here in the official project diary table for mentor evaluation and sign-off.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto border border-[#EADBD0] rounded-2xl shadow-xs">
+                  <table className="w-full text-left text-sm border-collapse bg-white">
+                    <thead>
+                      <tr className="bg-[#FAF2EC] border-b border-[#EADBD0] text-[11px] font-black text-[#111827] uppercase tracking-wider">
+                        <th className="py-3.5 px-4">Review #</th>
+                        <th className="py-3.5 px-4">Date</th>
+                        <th className="py-3.5 px-4">Stage</th>
+                        <th className="py-3.5 px-4">Work Completed & Demo</th>
+                        <th className="py-3.5 px-4">Attendance</th>
+                        <th className="py-3.5 px-4">Mentor Feedback & Tasks</th>
+                        <th className="py-3.5 px-4 text-center">Status / Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#EADBD0]">
+                      {data.projectDiary
+                        .filter(d => d.teamId === currentTeam.id)
+                        .map((entry, idx) => (
+                          <tr key={entry.id} className="hover:bg-[#FAF2EC]/30 transition-colors">
+                            <td className="py-4 px-4 whitespace-nowrap">
+                              <span className="bg-[#FF5F38] text-white text-xs font-extrabold px-3 py-1 rounded-full font-mono">
+                                {entry.reviewNumber || `Review ${String(idx + 1).padStart(2, '0')}`}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4 whitespace-nowrap text-xs font-bold text-slate-600 font-mono">
+                              {entry.date}
+                            </td>
+                            <td className="py-4 px-4 whitespace-nowrap">
+                              <span className="text-xs font-bold text-slate-800 bg-[#FAF2EC] px-2.5 py-1 rounded-lg border border-[#EADBD0]">
+                                {entry.stage || 'Development'}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4 text-xs text-slate-700 min-w-[200px] max-w-xs">
+                              <p className="font-semibold text-[#111827] line-clamp-2">{entry.workCompleted}</p>
+                              {entry.workDemonstrated && (
+                                <p className="text-[11px] text-slate-500 mt-1 italic line-clamp-1">Demo: {entry.workDemonstrated}</p>
+                              )}
+                              {entry.problemsFaced && (
+                                <p className="text-[10px] text-amber-700 mt-1 font-medium line-clamp-1">⚠️ Challenges: {entry.problemsFaced}</p>
+                              )}
+                            </td>
+                            <td className="py-4 px-4 whitespace-nowrap text-xs">
+                              <div className="flex flex-wrap gap-1 max-w-[160px]">
+                                {currentTeam.members.map(m => {
+                                  const isPresent = (entry.studentsPresent || []).includes(m.name) || (entry.attendanceMap && entry.attendanceMap[m.name] === 'Present');
+                                  return (
+                                    <span key={m.regNo} className={`text-[10px] px-2 py-0.5 rounded-md font-bold ${isPresent ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700 opacity-60'}`}>
+                                      {m.name.split(' ')[0]} ({isPresent ? 'P' : 'A'})
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </td>
+                            <td className="py-4 px-4 text-xs min-w-[180px] max-w-xs">
+                              {entry.status === 'Pending' ? (
+                                <span className="text-amber-700 font-bold text-xs bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg inline-block">
+                                  Pending Evaluation
+                                </span>
+                              ) : (
+                                <div className="space-y-1">
+                                  <div className="bg-emerald-50/70 border border-emerald-200/60 p-2 rounded-xl text-slate-700 leading-snug">
+                                    <span className="font-bold text-[#0B2E26] text-[10px] block">Feedback:</span>
+                                    <span className="line-clamp-2 font-medium">{entry.mentorFeedback}</span>
+                                  </div>
+                                  {entry.tasksGivenList && entry.tasksGivenList.length > 0 && (
+                                    <div className="text-[10px] text-slate-600 font-medium">
+                                      <strong>{entry.tasksGivenList.length} Task(s) Assigned</strong>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-4 px-4 whitespace-nowrap text-center">
+                              {entry.status === 'Pending' ? (
+                                <button 
+                                  type="button"
+                                  onClick={() => openEvaluationModal(entry)}
+                                  className="px-3.5 py-1.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5 mx-auto"
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>Evaluate & Approve</span>
+                                </button>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">
+                                  <CheckCircle2 className="w-3 h-3" /> Approved
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-[#FAF2EC] border-t border-[#EADBD0] flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowTeamDiaryModal(false)}
+                className="px-6 py-2.5 rounded-xl border border-[#EADBD0] text-slate-600 font-bold hover:bg-slate-100 cursor-pointer text-xs"
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* VIEW PROJECT DOCUMENTS MODAL                                              */}
+      {/* ========================================================================= */}
+      {showTeamDocsModal && currentTeam && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm shadow-2xl animate-in fade-in duration-150">
+          <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-4xl overflow-hidden border border-[#EADBD0] flex flex-col max-h-[92vh]">
+            
+            {/* Modal Header */}
+            <div className="bg-[#FAF2EC] px-6 sm:px-8 py-5 flex items-center justify-between border-b border-[#EADBD0]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#0B2E26] text-white flex items-center justify-center shadow-xs">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-black text-[#111827]">
+                      Uploaded Project Documents
+                    </h3>
+                    <span className="bg-[#FF5F38] text-white text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full">
+                      {currentTeam.id}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {currentTeam.name} — SRS, Proposals, Reports, and Review Submissions
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDocModal(true)}
+                  className="bg-[#0B2E26] hover:bg-[#071f1a] text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Upload Document</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTeamDocsModal(false)}
+                  className="bg-white hover:bg-slate-100 p-2 rounded-2xl border border-[#EADBD0] text-slate-500 transition cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-4">
+              {(currentTeam.documents || []).length === 0 ? (
+                <div className="flex flex-col items-center justify-center text-slate-400 opacity-80 py-16 bg-[#FAF2EC]/50 rounded-2xl border-2 border-dashed border-[#EADBD0] p-8">
+                  <FileText className="w-12 h-12 mb-3 text-slate-300" />
+                  <h3 className="text-base font-black text-slate-600 mb-1">No Documents Uploaded Yet</h3>
+                  <p className="text-xs font-medium text-slate-400 text-center max-w-sm">
+                    Project documents submitted by students or uploaded by mentors will appear here.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto border border-[#EADBD0] rounded-2xl shadow-xs">
+                  <table className="w-full text-left text-sm border-collapse bg-white">
+                    <thead>
+                      <tr className="bg-[#FAF2EC] border-b border-[#EADBD0] text-[11px] font-black text-[#111827] uppercase tracking-wider">
+                        <th className="py-3.5 px-5">Document Title & Details</th>
+                        <th className="py-3.5 px-4">Type</th>
+                        <th className="py-3.5 px-4">Stage / Linked</th>
+                        <th className="py-3.5 px-4">Uploaded Date</th>
+                        <th className="py-3.5 px-4">File Size</th>
+                        <th className="py-3.5 px-5 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#EADBD0]">
+                      {(currentTeam.documents || []).map((doc, idx) => (
+                        <tr key={doc.id || idx} className="hover:bg-[#FAF2EC]/40 transition-colors">
+                          <td className="py-4.5 px-5">
+                            <div className="flex items-center gap-3.5">
+                              <div className="w-10 h-10 rounded-xl bg-[#FAF2EC] border border-[#EADBD0] flex items-center justify-center text-[#FF5F38] shrink-0 font-bold">
+                                <FileText className="w-5 h-5" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-extrabold text-sm text-[#111827] leading-tight">{doc.title}</p>
+                                <p className="text-[11px] text-slate-400 font-mono mt-1">ID: {doc.id || `DOC-0${idx + 1}`}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4.5 px-4 whitespace-nowrap">
+                            <span className="text-[11px] font-bold bg-[#0B2E26] text-white px-2.5 py-1 rounded-lg">
+                              {doc.type}
+                            </span>
+                          </td>
+                          <td className="py-4.5 px-4 whitespace-nowrap text-xs font-semibold text-slate-700">
+                            <span className="bg-[#FAF2EC] border border-[#EADBD0] px-2.5 py-1 rounded-lg">
+                              {doc.reviewId || 'General Submission'}
+                            </span>
+                          </td>
+                          <td className="py-4.5 px-4 whitespace-nowrap text-xs font-mono font-bold text-slate-600">
+                            {doc.date}
+                          </td>
+                          <td className="py-4.5 px-4 whitespace-nowrap text-xs font-mono text-slate-500">
+                            {doc.size || '2.4 MB'}
+                          </td>
+                          <td className="py-4.5 px-5 whitespace-nowrap text-right">
+                            <a
+                              href={doc.url || '#'}
+                              onClick={(e) => {
+                                if (!doc.url || doc.url === '#') {
+                                  e.preventDefault();
+                                  alert(`Opening preview for ${doc.title}`);
+                                }
+                              }}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FF5F38] hover:bg-[#E54D26] text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer shadow-sm shadow-[#FF5F38]/20"
+                            >
+                              <span>View / Download</span>
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-[#FAF2EC] border-t border-[#EADBD0] flex items-center justify-between">
+              <span className="text-xs font-mono text-slate-600 font-semibold">
+                {(currentTeam.documents || []).length} Document{(currentTeam.documents || []).length === 1 ? '' : 's'} Total
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowTeamDocsModal(false)}
+                className="px-6 py-2.5 rounded-xl border border-[#EADBD0] bg-white text-slate-700 font-bold hover:bg-slate-100 cursor-pointer text-xs transition"
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* VIEW & APPROVE PROJECT PROGRESS MODAL                                     */}
+      {/* ========================================================================= */}
+      {showProgressModal && currentTeam && (() => {
+        const teamSteps = getTeamSetupSteps(currentTeam);
+        const progressPct = getTeamProgressPercentage(currentTeam);
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm shadow-2xl animate-in fade-in duration-150">
+            <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-4xl overflow-hidden border border-[#EADBD0] flex flex-col max-h-[92vh]">
+              
+              {/* Modal Header */}
+              <div className="bg-[#FAF2EC] px-6 sm:px-8 py-5 flex items-center justify-between border-b border-[#EADBD0]">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[#0A1628] text-[#FF5F38] flex items-center justify-center shadow-xs">
+                    <Sparkles className="w-5 h-5 text-[#FF5F38]" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base sm:text-lg font-black text-[#111827]">
+                        Project Setup & Progress Tracker
+                      </h3>
+                      <span className="bg-[#FF5F38] text-white text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full">
+                        {currentTeam.id}
+                      </span>
+                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                        {currentTeam.currentSemester || '6th Semester'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium">
+                      {currentTeam.name} — Real-time 5-Step Project Setup Completion & Verification
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowProgressModal(false)}
+                  className="bg-white hover:bg-slate-100 p-2 rounded-2xl border border-[#EADBD0] text-slate-500 transition cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+                
+                {/* 6th Semester Progress Tracker Card (Matches Student View) */}
+                <div className="bg-white border border-[#EADBD0] shadow-sm p-6 sm:p-8 rounded-3xl space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-black text-[#111827] flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-[#FF5F38]" />
+                        📊 6th Semester Progress Tracker
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                        Track real-time completion of your 5-step project setup for {currentTeam.name}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl font-black text-[#FF5F38] font-mono">{progressPct}%</span>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full bg-slate-100 h-4 rounded-full overflow-hidden border border-[#EADBD0]">
+                    <div
+                      className="bg-gradient-to-r from-blue-600 via-indigo-600 to-[#FF5F38] h-full transition-all duration-500 rounded-full"
+                      style={{ width: `${progressPct}%` }}
+                    />
+                  </div>
+
+                  {/* 5 Step Boxes (Matching the exact student view) */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 pt-2 text-center text-xs">
+                    {teamSteps.map(s => (
+                      <div
+                        key={s.id}
+                        className={`p-3.5 rounded-2xl border transition-all ${
+                          s.isDone
+                            ? 'bg-[#FAF2EC] border-[#FF5F38]/30 text-[#111827] font-bold shadow-xs'
+                            : 'bg-slate-50 border-slate-200 text-slate-400'
+                        }`}
+                      >
+                        <div className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">Step {s.id}</div>
+                        <div className="text-xs font-black truncate mt-1 text-[#111827]">{s.title}</div>
+                        <div className={`text-xs mt-1.5 font-bold ${s.isDone ? 'text-blue-700 font-extrabold' : 'text-slate-400'}`}>
+                          {s.isDone ? '✓ Done' : '⏳ Pending'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-4 bg-[#FAF2EC] border-t border-[#EADBD0] flex items-center justify-between">
+                <span className="text-xs font-mono text-slate-600 font-semibold">
+                  {teamSteps.filter(s => s.isDone).length}/5 Setup Steps Verified • {progressPct}% Complete
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowProgressModal(false)}
+                  className="px-6 py-2.5 rounded-xl border border-[#EADBD0] bg-white text-slate-700 font-bold hover:bg-slate-100 cursor-pointer text-xs transition"
+                >
+                  Close
+                </button>
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ========================================================================= */}
+      {/* EVALUATE & APPROVE STUDENT REVIEW MODAL                                   */}
+      {/* ========================================================================= */}
+      {evaluatingEntry && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm shadow-2xl animate-in fade-in duration-150">
+          <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-2xl overflow-hidden border border-[#EADBD0] flex flex-col max-h-[92vh]">
+            <div className="bg-[#FAF2EC] px-6 py-4 flex items-center justify-between border-b border-[#EADBD0]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-[#111827]">
+                    Evaluate & Approve {evaluatingEntry.reviewNumber}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Team {evaluatingEntry.teamId} — {evaluatingEntry.teamName || currentTeam?.name}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEvaluatingEntry(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleApproveWithFeedback} className="p-6 overflow-y-auto space-y-4">
+              {/* Student Submission Summary Preview */}
+              <div className="bg-[#FAF2EC] p-4 rounded-2xl border border-[#EADBD0] space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                  <span>Student Submission Details:</span>
+                  <span className="font-mono text-[#FF5F38]">{evaluatingEntry.date}</span>
+                </div>
+                <div className="text-xs text-slate-600">
+                  <span className="font-bold text-[#111827]">Work Completed:</span> {evaluatingEntry.workCompleted}
+                </div>
+                {evaluatingEntry.workDemonstrated && (
+                  <div className="text-xs text-slate-600">
+                    <span className="font-bold text-[#111827]">Demonstration:</span> {evaluatingEntry.workDemonstrated}
+                  </div>
+                )}
+                {evaluatingEntry.problemsFaced && (
+                  <div className="text-xs text-amber-800">
+                    <span className="font-bold">Challenges:</span> {evaluatingEntry.problemsFaced}
+                  </div>
+                )}
+              </div>
+
+              {/* Mentor Observations */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Mentor Observations</label>
+                <textarea
+                  rows={2}
+                  required
+                  placeholder="Observations on progress and code quality..."
+                  value={approvalForm.mentorObservations}
+                  onChange={e => setApprovalForm({ ...approvalForm, mentorObservations: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#EADBD0] rounded-xl focus:outline-none focus:border-[#FF5F38]"
+                />
+              </div>
+
+              {/* Mentor Feedback */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Mentor Feedback & Guidance *</label>
+                <textarea
+                  rows={2}
+                  required
+                  placeholder="Feedback and next steps for the team..."
+                  value={approvalForm.mentorFeedback}
+                  onChange={e => setApprovalForm({ ...approvalForm, mentorFeedback: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#EADBD0] rounded-xl focus:outline-none focus:border-[#FF5F38]"
+                />
+              </div>
+
+              {/* Next Review Target Date */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Next Review Target Date</label>
+                <input
+                  type="date"
+                  value={approvalForm.nextReviewDate}
+                  onChange={e => setApprovalForm({ ...approvalForm, nextReviewDate: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#EADBD0] rounded-xl focus:outline-none focus:border-[#FF5F38]"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEvaluatingEntry(null)}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 rounded-xl hover:bg-slate-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md transition cursor-pointer flex items-center gap-1.5"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Approve & Sign Off Diary Entry</span>
+                </button>
               </div>
             </form>
           </div>

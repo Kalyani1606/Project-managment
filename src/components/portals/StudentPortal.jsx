@@ -44,7 +44,8 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
     setDomainAndTopic,
     addResearchPaper,
     clearResearchPapers,
-    submitStudentReviewLog
+    submitStudentReviewLog,
+    submitProjectProgressUpdate
   } = useApp();
 
   const { user } = useAuth();
@@ -80,7 +81,10 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
   });
   const [showEReportModal, setShowEReportModal] = useState(false);
   const [showReviewSubmitModal, setShowReviewSubmitModal] = useState(false);
+  const [mentorInputText, setMentorInputText] = useState('');
+  const [mentorRequestStatus, setMentorRequestStatus] = useState('');
   const [reviewFormData, setReviewFormData] = useState({
+    reviewNumber: '',
     date: new Date().toISOString().split('T')[0],
     nextReviewDate: '',
     attendanceMap: {},
@@ -92,6 +96,12 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
     mentorObservations: '',
     mentorFeedback: '',
     tasks: [{ task: '', student: '', deadline: '' }]
+  });
+  const [showProgressUpdateModal, setShowProgressUpdateModal] = useState(false);
+  const [progressUpdateForm, setProgressUpdateForm] = useState({
+    stage: userTeam?.currentStage || 'Development',
+    progress: userTeam?.progress || 50,
+    notes: ''
   });
   const [saveStatus, setSaveStatus] = useState('');
   const storageKey = `isSemesterCompleted_${profile.email}`;
@@ -108,9 +118,14 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
       (userTeam.members || []).forEach(m => {
         initialAttendance[m.name] = 'Present';
       });
-      setReviewFormData(prev => ({ ...prev, attendanceMap: initialAttendance }));
+      const defaultNum = `Review ${String(data.projectDiary.filter(d => d.teamId === userTeam?.id).length + 1).padStart(2, '0')}`;
+      setReviewFormData(prev => ({ 
+        ...prev, 
+        reviewNumber: prev.reviewNumber || defaultNum,
+        attendanceMap: initialAttendance 
+      }));
     }
-  }, [showReviewSubmitModal, userTeam]);
+  }, [showReviewSubmitModal, userTeam, data.projectDiary]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -245,17 +260,20 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
       name => reviewFormData.attendanceMap[name] === 'Present'
     );
 
+    const finalReviewNum = reviewFormData.reviewNumber?.trim() || `Review ${String(data.projectDiary.filter(d => d.teamId === userTeam.id).length + 1).padStart(2, '0')}`;
+
     submitStudentReviewLog(userTeam.id, {
       ...reviewFormData,
-      reviewNumber: `Review ${String(data.projectDiary.filter(d => d.teamId === userTeam.id).length + 1).padStart(2, '0')}`,
+      reviewNumber: finalReviewNum,
       studentsPresent: studentsPresentList,
       tasksGivenList: reviewFormData.tasks.filter(t => t.task.trim() !== '')
     });
     
     setShowReviewSubmitModal(false);
-    setSaveStatus('success');
+    setSaveStatus('Review log submitted successfully for mentor approval!');
     setTimeout(() => setSaveStatus(''), 4000);
     setReviewFormData({
+      reviewNumber: '',
       date: new Date().toISOString().split('T')[0],
       nextReviewDate: '',
       attendanceMap: {},
@@ -268,6 +286,22 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
       mentorFeedback: '',
       tasks: [{ task: '', student: '', deadline: '' }]
     });
+  };
+
+  const handleProgressUpdateSubmit = (e) => {
+    e.preventDefault();
+    if (!userTeam) return;
+
+    submitProjectProgressUpdate(userTeam.id, {
+      stage: progressUpdateForm.stage,
+      progress: Number(progressUpdateForm.progress),
+      notes: progressUpdateForm.notes,
+      submittedBy: profile.fullName || 'Student Leader'
+    });
+
+    setShowProgressUpdateModal(false);
+    setSaveStatus('Project progress update submitted for mentor approval!');
+    setTimeout(() => setSaveStatus(''), 4000);
   };
 
   return (
@@ -788,24 +822,71 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                       </div>
                       <div>
                         <h3 className="text-sm font-bold text-[#111827]">Step 3: Select Faculty Mentor 👨‍🏫</h3>
-                        <p className="text-xs text-slate-500">Enter the name of your desired faculty mentor</p>
+                        <p className="text-xs text-slate-500">Enter the name or email of your desired faculty mentor</p>
                       </div>
                     </div>
+
+                    {userTeam?.mentorStatus === 'Accepted' ? (
+                      <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                        <Check className="w-3.5 h-3.5" /> Mentor Accepted
+                      </span>
+                    ) : userTeam?.mentorStatus === 'Pending' ? (
+                      <span className="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" /> Request Pending
+                      </span>
+                    ) : null}
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  {userTeam?.mentorName && (
+                    <div className="p-3 bg-[#FAF2EC] rounded-2xl border border-[#EADBD0] text-xs flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-slate-700">Selected Mentor:</span>{" "}
+                        <span className="font-bold text-[#111827]">{userTeam.mentorName}</span>
+                        {userTeam.mentorEmail && <span className="text-slate-500 ml-1 font-mono">({userTeam.mentorEmail})</span>}
+                      </div>
+                      <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-md ${
+                        userTeam.mentorStatus === 'Accepted' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {userTeam.mentorStatus || 'Pending'}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row gap-3 pt-1">
                     <input 
                       type="text" 
-                      placeholder="e.g. Dr. Sarah Jenkins" 
+                      placeholder="e.g. amanrjain@gcu.edu.in or Dr. Sarah Jenkins" 
+                      value={mentorInputText}
+                      onChange={(e) => setMentorInputText(e.target.value)}
                       className="flex-1 px-4 py-3 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl text-sm focus:outline-none focus:border-[#FF5F38] focus:ring-1 focus:ring-[#FF5F38] transition-colors"
                     />
                     <button 
-                      onClick={() => alert("Mentor request sent!")}
-                      className="px-6 py-3 bg-[#0B2E26] hover:bg-[#0B2E26]/90 text-white font-bold text-sm rounded-xl transition-colors whitespace-nowrap"
+                      type="button"
+                      onClick={() => {
+                        const val = mentorInputText.trim() || userTeam?.mentorEmail || userTeam?.mentorName;
+                        if (!val) {
+                          alert("Please enter a mentor name or email address.");
+                          return;
+                        }
+                        if (!userTeam) {
+                          alert("Please create or join a team first!");
+                          return;
+                        }
+                        selectMentor(userTeam.id, val);
+                        setMentorRequestStatus(`Supervision request successfully sent to ${val}!`);
+                        setTimeout(() => setMentorRequestStatus(''), 5000);
+                      }}
+                      className="px-6 py-3 bg-[#0B2E26] hover:bg-[#0B2E26]/90 text-white font-bold text-sm rounded-xl transition-colors whitespace-nowrap cursor-pointer shadow-sm"
                     >
                       Send Request
                     </button>
                   </div>
+
+                  {mentorRequestStatus && (
+                    <p className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl animate-in fade-in">
+                      ✓ {mentorRequestStatus}
+                    </p>
+                  )}
                 </div>
                 )}
 
@@ -1165,32 +1246,75 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
       {activeTab === 'reviews' && (
         <div className="space-y-6 animate-fadeIn">
           {/* Subtle Banner */}
-          <div className="p-6 sm:p-8 rounded-[24px] bg-[#0B2E26] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md border border-[#0B2E26]">
+          <div className="relative overflow-hidden p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#FFDAC5] via-[#FFF3EB] to-[#FFECD9] border border-[#FF5F38]/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
             <div className="flex items-center gap-5">
-              <div className="w-14 h-14 rounded-[16px] bg-[#FF5F38] text-white flex items-center justify-center font-black shrink-0">
+              <div className="w-14 h-14 rounded-2xl bg-[#FF5F38] text-white flex items-center justify-center font-black shrink-0 shadow-md shadow-[#FF5F38]/20">
                 <FileText className="w-7 h-7" />
               </div>
               <div>
-                <h3 className="text-2xl font-black text-white tracking-wide">Project Review Logs</h3>
-                <p className="text-[13px] text-emerald-100/70 mt-1 max-w-sm leading-relaxed">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-[#FF5F38]"></span>
+                  <span className="text-[#FF5F38] text-[10px] font-black uppercase tracking-wider">Project Records</span>
+                </div>
+                <h3 className="text-2xl font-black text-[#111827] tracking-tight">Project Review Logs</h3>
+                <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1 max-w-md leading-relaxed">
                   Submit detailed progress reports to your mentor and maintain an official tracking history.
                 </p>
               </div>
             </div>
-            {userTeam && (
-              <button 
-                onClick={() => setShowReviewSubmitModal(true)}
-                className="px-6 py-3.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-black text-sm rounded-xl shadow-lg shadow-[#FF5F38]/20 transition-all flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
-              >
-                + Submit Review Log
-              </button>
-            )}
+            <div className="flex flex-wrap items-center gap-3">
+              {userTeam && (
+                <>
+                  <button 
+                    onClick={() => {
+                      setProgressUpdateForm({
+                        stage: userTeam.currentStage || 'Development',
+                        progress: userTeam.progress || 50,
+                        notes: ''
+                      });
+                      setShowProgressUpdateModal(true);
+                    }}
+                    className="px-5 py-3 bg-[#0B2E26] hover:bg-[#071f1a] text-white font-extrabold text-xs rounded-2xl shadow-md transition-all flex items-center gap-2 cursor-pointer shrink-0"
+                  >
+                    <Target className="w-4 h-4 text-[#FF5F38]" />
+                    <span>Update Stage & Progress</span>
+                  </button>
+
+                  <button 
+                    onClick={() => setShowReviewSubmitModal(true)}
+                    className="px-5 py-3 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-extrabold text-xs rounded-2xl shadow-lg shadow-[#FF5F38]/25 transition-all flex items-center gap-2 cursor-pointer shrink-0"
+                  >
+                    + Submit Review Log
+                  </button>
+                </>
+              )}
+            </div>
           </div>
+
+          {/* Pending Progress Notification Banner */}
+          {userTeam?.pendingProgressUpdate?.status === 'Pending' && (
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 flex items-center justify-between gap-3 text-xs font-bold text-amber-900">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
+                <span>
+                  Stage & Progress update to <strong>"{userTeam.pendingProgressUpdate.stage} ({userTeam.pendingProgressUpdate.progress}%)"</strong> submitted — Awaiting faculty mentor evaluation and approval.
+                </span>
+              </div>
+              <span className="font-mono text-[11px] text-amber-700 font-normal">
+                Submitted {userTeam.pendingProgressUpdate.submittedAt}
+              </span>
+            </div>
+          )}
           
           {/* List of Previous Submissions */}
           <div className="bg-white p-6 sm:p-8 rounded-[24px] border border-[#EADBD0] shadow-sm min-h-[50vh] flex flex-col">
-            <h4 className="text-lg font-black text-[#111827] mb-6 flex items-center gap-2 pb-4 border-b border-[#EADBD0]/60">
-              Your Submitted Reviews
+            <h4 className="text-lg font-black text-[#111827] mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#EADBD0]/60">
+              <span>Your Submitted Reviews</span>
+              {userTeam && (
+                <span className="text-xs font-mono font-bold bg-[#FAF2EC] px-3 py-1 rounded-xl text-[#FF5F38] border border-[#EADBD0] w-fit">
+                  {userTeam.name} ({userTeam.id})
+                </span>
+              )}
             </h4>
             {!userTeam ? (
                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 opacity-60 pb-10">
@@ -1206,32 +1330,78 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                  </p>
                </div>
             ) : (
-               <div className="space-y-4">
-                 {data.projectDiary.filter(d => d.teamId === userTeam.id).map((entry, idx) => (
-                   <div key={entry.id} className="p-5 rounded-[20px] bg-[#FAF2EC] border border-[#EADBD0] flex flex-col sm:flex-row justify-between gap-4">
-                     <div>
-                       <div className="flex items-center gap-3 mb-2">
-                         <span className="bg-[#111827] text-white text-xs font-bold px-3 py-1 rounded-full">{entry.reviewNumber || `Review ${idx + 1}`}</span>
-                         <span className="text-xs text-slate-500 font-bold">{entry.date}</span>
-                         {entry.status === 'Pending' ? (
-                           <span className="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-full font-bold">Pending Approval</span>
-                         ) : (
-                           <span className="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-bold flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Approved</span>
-                         )}
-                       </div>
-                       <p className="text-sm font-bold text-slate-800">Stage: {entry.stage}</p>
-                       <p className="text-xs text-slate-600 mt-1 line-clamp-2">{entry.workCompleted}</p>
-                     </div>
-                     {entry.status === 'Approved' && entry.mentorFeedback && (
-                       <div className="sm:w-1/3 bg-white p-4 rounded-xl border border-[#EADBD0] text-xs shadow-sm">
-                         <span className="font-bold text-[#FF5F38] block mb-1 flex items-center gap-1">
-                           <CheckCircle2 className="w-3 h-3" /> Mentor Feedback
-                         </span>
-                         <span className="text-slate-700 leading-relaxed line-clamp-3">{entry.mentorFeedback}</span>
-                       </div>
-                     )}
-                   </div>
-                 ))}
+               <div className="overflow-x-auto border border-[#EADBD0] rounded-2xl">
+                 <table className="w-full text-left text-sm border-collapse bg-white">
+                   <thead>
+                     <tr className="bg-[#FAF2EC] border-b border-[#EADBD0] text-[11px] font-black text-[#111827] uppercase tracking-wider">
+                       <th className="py-3.5 px-4">Review #</th>
+                       <th className="py-3.5 px-4">Date</th>
+                       <th className="py-3.5 px-4">Stage</th>
+                       <th className="py-3.5 px-4">Work Completed & Demo</th>
+                       <th className="py-3.5 px-4">Attendance</th>
+                       <th className="py-3.5 px-4">Mentor Feedback</th>
+                       <th className="py-3.5 px-4 text-center">Status</th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-[#EADBD0]">
+                     {data.projectDiary.filter(d => d.teamId === userTeam.id).map((entry, idx) => (
+                       <tr key={entry.id} className="hover:bg-[#FAF2EC]/30 transition-colors">
+                         <td className="py-4 px-4 whitespace-nowrap">
+                           <span className="bg-[#111827] text-white text-xs font-bold px-3 py-1 rounded-full font-mono">
+                             {entry.reviewNumber || `Review ${String(idx + 1).padStart(2, '0')}`}
+                           </span>
+                         </td>
+                         <td className="py-4 px-4 whitespace-nowrap text-xs font-bold text-slate-600 font-mono">
+                           {entry.date}
+                         </td>
+                         <td className="py-4 px-4 whitespace-nowrap">
+                           <span className="text-xs font-bold text-slate-800 bg-[#FAF2EC] px-2.5 py-1 rounded-lg border border-[#EADBD0]">
+                             {entry.stage || 'Development'}
+                           </span>
+                         </td>
+                         <td className="py-4 px-4 text-xs text-slate-700 min-w-[200px] max-w-xs">
+                           <p className="font-semibold text-[#111827] line-clamp-2">{entry.workCompleted}</p>
+                           {entry.workDemonstrated && (
+                             <p className="text-[11px] text-slate-500 mt-1 italic line-clamp-1">Demo: {entry.workDemonstrated}</p>
+                           )}
+                         </td>
+                         <td className="py-4 px-4 whitespace-nowrap text-xs">
+                           <div className="flex flex-wrap gap-1 max-w-[160px]">
+                             {(userTeam.members || []).map(m => {
+                               const isPresent = (entry.studentsPresent || []).includes(m.name) || (entry.attendanceMap && entry.attendanceMap[m.name] === 'Present');
+                               return (
+                                 <span key={m.regNo} className={`text-[10px] px-2 py-0.5 rounded-md font-bold ${isPresent ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700 opacity-60'}`}>
+                                   {m.name.split(' ')[0]} ({isPresent ? 'P' : 'A'})
+                                 </span>
+                               );
+                             })}
+                           </div>
+                         </td>
+                         <td className="py-4 px-4 text-xs min-w-[180px] max-w-xs">
+                           {entry.mentorFeedback ? (
+                             <div className="bg-emerald-50/70 border border-emerald-200/60 p-2.5 rounded-xl text-slate-700 leading-snug">
+                               <span className="font-bold text-[#0B2E26] text-[10px] block mb-0.5">Mentor Feedback:</span>
+                               <span className="line-clamp-2 font-medium">{entry.mentorFeedback}</span>
+                             </div>
+                           ) : (
+                             <span className="text-slate-400 italic text-xs">Awaiting mentor review</span>
+                           )}
+                         </td>
+                         <td className="py-4 px-4 whitespace-nowrap text-center">
+                           {entry.status === 'Pending' ? (
+                             <span className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-bold">
+                               <Clock className="w-3 h-3" /> Pending
+                             </span>
+                           ) : (
+                             <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">
+                               <CheckCircle2 className="w-3 h-3" /> Approved
+                             </span>
+                           )}
+                         </td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
                </div>
             )}
           </div>
@@ -1257,7 +1427,13 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Review Number</label>
-                  <input type="text" readOnly value={`Review ${String(data.projectDiary.filter(d => d.teamId === userTeam?.id).length + 1).padStart(2, '0')}`} className="w-full px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-mono font-bold" />
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Review 01"
+                    value={reviewFormData.reviewNumber} 
+                    onChange={e => setReviewFormData({ ...reviewFormData, reviewNumber: e.target.value })} 
+                    className="w-full px-3 py-2 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#FF5F38]" 
+                  />
                 </div>
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Review Date</label>
@@ -1320,6 +1496,103 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
               <div className="pt-4 border-t border-[#EADBD0] flex justify-end gap-3">
                 <button type="button" onClick={() => setShowReviewSubmitModal(false)} className="px-6 py-2.5 rounded-xl border border-[#EADBD0] text-slate-600 font-bold hover:bg-slate-100 cursor-pointer text-sm">Cancel</button>
                 <button type="submit" className="px-6 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white text-sm font-extrabold shadow-md cursor-pointer rounded-xl">Submit Review Entry</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: UPDATE STAGE & PROGRESS */}
+      {showProgressUpdateModal && userTeam && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm shadow-2xl">
+          <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-lg overflow-hidden border border-[#EADBD0] animate-fade-in flex flex-col">
+            <div className="bg-[#FAF2EC] px-6 py-5 flex items-center justify-between border-b border-[#EADBD0]">
+              <div>
+                <h3 className="text-base font-black text-[#111827]">
+                  Submit Stage & Progress Update
+                </h3>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  Request stage transition & milestone completion for mentor approval
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowProgressUpdateModal(false)}
+                className="bg-white hover:bg-slate-100 p-2 rounded-2xl border border-[#EADBD0] text-slate-500 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleProgressUpdateSubmit} className="p-6 space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Target Project Lifecycle Stage</label>
+                <select
+                  value={progressUpdateForm.stage}
+                  onChange={e => setProgressUpdateForm({ ...progressUpdateForm, stage: e.target.value })}
+                  className="w-full px-3 py-2.5 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-bold text-[#111827]"
+                >
+                  {[
+                    'Project Selection',
+                    'Problem Identification',
+                    'Research & SRS',
+                    'Planning & Architecture',
+                    'Design & Prototype',
+                    'Development',
+                    'Testing & QA',
+                    'Documentation',
+                    'Final Presentation',
+                    'Final Submission'
+                  ].map(stg => (
+                    <option key={stg} value={stg}>{stg}</option>
+                  ))}
+                </select>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Current Approved: <strong>{userTeam.currentStage || 'Development'}</strong>
+                </span>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold text-slate-700">Completion Percentage</label>
+                  <span className="font-mono font-black text-sm text-[#FF5F38]">{progressUpdateForm.progress}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={progressUpdateForm.progress}
+                  onChange={e => setProgressUpdateForm({ ...progressUpdateForm, progress: e.target.value })}
+                  className="w-full accent-[#FF5F38] cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Work Done & Deliverable Justification</label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Describe the modules completed, code commits, tests passed, or reports prepared for this milestone..."
+                  value={progressUpdateForm.notes}
+                  onChange={e => setProgressUpdateForm({ ...progressUpdateForm, notes: e.target.value })}
+                  className="w-full p-3 bg-[#FAF2EC] border border-[#EADBD0] rounded-xl font-medium focus:outline-none focus:border-[#FF5F38]"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-[#EADBD0] flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowProgressUpdateModal(false)}
+                  className="px-5 py-2.5 rounded-xl border border-[#EADBD0] text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-[#FF5F38] hover:bg-[#E54D26] text-white font-extrabold shadow-md cursor-pointer rounded-xl"
+                >
+                  Submit for Approval
+                </button>
               </div>
             </form>
           </div>

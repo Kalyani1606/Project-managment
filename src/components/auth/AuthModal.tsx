@@ -11,7 +11,7 @@ export function AuthModal() {
   if (!isAuthModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 w-screen h-screen bg-[#FAF2EC] overflow-hidden">
+    <div className="fixed inset-0 z-[100] w-screen h-screen bg-[#FAF2EC] overflow-y-auto">
       <AnimatedAuthCard
         initialTab={authModalTab === "register" ? "register" : "login"}
         isModal={true}
