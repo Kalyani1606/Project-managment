@@ -45,7 +45,8 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
     addResearchPaper,
     clearResearchPapers,
     submitStudentReviewLog,
-    submitProjectProgressUpdate
+    submitProjectProgressUpdate,
+    setBasePaper
   } = useApp();
 
   const { user } = useAuth();
@@ -77,7 +78,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
         return stored;
       }
     }
-    return '6th Semester';
+    return 'Capstone Phase 1';
   });
   const [showEReportModal, setShowEReportModal] = useState(false);
   const [showReviewSubmitModal, setShowReviewSubmitModal] = useState(false);
@@ -490,7 +491,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { localStorage.setItem('targetSemester', '6th Semester'); router.push('/student/events'); }}
+                onClick={() => { localStorage.setItem('targetSemester', 'Capstone Phase 1'); router.push('/student/events'); }}
                 className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group"
               >
                 Click to view tasks
@@ -515,7 +516,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { localStorage.setItem('targetSemester', '7th Semester'); router.push('/student/events'); }}
+                onClick={() => { localStorage.setItem('targetSemester', 'Capstone Phase 2'); router.push('/student/events'); }}
                 className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group opacity-80 hover:opacity-100"
               >
                 Click to view tasks
@@ -540,7 +541,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                 </p>
               </div>
               <button 
-                onClick={() => { localStorage.setItem('targetSemester', '8th Semester'); router.push('/student/events'); }}
+                onClick={() => { localStorage.setItem('targetSemester', 'Capstone Phase 3'); router.push('/student/events'); }}
                 className="mt-6 flex items-center justify-between text-[#FF5F38] font-bold text-sm hover:text-[#E54D26] group opacity-80 hover:opacity-100"
               >
                 Click to view tasks
@@ -561,7 +562,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
           {/* Semester Selector Tabs */}
           {(activeSection === 'all' || activeSection === 'progress') && (
           <div className="flex items-center justify-center gap-3 bg-white p-2 rounded-2xl border border-[#EADBD0] max-w-xl mx-auto shadow-sm">
-            {['6th Semester', '7th Semester', '8th Semester'].map((sem) => {
+            {['Capstone Phase 1', 'Capstone Phase 2', 'Capstone Phase 3'].map((sem) => {
               const isActive = selectedSemester === sem;
               return (
                 <button
@@ -569,13 +570,13 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                   onClick={() => setSelectedSemester(sem)}
                   className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
                     isActive
-                      ? 'bg-[#FF5F38] text-white shadow-md shadow-blue-500/20 scale-[1.02]'
+                      ? 'bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20 scale-[1.02]'
                       : 'text-slate-600 hover:text-[#111827] hover:bg-slate-100'
                   }`}
                 >
-                  {sem.startsWith('6') && '🟢 Capstone Phase 1'}
-                  {sem.startsWith('7') && '🟡 Capstone Phase 2'}
-                  {sem.startsWith('8') && '🔵 Capstone Phase 3'}
+                  {sem === 'Capstone Phase 1' && '🟢 Capstone Phase 1'}
+                  {sem === 'Capstone Phase 2' && '🟡 Capstone Phase 2'}
+                  {sem === 'Capstone Phase 3' && '🔵 Capstone Phase 3'}
                 </button>
               );
             })}
@@ -583,7 +584,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
           )}
 
           {/* 6th Semester Detailed Module */}
-          {selectedSemester === '6th Semester' ? (
+          {selectedSemester === 'Capstone Phase 1' ? (
             <div className="space-y-6">
               
               {/* Progress Tracker Card */}
@@ -593,7 +594,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                   <div>
                     <h2 className="text-lg font-bold text-[#111827] flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-[#FF5F38]" />
-                      📊 6th Semester Progress Tracker
+                      📊 Capstone Phase 1 Progress Tracker
                     </h2>
                     <p className="text-xs text-slate-500">Track real-time completion of your 5-step project setup</p>
                   </div>
@@ -1065,6 +1066,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                             <th className="py-2 px-3">Author(s)</th>
                             <th className="py-2 px-3">Publication / Journal</th>
                             <th className="py-2 px-2">Year</th>
+                            <th className="py-2 px-2 text-right">Action</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -1075,6 +1077,20 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                               <td className="py-2 px-3 text-slate-700">{p.authors}</td>
                               <td className="py-2 px-3 text-slate-500">{p.publication}</td>
                               <td className="py-2 px-2 font-mono text-slate-600">{p.year}</td>
+                              <td className="py-2 px-2 text-right">
+                                {userTeam.basePaper?.id === p.id ? (
+                                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-full">
+                                    <CheckCircle2 className="w-3.5 h-3.5" /> Base Paper
+                                  </span>
+                                ) : (
+                                  <button
+                                    onClick={() => setBasePaper(userTeam.id, p.id)}
+                                    className="px-3 py-1 bg-slate-100 hover:bg-[#FF5F38] text-slate-600 hover:text-white font-bold text-xs rounded-full transition-colors"
+                                  >
+                                    Select
+                                  </button>
+                                )}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -1102,93 +1118,125 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
 
                 {/* MARKS DISPLAY */}
                 {(activeSection === 'all' || activeSection === 'reports') && (
-                <div className="p-5 rounded-[24px] bg-white border border-[#FADCC7] shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 space-y-4 relative z-10">
-                  {/* Top Bar */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#FFDAC5] text-[#FF5F38] rounded-[10px] flex items-center justify-center shadow-sm">
-                        <BarChart3 className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h3 className="text-[14px] font-black text-[#111827] flex items-center gap-1.5">
-                          6th Semester Evaluation <span className="text-[12px] font-medium text-slate-500 tracking-tight">(2-Credit Subject)</span>
-                        </h3>
-                        <p className="text-[11px] font-semibold text-slate-400 mt-0.5">Total Marks: 50</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FEECE5] text-[#D94625] text-[11px] font-bold rounded-full">
-                      <Info className="w-3.5 h-3.5" /> This is the official marks distribution.
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-bold text-[#111827]">Capstone Phase 1 Evaluation</h2>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FEECE5] text-[#D94625] text-xs font-bold rounded-full">
+                      <Info className="w-3.5 h-3.5" /> 2-Credit Subject
                     </div>
                   </div>
 
-                  {/* Middle Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* CIA Column */}
-                    <div className="p-4 rounded-[20px] bg-[#FFF8F4] border border-[#FADCC7]/60 flex flex-col space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 bg-[#FFDAC5] text-[#D94625] rounded-full flex items-center justify-center">
-                             <FileText className="w-4 h-4" />
-                          </div>
-                          <span className="text-[12px] font-black text-[#D94625] uppercase tracking-wide">CIA EVALUATION</span>
-                        </div>
-                        <div className="px-3 py-1.5 bg-[#FEECE5] text-[#D94625] font-black rounded-full text-[12px]">
-                          25 Marks
-                        </div>
+                  {/* Visual Summary */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white p-5 rounded-[24px] border border-[#EADBD0] shadow-sm flex items-center justify-between hover:border-[#FF5F38]/50 transition-all">
+                      <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 rounded-xl bg-[#FFF8F4] text-[#FF5F38] flex items-center justify-center border border-[#FADCC7]">
+                           <Target className="w-5 h-5" />
+                         </div>
+                         <div>
+                           <p className="text-xs font-bold text-slate-500 uppercase">CIA Evaluation</p>
+                           <p className="text-xl font-bold text-[#111827]">25 <span className="text-sm font-medium text-slate-500">Marks</span></p>
+                         </div>
                       </div>
-                      <p className="text-[12px] font-medium text-slate-500 leading-relaxed max-w-sm pl-2 pb-1">
-                        Based on the report review-1<br/>and semester activities.
-                      </p>
                     </div>
-
-                    {/* End Sem Column */}
-                    <div className="p-4 rounded-[20px] bg-[#F9F5FF] border border-[#EBE4FF]/80 flex flex-col space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 bg-[#EBE4FF] text-[#5B42D9] rounded-full flex items-center justify-center">
-                             <MonitorPlay className="w-4 h-4" /> 
-                          </div>
-                          <span className="text-[12px] font-black text-[#5B42D9] uppercase tracking-wide">END SEMESTER EVALUATION</span>
-                        </div>
-                         <div className="px-3 py-1.5 bg-[#EBE4FF] text-[#5B42D9] font-black rounded-full text-[12px]">
-                          25 Marks
-                        </div>
+                    <div className="bg-white p-5 rounded-[24px] border border-[#EADBD0] shadow-sm flex items-center justify-between hover:border-[#FF5F38]/50 transition-all">
+                      <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 rounded-xl bg-[#FFF8F4] text-[#FF5F38] flex items-center justify-center border border-[#FADCC7]">
+                           <Target className="w-5 h-5" />
+                         </div>
+                         <div>
+                           <p className="text-xs font-bold text-slate-500 uppercase">End Semester Evaluation</p>
+                           <p className="text-xl font-bold text-[#111827]">25 <span className="text-sm font-medium text-slate-500">Marks</span></p>
+                         </div>
                       </div>
-                      <div className="bg-white/80 rounded-[14px] p-3 space-y-2 shadow-sm">
-                        <div className="flex items-center justify-between pb-2 border-b border-[#EBE4FF]">
-                           <div className="flex items-center gap-2.5">
-                             <div className="w-6 h-6 bg-[#F9F5FF] text-[#8673E6] rounded-full flex items-center justify-center">
-                               <User className="w-3 h-3" />
-                             </div>
-                             <span className="text-[12px] font-semibold text-slate-600">Presentation & Viva</span>
-                           </div>
-                           <span className="text-[12px] font-bold text-[#5B42D9]">10 Marks</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                           <div className="flex items-center gap-2.5">
-                             <div className="w-6 h-6 bg-[#F9F5FF] text-[#8673E6] rounded-full flex items-center justify-center">
-                               <FileText className="w-3 h-3" />
-                             </div>
-                             <span className="text-[12px] font-semibold text-slate-600">Final Report</span>
-                           </div>
-                           <span className="text-[12px] font-bold text-[#5B42D9]">15 Marks</span>
-                        </div>
+                    </div>
+                    <div className="bg-[#FF5F38] p-5 rounded-[24px] shadow-md flex items-center justify-between relative overflow-hidden">
+                      <div className="absolute -right-4 -bottom-4 opacity-10">
+                         <Award className="w-24 h-24 text-white" />
+                      </div>
+                      <div className="flex items-center gap-3 relative z-10">
+                         <div className="w-10 h-10 rounded-xl bg-white/20 text-white flex items-center justify-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                         </div>
+                         <div>
+                           <p className="text-xs font-bold text-white/90 uppercase">Total Evaluation</p>
+                           <p className="text-2xl font-bold text-white">50 <span className="text-sm font-medium text-white/80">Marks</span></p>
+                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Bottom Total Row */}
-                  <div className="flex items-center justify-between p-3 bg-[#FFF8F4] border border-[#FADCC7]/60 rounded-full mt-1">
-                     <div className="flex items-center gap-2.5 pl-2">
-                        <Target className="w-5 h-5 text-[#D94625]" />
-                        <span className="text-[13px] font-black text-[#D94625] uppercase tracking-wide">TOTAL EVALUATION</span>
-                     </div>
-                     <div className="flex-1 mx-4 opacity-60">
-                        <div className="h-px w-full bg-[#FADCC7]"></div>
-                     </div>
-                     <div className="px-5 py-1.5 bg-[#FFDAC5] text-[#D94625] font-black rounded-full text-[14px]">
-                       50 Marks
-                     </div>
+                  {/* Main Review Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    {/* CIA Card */}
+                    <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 group flex flex-col">
+                      <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
+                        <h2 className="text-base font-bold text-[#111827]">CIA Evaluation</h2>
+                        <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-bold text-xs rounded-full">Total: 25</span>
+                      </div>
+                      <div className="p-6 space-y-4 flex-1">
+                        <div className="flex items-center justify-between p-4 rounded-[16px] bg-white border border-[#EADBD0] shadow-sm group-hover:border-[#FF5F38]/30 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-[#FFF8F4] flex items-center justify-center text-[#FF5F38] border border-[#FADCC7]/50">
+                              <FileText className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-bold text-[#111827]">Report Review-1 & Activities</h4>
+                              <p className="text-xs font-semibold text-slate-500">Based on semester work</p>
+                            </div>
+                          </div>
+                          <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-bold text-[#D94625] shrink-0 text-xs">
+                            25 M
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-5 bg-[#0B2E26] text-white flex justify-between items-center">
+                        <span className="font-bold text-xs tracking-wide text-emerald-100/70 uppercase">Total Marks</span>
+                        <span className="text-lg font-bold">25</span>
+                      </div>
+                    </div>
+
+                    {/* End Semester Card */}
+                    <div className="bg-white rounded-[24px] border border-[#EADBD0] shadow-sm overflow-hidden hover:shadow-lg hover:border-[#FF5F38] transition-all duration-300 group flex flex-col">
+                      <div className="p-6 border-b border-[#FADCC7] bg-[#FFF8F4] flex items-center justify-between">
+                        <h2 className="text-base font-bold text-[#111827]">End Semester Evaluation</h2>
+                        <span className="px-3 py-1 bg-[#FFDAC5] text-[#D94625] font-bold text-xs rounded-full">Total: 25</span>
+                      </div>
+                      <div className="p-6 space-y-4 flex-1">
+                        <div className="flex items-center justify-between p-4 rounded-[16px] bg-white border border-[#EADBD0] shadow-sm group-hover:border-[#FF5F38]/30 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-[#FFF8F4] flex items-center justify-center text-[#FF5F38] border border-[#FADCC7]/50">
+                              <User className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-bold text-[#111827]">Presentation & Viva</h4>
+                            </div>
+                          </div>
+                          <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-bold text-[#D94625] shrink-0 text-xs">
+                            10 M
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between p-4 rounded-[16px] bg-white border border-[#EADBD0] shadow-sm group-hover:border-[#FF5F38]/30 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-[#FFF8F4] flex items-center justify-center text-[#FF5F38] border border-[#FADCC7]/50">
+                              <FileText className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-bold text-[#111827]">Final Report</h4>
+                            </div>
+                          </div>
+                          <div className="px-3 py-1.5 bg-[#FFF8F4] border border-[#FADCC7] rounded-xl font-bold text-[#D94625] shrink-0 text-xs">
+                            15 M
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-5 bg-[#0B2E26] text-white flex justify-between items-center">
+                        <span className="font-bold text-xs tracking-wide text-emerald-100/70 uppercase">Total Marks</span>
+                        <span className="text-lg font-bold">25</span>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
                 )}
@@ -1199,7 +1247,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                   <div className="p-6 mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
                       <h3 className="text-lg font-bold text-emerald-800">Ready to Submit?</h3>
-                      <p className="text-xs text-emerald-600">You have completed all requirements for the 6th Semester.</p>
+                      <p className="text-xs text-emerald-600">You have completed all requirements for Capstone Phase 1.</p>
                     </div>
                     {!isSemesterCompleted ? (
                       <button 
@@ -1207,7 +1255,7 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
                         className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
                         onClick={() => setIsSemesterCompleted(true)}
                       >
-                        <CheckCircle2 className="w-5 h-5" /> Complete Semester Submission
+                        <CheckCircle2 className="w-5 h-5" /> Complete Phase 1 Submission
                       </button>
                     ) : (
                       <button 
@@ -1225,16 +1273,16 @@ export default function StudentPortal({ defaultTab = 'dashboard', activeSection 
 
               </div>
             </div>
-          ) : selectedSemester === '7th Semester' ? (
+          ) : selectedSemester === 'Capstone Phase 2' ? (
             <SeventhSemesterReview userTeam={userTeam} />
-          ) : selectedSemester === '8th Semester' ? (
+          ) : selectedSemester === 'Capstone Phase 3' ? (
             <EighthSemesterReview userTeam={userTeam} />
           ) : (
             <div className="bg-white border border-[#EADBD0] shadow-sm p-12 text-center rounded-3xl border border-[#EADBD0] bg-white text-slate-500">
               <Clock className="w-12 h-12 mx-auto mb-3 text-[#FF5F38] opacity-50" />
               <h3 className="text-lg font-bold text-[#111827] mb-1">{selectedSemester} Upcoming</h3>
               <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Tasks for {selectedSemester} will unlock automatically upon completion of 6th Semester work.
+                Tasks for {selectedSemester} will unlock automatically upon completion of Capstone Phase 1 work.
               </p>
             </div>
           )}

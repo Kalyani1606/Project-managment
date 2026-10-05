@@ -719,11 +719,32 @@ export const AppProvider = ({ children }) => {
           return {
             ...t,
             researchPapers: [],
+            basePaper: null,
             marks: { ...t.marks, cia: { ...t.marks.cia, researchReview: 0 } }
           };
         }
         return t;
       })
+    }));
+  };
+
+  const setBasePaper = (teamId, paperId) => {
+    setData(prev => ({
+      ...prev,
+      teams: prev.teams.map(t => {
+        if (t.id === teamId) {
+          const selected = t.researchPapers.find(p => p.id === paperId);
+          return {
+            ...t,
+            basePaper: selected
+          };
+        }
+        return t;
+      }),
+      notifications: [
+        ...prev.notifications,
+        { id: `N-${Date.now()}`, text: `📄 Base paper successfully set!`, time: 'Just now', read: false, role: 'student' }
+      ]
     }));
   };
 
@@ -1135,6 +1156,7 @@ export const AppProvider = ({ children }) => {
       setDomainAndTopic,
       addResearchPaper,
       clearResearchPapers,
+      setBasePaper,
       respondToMentorRequest,
       addProjectDiaryEntry,
       updateProjectProgress,
