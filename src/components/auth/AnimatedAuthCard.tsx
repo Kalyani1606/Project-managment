@@ -36,7 +36,7 @@ export function AnimatedAuthCard({
   const { showToast } = useNotification();
 
   const [tab, setTab] = useState<"login" | "register" | "forgot">(initialTab);
-  const [role, setRole] = useState<"STUDENT" | "MENTOR" | "COORDINATOR">("STUDENT");
+  const [role, setRole] = useState<"STUDENT" | "MENTOR" | "COORDINATOR" | "REVIEWER">("STUDENT");
   const [showPassword, setShowPassword] = useState(false);
 
   // Form states
@@ -81,6 +81,8 @@ export function AnimatedAuthCard({
       if (onCloseModal) onCloseModal();
       if (data.user.role === "COORDINATOR" || role === "COORDINATOR") {
         router.push("/coordinator");
+      } else if (data.user.role === "REVIEWER" || role === "REVIEWER") {
+        router.push("/reviewer");
       } else if (data.user.role === "TEACHER" || data.user.role === "HOD" || role === "MENTOR") {
         router.push("/mentor");
       } else {
@@ -112,6 +114,13 @@ export function AnimatedAuthCard({
         name: regName || "Faculty Mentor",
         department: regDept || "Computer Science & Engineering",
         designation: regDesignation || "Assistant Professor",
+        collegeEmail: regEmail,
+        password: regPassword || undefined,
+      } : role === "REVIEWER" ? {
+        role: "REVIEWER",
+        name: regName || "External Reviewer",
+        department: regDept || "Computer Science & Engineering",
+        designation: regDesignation || "External Reviewer",
         collegeEmail: regEmail,
         password: regPassword || undefined,
       } : {
@@ -158,7 +167,7 @@ export function AnimatedAuthCard({
     <div className="w-full h-screen min-h-screen flex flex-col items-center justify-center bg-[#FAF2EC]">
       {/* Main Container Card (Edge-to-Edge Full Screen) */}
       <div className="relative w-full h-full min-h-screen bg-[#FAF2EC] overflow-hidden flex">
-        
+
         {/* ========================================================================= */}
         {/* PANEL 1: CREAM/WHITE FORM CARD PANEL                                       */}
         {/* Horizontal Shift: Starts at left (0%), slides right (100% -> left: 50%)    */}
@@ -220,8 +229,10 @@ export function AnimatedAuthCard({
                         {role === "STUDENT"
                           ? "Register your student details to get started."
                           : role === "MENTOR"
-                          ? "Register your faculty mentor details to get started."
-                          : "Register your coordinator details to get started."}
+                            ? "Register your faculty mentor details to get started."
+                            : role === "REVIEWER"
+                              ? "Register your reviewer details to evaluate final-year projects."
+                              : "Register your coordinator details to get started."}
                       </p>
                     </div>
 
@@ -230,11 +241,10 @@ export function AnimatedAuthCard({
                       <button
                         type="button"
                         onClick={() => { setRole("STUDENT"); setError(null); }}
-                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${
-                          role === "STUDENT"
+                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${role === "STUDENT"
                             ? "bg-white text-[#111827] shadow-sm border border-black/5"
                             : "text-slate-600 hover:text-[#111827]"
-                        }`}
+                          }`}
                       >
                         <GraduationCap className={`w-3.5 h-3.5 ${role === "STUDENT" ? "text-[#FF5F38]" : "text-slate-400"}`} />
                         <span>Student</span>
@@ -242,23 +252,32 @@ export function AnimatedAuthCard({
                       <button
                         type="button"
                         onClick={() => { setRole("MENTOR"); setError(null); }}
-                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${
-                          role === "MENTOR"
+                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${role === "MENTOR"
                             ? "bg-white text-[#111827] shadow-sm border border-black/5"
                             : "text-slate-600 hover:text-[#111827]"
-                        }`}
+                          }`}
                       >
                         <Award className={`w-3.5 h-3.5 ${role === "MENTOR" ? "text-[#FF5F38]" : "text-slate-400"}`} />
                         <span>Mentor</span>
                       </button>
                       <button
                         type="button"
-                        onClick={() => { setRole("COORDINATOR"); setError(null); }}
-                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${
-                          role === "COORDINATOR"
+                        onClick={() => { setRole("REVIEWER"); setError(null); }}
+                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${role === "REVIEWER"
                             ? "bg-white text-[#111827] shadow-sm border border-black/5"
                             : "text-slate-600 hover:text-[#111827]"
-                        }`}
+                          }`}
+                      >
+                        <Briefcase className={`w-3.5 h-3.5 ${role === "REVIEWER" ? "text-[#FF5F38]" : "text-slate-400"}`} />
+                        <span>Reviewer</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setRole("COORDINATOR"); setError(null); }}
+                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${role === "COORDINATOR"
+                            ? "bg-white text-[#111827] shadow-sm border border-black/5"
+                            : "text-slate-600 hover:text-[#111827]"
+                          }`}
                       >
                         <ShieldCheck className={`w-3.5 h-3.5 ${role === "COORDINATOR" ? "text-[#FF5F38]" : "text-slate-400"}`} />
                         <span>Coordinator</span>
@@ -285,8 +304,8 @@ export function AnimatedAuthCard({
                               role === "STUDENT"
                                 ? "Alex Morgan"
                                 : role === "MENTOR"
-                                ? "Dr. Aris Thorne"
-                                : "Dr. Marcus Sterling"
+                                  ? "Dr. Aris Thorne"
+                                  : "Dr. Marcus Sterling"
                             }
                             value={regName}
                             onChange={(e) => setRegName(e.target.value)}
@@ -301,8 +320,8 @@ export function AnimatedAuthCard({
                           {role === "STUDENT"
                             ? "College email address"
                             : role === "MENTOR"
-                            ? "Faculty email address"
-                            : "Coordinator email address"}
+                              ? "Faculty email address"
+                              : "Coordinator email address"}
                         </label>
                         <div className="relative">
                           <input
@@ -312,8 +331,8 @@ export function AnimatedAuthCard({
                               role === "STUDENT"
                                 ? "student@college.edu"
                                 : role === "MENTOR"
-                                ? "dr.aris@engg.college.edu"
-                                : "coordinator@college.edu"
+                                  ? "dr.aris@engg.college.edu"
+                                  : "coordinator@college.edu"
                             }
                             value={regEmail}
                             onChange={(e) => setRegEmail(e.target.value)}
@@ -405,10 +424,10 @@ export function AnimatedAuthCard({
                           {isLoading
                             ? "Creating account..."
                             : role === "STUDENT"
-                            ? "Create student account"
-                            : role === "MENTOR"
-                            ? "Create mentor account"
-                            : "Create coordinator account"}
+                              ? "Create student account"
+                              : role === "MENTOR"
+                                ? "Create mentor account"
+                                : "Create coordinator account"}
                         </span>
                         {!isLoading && <ArrowRight className="w-4 h-4 text-white" />}
                       </button>
@@ -432,8 +451,10 @@ export function AnimatedAuthCard({
                         {role === "STUDENT"
                           ? "Enter your student email & password to log in."
                           : role === "MENTOR"
-                          ? "Enter your faculty mentor email & password to log in."
-                          : "Enter your coordinator email & password to log in."}
+                            ? "Enter your faculty mentor email & password to log in."
+                            : role === "REVIEWER"
+                              ? "Enter your reviewer email & password to log in."
+                              : "Enter your coordinator email & password to log in."}
                       </p>
                     </div>
 
@@ -442,11 +463,10 @@ export function AnimatedAuthCard({
                       <button
                         type="button"
                         onClick={() => { setRole("STUDENT"); setError(null); }}
-                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${
-                          role === "STUDENT"
+                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${role === "STUDENT"
                             ? "bg-white text-[#111827] shadow-sm border border-black/5"
                             : "text-slate-600 hover:text-[#111827]"
-                        }`}
+                          }`}
                       >
                         <GraduationCap className={`w-3.5 h-3.5 ${role === "STUDENT" ? "text-[#FF5F38]" : "text-slate-400"}`} />
                         <span>Student</span>
@@ -454,23 +474,32 @@ export function AnimatedAuthCard({
                       <button
                         type="button"
                         onClick={() => { setRole("MENTOR"); setError(null); }}
-                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${
-                          role === "MENTOR"
+                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${role === "MENTOR"
                             ? "bg-white text-[#111827] shadow-sm border border-black/5"
                             : "text-slate-600 hover:text-[#111827]"
-                        }`}
+                          }`}
                       >
                         <Award className={`w-3.5 h-3.5 ${role === "MENTOR" ? "text-[#FF5F38]" : "text-slate-400"}`} />
                         <span>Mentor</span>
                       </button>
                       <button
                         type="button"
-                        onClick={() => { setRole("COORDINATOR"); setError(null); }}
-                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${
-                          role === "COORDINATOR"
+                        onClick={() => { setRole("REVIEWER"); setError(null); }}
+                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${role === "REVIEWER"
                             ? "bg-white text-[#111827] shadow-sm border border-black/5"
                             : "text-slate-600 hover:text-[#111827]"
-                        }`}
+                          }`}
+                      >
+                        <Briefcase className={`w-3.5 h-3.5 ${role === "REVIEWER" ? "text-[#FF5F38]" : "text-slate-400"}`} />
+                        <span>Reviewer</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setRole("COORDINATOR"); setError(null); }}
+                        className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${role === "COORDINATOR"
+                            ? "bg-white text-[#111827] shadow-sm border border-black/5"
+                            : "text-slate-600 hover:text-[#111827]"
+                          }`}
                       >
                         <ShieldCheck className={`w-3.5 h-3.5 ${role === "COORDINATOR" ? "text-[#FF5F38]" : "text-slate-400"}`} />
                         <span>Coordinator</span>
@@ -490,8 +519,10 @@ export function AnimatedAuthCard({
                           {role === "STUDENT"
                             ? "Student email address"
                             : role === "MENTOR"
-                            ? "Faculty email address"
-                            : "Coordinator email address"}
+                              ? "Faculty email address"
+                              : role === "REVIEWER"
+                                ? "Reviewer email address"
+                                : "Coordinator email address"}
                         </label>
                         <div className="relative">
                           <input
@@ -501,8 +532,8 @@ export function AnimatedAuthCard({
                               role === "STUDENT"
                                 ? "student@college.edu"
                                 : role === "MENTOR"
-                                ? "dr.aris@engg.college.edu"
-                                : "coordinator@college.edu"
+                                  ? "dr.aris@engg.college.edu"
+                                  : "coordinator@college.edu"
                             }
                             value={loginEmail}
                             onChange={(e) => setLoginEmail(e.target.value)}
@@ -563,10 +594,12 @@ export function AnimatedAuthCard({
                           {isLoading
                             ? "Signing in..."
                             : role === "STUDENT"
-                            ? "Sign in as Student"
-                            : role === "MENTOR"
-                            ? "Sign in as Mentor"
-                            : "Sign in as Coordinator"}
+                              ? "Sign in as Student"
+                              : role === "MENTOR"
+                                ? "Sign in as Mentor"
+                                : role === "REVIEWER"
+                                  ? "Sign in as Reviewer"
+                                  : "Sign in as Coordinator"}
                         </span>
                         {!isLoading && <ArrowRight className="w-4 h-4 text-white" />}
                       </button>

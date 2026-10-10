@@ -17,8 +17,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-*, body, button, input, select, textarea, table, th, td, span, p, div, h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-plus-jakarta), var(--font-inter), 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif !important;
+/* Apply Merriweather serif font to absolutely everything to match the educational theme */
+*, body, button, input, select, textarea, table, th, td, span, p, div, h1, h2, h3, h4, h5, h6, a {
+  font-family: var(--font-merriweather), 'Merriweather', Georgia, serif !important;
 }
 
 @keyframes float-slow {

@@ -10,10 +10,75 @@ export async function POST(request: Request) {
     const { name, rollNumber, semester, collegeEmail, department, designation, password, role } = body;
     const isCoordinator = role === "COORDINATOR";
     const isMentor = role === "MENTOR" || role === "TEACHER";
+    const isReviewer = role === "REVIEWER";
 
     const trimmedEmail = (collegeEmail || "").trim().toLowerCase();
 
-    // 0. Coordinator Registration Flow
+    // 0a. Reviewer Registration Flow
+    if (isReviewer) {
+      if (!name || !collegeEmail) {
+        return NextResponse.json(
+          { error: "Please provide your Name and College Email." },
+          { status: 400 }
+        );
+      }
+
+      const emailValidation = validateCollegeEmail(trimmedEmail);
+      if (!emailValidation.isValid) {
+        return NextResponse.json(
+          { error: emailValidation.error || "Invalid reviewer email address." },
+          { status: 400 }
+        );
+      }
+
+      const existingEmail = await prisma.user.findUnique({ where: { email: trimmedEmail } });
+      if (existingEmail) {
+        return NextResponse.json(
+          { error: "An account with this email already exists. Please log in instead." },
+          { status: 409 }
+        );
+      }
+
+      const rawGeneratedPassword = password || generateSecureStudentPassword();
+      const passwordHash = await hashPassword(rawGeneratedPassword);
+
+      const user = await prisma.user.create({
+        data: {
+          name: name.trim(),
+          email: trimmedEmail,
+          passwordHash,
+          role: "REVIEWER",
+          reviewerProfile: {
+            create: {
+              department: department?.trim() || "Computer Science & Engineering",
+              designation: designation?.trim() || "External Reviewer",
+              areasOfExpertise: JSON.stringify(["Project Evaluation", "Software Engineering"]),
+            },
+          },
+        },
+        include: { reviewerProfile: true },
+      });
+
+      await prisma.notification.create({
+        data: {
+          userId: user.id,
+          type: "SYSTEM",
+          title: "Welcome to Project Hub!",
+          message: `Your Reviewer account is active. You will be notified when projects are assigned for evaluation.`,
+          link: "/reviewer",
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Reviewer account created successfully! You can now sign in.",
+        email: user.email,
+        role: "REVIEWER",
+        generatedPassword: rawGeneratedPassword,
+      });
+    }
+
+    // 0b. Coordinator Registration Flow
     if (isCoordinator) {
       if (!name || !collegeEmail) {
         return NextResponse.json(

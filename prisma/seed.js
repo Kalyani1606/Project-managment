@@ -109,6 +109,49 @@ async function main() {
     createdTeachersMap[t.email] = user;
   }
 
+  // 2b. Create Demo Reviewers
+  const reviewersData = [
+    {
+      name: "kal",
+      email: "455btit@gcu.edu.in",
+      department: "Computer Science & Engineering",
+      designation: "External Reviewer",
+      areasOfExpertise: JSON.stringify(["Final Year Project Evaluation", "Software Engineering", "AI/ML", "System Design"]),
+    },
+    {
+      name: "Dr. Nalini Patil",
+      email: "reviewer@college.edu",
+      department: "Computer Science & Engineering",
+      designation: "External Reviewer",
+      areasOfExpertise: JSON.stringify(["Final Year Project Evaluation", "Software Engineering", "AI/ML", "System Design"]),
+    },
+    {
+      name: "Prof. Robert Langford",
+      email: "robert.langford@review.college.edu",
+      department: "Information Technology",
+      designation: "Senior Reviewer",
+      areasOfExpertise: JSON.stringify(["IoT", "Embedded Systems", "Cloud Computing", "Project Evaluation"]),
+    },
+  ];
+
+  for (const r of reviewersData) {
+    await prisma.user.create({
+      data: {
+        name: r.name,
+        email: r.email,
+        passwordHash,
+        role: "REVIEWER",
+        reviewerProfile: {
+          create: {
+            department: r.department,
+            designation: r.designation,
+            areasOfExpertise: r.areasOfExpertise,
+          },
+        },
+      },
+    });
+  }
+
   // 3. Create Students
   const studentsData = [
     {
@@ -405,7 +448,370 @@ async function main() {
     });
   }
 
-  console.log("Database successfully populated with clean seed data for all 5 faculty mentors!");
+  // ---- 8TH SEMESTER TEAMS & PROJECTS + REVIEWER ASSIGNMENTS ----
+  // Fetch created reviewers
+  const reviewer1 = await prisma.user.findUnique({ where: { email: "reviewer@college.edu" } });
+  const reviewer2 = await prisma.user.findUnique({ where: { email: "robert.langford@review.college.edu" } });
+
+  const now = new Date();
+  const deadlineIn7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const deadlineIn4 = new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000);
+  const deadlineIn2 = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+  const past2Days = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+  const past5Days = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
+
+  // 8th Sem Team 1 (Pending Review)
+  const team8A = await prisma.team.create({
+    data: {
+      teamName: "Neural Vision Squad",
+      semester: 8,
+      creatorId: studentKalyani.id,
+      members: {
+        create: [
+          { userId: studentKalyani.id, role: "Team Creator", status: "ACCEPTED" },
+          { userId: aman.id, role: "Team Member", status: "ACCEPTED" },
+        ],
+      },
+    },
+  });
+
+  const project8A = await prisma.project.create({
+    data: {
+      teamId: team8A.id,
+      semester: 8,
+      projectTitle: "Autonomous Drone Defect Detection using YOLOv9",
+      problemStatement: "Industrial inspection of wind turbines and solar panels requires costly manual labor; an autonomous aerial defect detection system would significantly reduce costs and inspection time.",
+      description: "A real-time defect detection system using YOLOv9 deployed on an autonomous drone with sub-2-second inference and adaptive flight path planning.",
+      domain: "Computer Vision & Edge AI",
+      technologies: JSON.stringify(["Python", "YOLOv9", "PyTorch", "OpenCV", "ROS2", "Raspberry Pi"]),
+      status: "FINAL_REVIEW",
+    },
+  });
+
+  if (drAris.teacherProfile) {
+    await prisma.guideRequest.create({
+      data: {
+        projectId: project8A.id,
+        teacherId: drAris.teacherProfile.id,
+        requestedById: studentKalyani.id,
+        roleType: "Lead Guide",
+        status: "ACCEPTED",
+      },
+    });
+  }
+
+  // 8th Sem Team 2 (In-Progress Draft Evaluation)
+  const team8B = await prisma.team.create({
+    data: {
+      teamName: "CyberTrust Protocols",
+      semester: 8,
+      creatorId: rahul.id,
+      members: {
+        create: [
+          { userId: rahul.id, role: "Team Creator", status: "ACCEPTED" },
+          { userId: priya.id, role: "Team Member", status: "ACCEPTED" },
+        ],
+      },
+    },
+  });
+
+  const project8B = await prisma.project.create({
+    data: {
+      teamId: team8B.id,
+      semester: 8,
+      projectTitle: "Decentralized Verifiable Credentials for Academic Records",
+      problemStatement: "Academic credential forgery causes significant verification delays; a tamper-proof blockchain system provides instant verification.",
+      description: "Zero-knowledge proof-based academic transcript verification built on Polygon ID with low gas overhead and instant employer validation.",
+      domain: "Blockchain & Cybersecurity",
+      technologies: JSON.stringify(["Solidity", "Polygon ID", "Next.js", "Ethers.js", "ZKP", "Node.js"]),
+      status: "FINAL_REVIEW",
+    },
+  });
+
+  if (profSunita.teacherProfile) {
+    await prisma.guideRequest.create({
+      data: {
+        projectId: project8B.id,
+        teacherId: profSunita.teacherProfile.id,
+        requestedById: rahul.id,
+        roleType: "Lead Guide",
+        status: "ACCEPTED",
+      },
+    });
+  }
+
+  // 8th Sem Team 3 (Submitted Evaluation)
+  const team8C = await prisma.team.create({
+    data: {
+      teamName: "Quantum Shield",
+      semester: 8,
+      creatorId: sneha.id,
+      members: {
+        create: [
+          { userId: sneha.id, role: "Team Creator", status: "ACCEPTED" },
+          { userId: kiran.id, role: "Team Member", status: "ACCEPTED" },
+        ],
+      },
+    },
+  });
+
+  const project8C = await prisma.project.create({
+    data: {
+      teamId: team8C.id,
+      semester: 8,
+      projectTitle: "Quantum-Safe Hybrid Encryption Suite for Enterprise Healthcare",
+      problemStatement: "Harvest-now-decrypt-later attacks threaten long-term patient medical record privacy against future quantum computers.",
+      description: "Post-quantum cryptographic library combining Kyber-1024 and AES-256-GCM for HIPAA-compliant medical record storage and transport.",
+      domain: "Cybersecurity & Post-Quantum Cryptography",
+      technologies: JSON.stringify(["C++20", "Python", "Kyber-1024", "OpenSSL", "Rust", "FastAPI"]),
+      status: "COMPLETED",
+    },
+  });
+
+  if (drAris.teacherProfile) {
+    await prisma.guideRequest.create({
+      data: {
+        projectId: project8C.id,
+        teacherId: drAris.teacherProfile.id,
+        requestedById: sneha.id,
+        roleType: "Lead Guide",
+        status: "ACCEPTED",
+      },
+    });
+  }
+
+  // 8th Sem Team 4 (Submitted Evaluation with Audit Trail)
+  const team8D = await prisma.team.create({
+    data: {
+      teamName: "GridPulse AI",
+      semester: 8,
+      creatorId: studentKalyani.id,
+      members: {
+        create: [
+          { userId: studentKalyani.id, role: "Team Creator", status: "ACCEPTED" },
+          { userId: priya.id, role: "Team Member", status: "ACCEPTED" },
+        ],
+      },
+    },
+  });
+
+  const project8D = await prisma.project.create({
+    data: {
+      teamId: team8D.id,
+      semester: 8,
+      projectTitle: "Smart Micro-Grid Energy Load Forecasting using Graph Neural Networks",
+      problemStatement: "Renewable energy volatility causes micro-grid instability; spatial-temporal forecasting reduces blackouts and energy loss.",
+      description: "Graph Convolutional Network (GCN) coupled with LSTM to forecast neighborhood-level solar and wind power demand with 96.4% precision.",
+      domain: "CleanTech & Spatial AI",
+      technologies: JSON.stringify(["PyTorch Geometric", "Python", "InfluxDB", "Grafana", "Docker"]),
+      status: "COMPLETED",
+    },
+  });
+
+  // Create Reviewer Assignments & Evaluations for ALL REVIEWER users in the database
+  const allReviewers = await prisma.user.findMany({ where: { role: "REVIEWER" } });
+
+  for (const rev of allReviewers) {
+    // 1. Pending Assignment (Drone Defect)
+    const existingA = await prisma.reviewAssignment.findUnique({
+      where: { reviewerId_projectId: { reviewerId: rev.id, projectId: project8A.id } },
+    });
+    if (!existingA) {
+      await prisma.reviewAssignment.create({
+        data: {
+          reviewerId: rev.id,
+          projectId: project8A.id,
+          teamId: team8A.id,
+          assignedById: coordinatorUser.id,
+          reviewDeadline: deadlineIn7,
+          status: "PENDING",
+        },
+      });
+    }
+
+    // 2. In-Progress Assignment with Draft Marks (CyberTrust)
+    const existingB = await prisma.reviewAssignment.findUnique({
+      where: { reviewerId_projectId: { reviewerId: rev.id, projectId: project8B.id } },
+    });
+    let assignB = existingB;
+    if (!assignB) {
+      assignB = await prisma.reviewAssignment.create({
+        data: {
+          reviewerId: rev.id,
+          projectId: project8B.id,
+          teamId: team8B.id,
+          assignedById: coordinatorUser.id,
+          reviewDeadline: deadlineIn4,
+          status: "IN_PROGRESS",
+        },
+      });
+    }
+
+    const existingEvalB = await prisma.reviewerEvaluation.findUnique({
+      where: { assignmentId: assignB.id },
+    });
+    if (!existingEvalB) {
+      await prisma.reviewerEvaluation.create({
+        data: {
+          assignmentId: assignB.id,
+          reviewerId: rev.id,
+          projectId: project8B.id,
+          teamId: team8B.id,
+          criteriaMarks: JSON.stringify({
+            projectQuality: 18,
+            technicalDepth: 22,
+            documentation: 17,
+            presentation: 18,
+            problemStatement: 14,
+          }),
+          totalMarks: 89,
+          maxTotalMarks: 100,
+          isDraft: true,
+        },
+      });
+    }
+
+    // 3. Submitted Assignment (Quantum Shield)
+    const existingC = await prisma.reviewAssignment.findUnique({
+      where: { reviewerId_projectId: { reviewerId: rev.id, projectId: project8C.id } },
+    });
+    let assignC = existingC;
+    if (!assignC) {
+      assignC = await prisma.reviewAssignment.create({
+        data: {
+          reviewerId: rev.id,
+          projectId: project8C.id,
+          teamId: team8C.id,
+          assignedById: coordinatorUser.id,
+          reviewDeadline: past2Days,
+          status: "SUBMITTED",
+        },
+      });
+    }
+
+    const existingEvalC = await prisma.reviewerEvaluation.findUnique({
+      where: { assignmentId: assignC.id },
+    });
+    if (!existingEvalC) {
+      await prisma.reviewerEvaluation.create({
+        data: {
+          assignmentId: assignC.id,
+          reviewerId: rev.id,
+          projectId: project8C.id,
+          teamId: team8C.id,
+          criteriaMarks: JSON.stringify({
+            projectQuality: 19,
+            technicalDepth: 24,
+            documentation: 18,
+            presentation: 19,
+            problemStatement: 14,
+          }),
+          totalMarks: 94,
+          maxTotalMarks: 100,
+          isDraft: false,
+          submittedAt: past2Days,
+        },
+      });
+    }
+
+    // 4. Submitted Assignment with Audit Log (GridPulse AI)
+    const existingD = await prisma.reviewAssignment.findUnique({
+      where: { reviewerId_projectId: { reviewerId: rev.id, projectId: project8D.id } },
+    });
+    let assignD = existingD;
+    if (!assignD) {
+      assignD = await prisma.reviewAssignment.create({
+        data: {
+          reviewerId: rev.id,
+          projectId: project8D.id,
+          teamId: team8D.id,
+          assignedById: coordinatorUser.id,
+          reviewDeadline: past5Days,
+          status: "SUBMITTED",
+        },
+      });
+    }
+
+    const existingEvalD = await prisma.reviewerEvaluation.findUnique({
+      where: { assignmentId: assignD.id },
+    });
+    let evalD = existingEvalD;
+    if (!evalD) {
+      evalD = await prisma.reviewerEvaluation.create({
+        data: {
+          assignmentId: assignD.id,
+          reviewerId: rev.id,
+          projectId: project8D.id,
+          teamId: team8D.id,
+          criteriaMarks: JSON.stringify({
+            projectQuality: 17,
+            technicalDepth: 21,
+            documentation: 16,
+            presentation: 18,
+            problemStatement: 14,
+          }),
+          totalMarks: 86,
+          maxTotalMarks: 100,
+          isDraft: false,
+          submittedAt: past5Days,
+        },
+      });
+
+      await prisma.evaluationAuditLog.create({
+        data: {
+          evaluationId: evalD.id,
+          changedById: coordinatorUser.id,
+          originalMarks: JSON.stringify({
+            projectQuality: 17,
+            technicalDepth: 21,
+            documentation: 16,
+            presentation: 16,
+            problemStatement: 14,
+          }),
+          revisedMarks: JSON.stringify({
+            projectQuality: 17,
+            technicalDepth: 21,
+            documentation: 16,
+            presentation: 18,
+            problemStatement: 14,
+          }),
+          changeReason: "Authorized +2 marks adjustment following presentation defense clarification",
+        },
+      });
+    }
+
+    // Reviewer Notifications
+    await prisma.notification.createMany({
+      data: [
+        {
+          userId: rev.id,
+          type: "REVIEW_ASSIGNED",
+          title: "New Project Assigned for Review",
+          message: `You have been assigned to evaluate "${project8A.projectTitle}" by Team ${team8A.teamName}. Deadline: ${deadlineIn7.toLocaleDateString("en-IN")}.`,
+          link: "/reviewer?tab=projects",
+          read: false,
+        },
+        {
+          userId: rev.id,
+          type: "REVIEW_DEADLINE",
+          title: "Upcoming Evaluation Deadline",
+          message: `Reminder: Evaluation for "${project8B.projectTitle}" is due in 4 days (${deadlineIn4.toLocaleDateString("en-IN")}).`,
+          link: "/reviewer?tab=evaluate",
+          read: false,
+        },
+        {
+          userId: rev.id,
+          type: "REVIEW_SUBMITTED",
+          title: "Evaluation Submitted",
+          message: `Your evaluation for "${project8C.projectTitle}" (Total: 94/100) was successfully submitted to the Coordinator Portal.`,
+          link: "/reviewer?tab=history",
+          read: true,
+        },
+      ],
+    });
+  }
+
+  console.log("Database successfully populated with rich seed data for Reviewer Portal & Coordinator evaluations!");
 }
 
 main()

@@ -58,6 +58,7 @@ export async function getSessionUser() {
       include: {
         studentProfile: true,
         teacherProfile: true,
+        reviewerProfile: true,
       },
     });
 
@@ -78,6 +79,12 @@ export async function getSessionUser() {
         ? {
             ...user.teacherProfile,
             areasOfExpertise: JSON.parse(user.teacherProfile.areasOfExpertise || "[]"),
+          }
+        : null,
+      reviewerProfile: user.reviewerProfile
+        ? {
+            ...user.reviewerProfile,
+            areasOfExpertise: JSON.parse((user.reviewerProfile as any).areasOfExpertise || "[]"),
           }
         : null,
     };

@@ -63,6 +63,20 @@ export async function POST(request: Request) {
       );
     }
 
+    if (selectedRole === "REVIEWER" && user.role !== "REVIEWER") {
+      return NextResponse.json(
+        { error: "This email is not registered as a Reviewer account. Please select your correct role." },
+        { status: 400 }
+      );
+    }
+
+    if (user.role === "REVIEWER" && selectedRole && selectedRole !== "REVIEWER") {
+      return NextResponse.json(
+        { error: "This email is registered as a Reviewer account. Please select 'Reviewer' above to sign in." },
+        { status: 400 }
+      );
+    }
+
     // 4. Generate JWT
     const token = signToken({
       userId: user.id,

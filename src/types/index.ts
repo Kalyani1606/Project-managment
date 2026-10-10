@@ -2,7 +2,7 @@ export interface SafeUser {
   id: string;
   name: string;
   email: string;
-  role: "STUDENT" | "TEACHER" | "HOD";
+  role: "STUDENT" | "TEACHER" | "HOD" | "REVIEWER" | "COORDINATOR";
   createdAt: string;
   studentProfile?: {
     id: string;
@@ -21,6 +21,13 @@ export interface SafeUser {
     designation: string;
     areasOfExpertise: string[];
     maxProjects: number;
+  } | null;
+  reviewerProfile?: {
+    id: string;
+    department: string;
+    designation: string;
+    specialization: string;
+    phone?: string | null;
   } | null;
 }
 
