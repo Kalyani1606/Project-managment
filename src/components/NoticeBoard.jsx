@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Megaphone, X, Calendar, User, PlusCircle, AlertCircle } from 'lucide-react';
+import { Megaphone, X, Calendar, User, PlusCircle, AlertCircle, Paperclip, UploadCloud, FileText, Download } from 'lucide-react';
 
 export default function NoticeBoard({ onClose }) {
   const { data, publishNotice } = useApp();
@@ -10,13 +10,54 @@ export default function NoticeBoard({ onClose }) {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState('normal');
   const [content, setContent] = useState('');
+  const [files, setFiles] = useState([]);
+
+  const formatFileSize = (bytes) => {
+    if (!bytes || bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    selectedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setFiles((prev) => [
+          ...prev,
+          {
+            id: `FILE-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+            name: file.name,
+            sizeFormatted: formatFileSize(file.size),
+            dataUrl: reader.result
+          }
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const downloadFile = (file) => {
+    if (file.dataUrl) {
+      const a = document.createElement('a');
+      a.href = file.dataUrl;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title || !content) return;
-    publishNotice({ title, priority, content });
+    publishNotice({ title, priority, content, files });
     setTitle('');
     setContent('');
+    setFiles([]);
     setShowAddForm(false);
   };
 
@@ -96,6 +137,46 @@ export default function NoticeBoard({ onClose }) {
                   required
                 ></textarea>
               </div>
+
+              {/* Attach File Option */}
+              <div>
+                <label className="form-label flex items-center gap-1.5 text-xs font-bold text-[#111827]">
+                  <Paperclip className="w-3.5 h-3.5 text-[#FF5F38]" /> Attach Document / Circular (Optional)
+                </label>
+                <label className="flex items-center justify-center p-3 border border-dashed border-[#EADBD0] hover:border-[#FF5F38] rounded-xl bg-[#FAF2EC]/50 hover:bg-[#FAF2EC] transition-all cursor-pointer">
+                  <input
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.png,.jpg,.jpeg"
+                    onChange={handleFileChange}
+                    className="sr-only"
+                  />
+                  <div className="flex items-center gap-2 text-xs text-slate-600">
+                    <UploadCloud className="w-4 h-4 text-[#FF5F38]" />
+                    <span className="font-semibold text-[#111827]">Upload attachments</span> (PDF, DOCX, XLSX, etc.)
+                  </div>
+                </label>
+                {files.length > 0 && (
+                  <div className="mt-2 space-y-1.5">
+                    {files.map((f) => (
+                      <div key={f.id} className="flex items-center justify-between p-2 bg-white rounded-lg border border-[#EADBD0] text-xs">
+                        <div className="flex items-center gap-2 truncate">
+                          <FileText className="w-3.5 h-3.5 text-[#FF5F38] shrink-0" />
+                          <span className="font-bold text-[#111827] truncate">{f.name}</span>
+                          <span className="text-[10px] text-slate-400 font-mono">({f.sizeFormatted})</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setFiles((prev) => prev.filter((item) => item.id !== f.id))}
+                          className="text-slate-400 hover:text-rose-600 p-1"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setShowAddForm(false)} className="px-4 py-2 bg-white hover:bg-slate-100 text-[#0B2E26] font-bold text-xs rounded-xl border border-[#EADBD0] shadow-sm transition-all cursor-pointer py-1 text-xs">
                   Cancel
@@ -134,6 +215,25 @@ export default function NoticeBoard({ onClose }) {
                   </span>
                 </div>
                 <p className="text-xs text-slate-700 leading-relaxed mb-3">{notice.content}</p>
+                {notice.files && notice.files.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {notice.files.map((file, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => downloadFile(file)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white hover:bg-[#FAF2EC] border border-[#EADBD0] text-slate-700 hover:text-[#FF5F38] rounded-lg text-[11px] font-semibold transition cursor-pointer"
+                      >
+                        <Paperclip className="w-3 h-3 text-[#FF5F38]" />
+                        <span className="truncate max-w-[180px]">{file.name}</span>
+                        {file.sizeFormatted && (
+                          <span className="text-[10px] text-slate-400 font-mono">({file.sizeFormatted})</span>
+                        )}
+                        <Download className="w-2.5 h-2.5 ml-0.5 text-slate-400" />
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-[#EADBD0]/60">
                   <span className="flex items-center gap-1.5 text-slate-600 font-medium">
                     <User className="w-3 h-3 text-[#FF5F38]" /> {notice.author}

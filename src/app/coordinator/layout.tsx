@@ -21,6 +21,7 @@ import {
   Search,
   ShieldCheck,
   ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { NotificationDrawer } from "@/components/common/NotificationDrawer";
 import { AppProvider } from "@/context/AppContext";
@@ -84,41 +85,20 @@ function CoordinatorLayoutContent({ children }: { children: React.ReactNode }) {
 
           <div className="pt-3 pb-1 px-3">
             <span className="text-[10px] font-black tracking-widest uppercase text-[#FF5F38] border-l-2 border-[#FF5F38] pl-2">
-              Semester Teams
+              Reviewer Panel
             </span>
           </div>
 
           <Link
-            href="/coordinator?tab=sem6"
+            href="/coordinator?tab=reviewers"
             className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${
-              searchParams.get("tab") === "sem6"
+              searchParams.get("tab") === "reviewers"
                 ? "bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20"
                 : "text-slate-600 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]"
             }`}
           >
-            <Users className="w-4 h-4 text-slate-400" /> 6th Sem Teams
-          </Link>
-
-          <Link
-            href="/coordinator?tab=sem7"
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${
-              searchParams.get("tab") === "sem7"
-                ? "bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20"
-                : "text-slate-600 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]"
-            }`}
-          >
-            <Users className="w-4 h-4 text-slate-400" /> 7th Sem Teams
-          </Link>
-
-          <Link
-            href="/coordinator?tab=sem8"
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${
-              searchParams.get("tab") === "sem8"
-                ? "bg-[#FF5F38] text-white shadow-md shadow-[#FF5F38]/20"
-                : "text-slate-600 hover:bg-[#FF5F38]/10 hover:text-[#FF5F38]"
-            }`}
-          >
-            <Users className="w-4 h-4 text-slate-400" /> 8th Sem Teams
+            <UserCheck className={`w-4 h-4 ${searchParams.get("tab") === "reviewers" ? "text-white" : "text-slate-400"}`} />
+            Reviewers Panel
           </Link>
 
           <div className="pt-3 pb-1 px-3">
@@ -219,11 +199,18 @@ function CoordinatorLayoutContent({ children }: { children: React.ReactNode }) {
             </button>
             <nav className="flex flex-col gap-2">
               <Link
-                href="/coordinator"
+                href="/coordinator?tab=dashboard"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-[#FF5F38] text-white"
               >
                 <Home className="w-4 h-4" /> Dashboard
+              </Link>
+              <Link
+                href="/coordinator?tab=reviewers"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-white text-slate-700 border border-[#EADBD0]"
+              >
+                <UserCheck className="w-4 h-4 text-[#FF5F38]" /> Reviewers Panel &amp; Assignments
               </Link>
             </nav>
           </div>

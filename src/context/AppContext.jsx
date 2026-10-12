@@ -54,8 +54,92 @@ export const initialData = {
   // Teams list
   teams: [
     {
-      id: 'TEAM-01',
-      teamNumber: '01',
+      id: 'TEAM-601',
+      teamNumber: '601',
+      name: 'Zero-Trust IoT Squad',
+      projectTitle: 'Zero-Trust IoT Device Authentication Protocol',
+      problemStatement: 'Edge IoT devices in critical infrastructure lack robust zero-trust cryptographic mutual authentication.',
+      objectives: '1. Build lightweight mutual handshake.\n2. Hardware-enforced identity attestation.\n3. Gateway telemetry monitoring.',
+      shortDescription: 'Zero-Trust security protocol for mutual cryptographic authentication across distributed IoT edge nodes.',
+      domain: 'Cybersecurity & Embedded Systems',
+      domainReason: 'Specialized security research in device authentication and cryptography.',
+      technologies: ['C++', 'Rust', 'ESP32', 'TLS 1.3', 'Cryptography'],
+      expectedOutcome: 'Zero-trust authentication gateway benchmarked against latency overhead.',
+      startDate: '2026-08-01',
+      expectedCompletionDate: '2026-11-30',
+      status: 'Evaluated',
+      evaluationScore: '25 / 50',
+      currentStage: 'Review Completed',
+      progress: 50,
+      lastReviewDate: '2026-09-30',
+      nextReviewDate: '2026-10-15',
+      leaderEmail: 'kiran.kumar@engg.college.edu',
+      mentorId: 'MENTOR-03',
+      mentorName: 'Prof. Devika Nair',
+      mentorEmail: 'devika.nair@engg.college.edu',
+      mentorStatus: 'Accepted',
+      currentSemester: '6th Semester',
+      members: [
+        { name: 'Kiran Kumar', email: 'kiran.kumar@engg.college.edu', phone: '+91 97410 65839', regNo: '1MS21IS034', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Rahul Sharma', email: 'rahul.sharma@engg.college.edu', phone: '+91 98450 99821', regNo: '1MS21CS078', role: 'Team Member', status: 'Accepted', attendanceRate: '100%' }
+      ],
+      tasks: [
+        { id: 'TASK-601', description: 'Implement TLS session token verification module', assignedStudent: 'Kiran Kumar', dateAssigned: '2026-09-30', deadline: '2026-10-07', status: 'In Progress' }
+      ],
+      documents: [],
+      invitations: [],
+      researchPapers: [],
+      marks: {
+        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 },
+        endSem: { presentation: 0, finalReport: 0, total: 0 },
+        totalMarks: 25,
+        status: 'Evaluated'
+      }
+    },
+    {
+      id: 'TEAM-602',
+      teamNumber: '602',
+      name: 'EdgeSense Labs',
+      projectTitle: 'Smart Agriculture Edge Sensor Network',
+      problemStatement: 'Traditional soil and moisture sensors lack local edge compute, creating cellular bottlenecks.',
+      objectives: '1. Deploy LoRaWAN mesh network.\n2. On-device edge classification for irrigation needs.\n3. Low power solar harvest power module.',
+      shortDescription: 'Edge computing mesh network for automated agricultural telemetry and intelligent water regulation.',
+      domain: 'Internet of Things & Edge Computing',
+      domainReason: 'Agritech IoT research and embedded sensor systems.',
+      technologies: ['Embedded C', 'LoRaWAN', 'Python', 'FastAPI', 'MQTT'],
+      expectedOutcome: 'Operational smart irrigation mesh testbed deployed across agricultural plots.',
+      startDate: '2026-08-01',
+      expectedCompletionDate: '2026-11-30',
+      status: 'Evaluated',
+      evaluationScore: '40 / 50',
+      currentStage: 'Review Completed',
+      progress: 80,
+      lastReviewDate: '2026-09-28',
+      nextReviewDate: '2026-10-12',
+      leaderEmail: 'sneha.rao@engg.college.edu',
+      mentorId: 'MENTOR-04',
+      mentorName: 'Dr. Rajesh Iyer',
+      mentorEmail: 'dr.rajesh@engg.college.edu',
+      mentorStatus: 'Accepted',
+      currentSemester: '6th Semester',
+      members: [
+        { name: 'Kiran Kumar', email: 'kiran.kumar@engg.college.edu', phone: '+91 97410 65839', regNo: '1MS21IS034', role: 'Team Member', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Sneha Rao', email: 'sneha.rao@engg.college.edu', phone: '+91 98765 43210', regNo: '1MS21CS099', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' }
+      ],
+      tasks: [],
+      documents: [],
+      invitations: [],
+      researchPapers: [],
+      marks: {
+        cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 },
+        endSem: { presentation: 15, finalReport: 0, total: 15 },
+        totalMarks: 40,
+        status: 'Evaluated'
+      }
+    },
+    {
+      id: 'TEAM-603',
+      teamNumber: '603',
       name: 'Neural Vision Squad',
       projectTitle: 'Autonomous Drone Defect Detection',
       problemStatement: 'Inspecting solar panel arrays manually on large solar farms is hazardous and time-consuming.',
@@ -67,9 +151,10 @@ export const initialData = {
       expectedOutcome: 'Drone analytics dashboard with real-time thermal anomaly bounding boxes.',
       startDate: '2026-08-01',
       expectedCompletionDate: '2026-11-30',
-      status: 'In Development',
-      currentStage: 'Development',
-      progress: 65,
+      status: 'Evaluated',
+      evaluationScore: '40 / 50',
+      currentStage: 'Review Completed',
+      progress: 80,
       lastReviewDate: '2026-09-30',
       nextReviewDate: '2026-10-07',
       leaderEmail: 'priya.patel@engg.college.edu',
@@ -79,12 +164,11 @@ export const initialData = {
       mentorStatus: 'Accepted',
       currentSemester: '6th Semester',
       members: [
-        { name: 'Priya Patel', email: 'priya.patel@engg.college.edu', regNo: '1MS21CS045', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Aman Verma', email: 'aman.verma@engg.college.edu', regNo: '1MS21CS012', role: 'Team Member', status: 'Accepted', attendanceRate: '100%' }
+        { name: 'Aman Verma', email: 'aman.verma@engg.college.edu', phone: '+91 97410 65839', regNo: '1MS21CS012', role: 'Team Member', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Priya Patel', email: 'priya.patel@engg.college.edu', phone: '+91 99804 77213', regNo: '1MS21CS045', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' }
       ],
       tasks: [
-        { id: 'TASK-101', description: 'Train YOLOv8 model on solar panel thermal dataset', assignedStudent: 'Priya Patel', dateAssigned: '2026-09-30', deadline: '2026-10-07', status: 'In Progress', mentorRemarks: 'Target mAP@0.5 above 90%.' },
-        { id: 'TASK-102', description: 'Setup ROS2 node for drone telemetry streaming', assignedStudent: 'Aman Verma', dateAssigned: '2026-09-30', deadline: '2026-10-05', status: 'In Progress', mentorRemarks: 'Ensure low latency web socket stream.' }
+        { id: 'TASK-101', description: 'Train YOLOv8 model on solar panel thermal dataset', assignedStudent: 'Priya Patel', dateAssigned: '2026-09-30', deadline: '2026-10-07', status: 'In Progress', mentorRemarks: 'Target mAP@0.5 above 90%.' }
       ],
       documents: [
         { id: 'DOC-01', title: 'Thermal Anomaly Detection System Architecture', type: 'SRS', date: '2026-08-20', size: '2.4 MB', url: '#', reviewId: 'Review 01' }
@@ -93,14 +177,14 @@ export const initialData = {
       researchPapers: [],
       marks: {
         cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 5, total: 25 },
-        endSem: { presentation: 18, finalReport: 22, total: 40 },
-        totalMarks: 65,
-        status: 'Approved'
+        endSem: { presentation: 15, finalReport: 0, total: 15 },
+        totalMarks: 40,
+        status: 'Evaluated'
       }
     },
     {
-      id: 'TEAM-02',
-      teamNumber: '02',
+      id: 'TEAM-604',
+      teamNumber: '604',
       name: 'InnovateX Team',
       projectTitle: 'Smart Academic & Project Management Hub',
       problemStatement: 'Manual management of engineering projects leads to submission delays and lack of guide visibility.',
@@ -112,7 +196,8 @@ export const initialData = {
       expectedOutcome: 'Fully functional academic project evaluation hub.',
       startDate: '2026-08-05',
       expectedCompletionDate: '2026-11-28',
-      status: 'In Development',
+      status: 'Pending',
+      evaluationScore: null,
       currentStage: 'Development',
       progress: 70,
       lastReviewDate: '2026-09-25',
@@ -124,8 +209,8 @@ export const initialData = {
       mentorStatus: 'Accepted',
       currentSemester: '6th Semester',
       members: [
-        { name: 'Kalyani', email: '24btice186@gcu.edu.in', regNo: '24BTCE186', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Priya Patel', email: 'priya.patel@engg.college.edu', regNo: '1MS21CS045', role: 'Team Member', status: 'Accepted', attendanceRate: '100%' }
+        { name: 'Kalyani', email: '24btice186@gcu.edu.in', phone: '+91 97410 65839', regNo: '24BTCE186', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Priya Patel', email: 'priya.patel@engg.college.edu', phone: '+91 99804 77213', regNo: '1MS21CS045', role: 'Team Member', status: 'Accepted', attendanceRate: '100%' }
       ],
       tasks: [
         { id: 'TASK-201', description: 'Implement digital diary review modal UI', assignedStudent: 'Kalyani', dateAssigned: '2026-09-25', deadline: '2026-10-04', status: 'In Progress', mentorRemarks: 'Keep clean typography.' }
@@ -137,9 +222,9 @@ export const initialData = {
       researchPapers: [],
       marks: {
         cia: { teamFormation: 5, mentorSelection: 5, domainSelection: 5, problemIdentification: 5, researchReview: 4, total: 24 },
-        endSem: { presentation: 15, finalReport: 20, total: 35 },
-        totalMarks: 59,
-        status: 'Draft'
+        endSem: { presentation: 0, finalReport: 0, total: 0 },
+        totalMarks: 24,
+        status: 'Pending'
       }
     },
     {
@@ -167,10 +252,10 @@ export const initialData = {
       mentorStatus: 'Accepted',
       currentSemester: '7th Semester',
       members: [
-        { name: 'Ananya Sharma', email: 'ananya.sharma@university.edu', regNo: '20BCA012', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Rahul Verma', email: 'rahul.v@university.edu', regNo: '20BCA045', role: 'Hardware & ML Engineer', status: 'Accepted', attendanceRate: '95%' },
-        { name: 'Sneha Patel', email: 'sneha.p@university.edu', regNo: '20BCA063', role: 'Frontend & Visualizer', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Arjun Nair', email: 'arjun.n@university.edu', regNo: '20BCA088', role: 'Firmware Specialist', status: 'Accepted', attendanceRate: '90%' }
+        { name: 'Ananya Sharma', email: 'ananya.sharma@university.edu', phone: '+91 94481 90214', regNo: '20BCA012', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Rahul Verma', email: 'rahul.v@university.edu', phone: '+91 96112 87401', regNo: '20BCA045', role: 'Hardware & ML Engineer', status: 'Accepted', attendanceRate: '95%' },
+        { name: 'Sneha Patel', email: 'sneha.p@university.edu', phone: '+91 99001 23456', regNo: '20BCA063', role: 'Frontend & Visualizer', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Arjun Nair', email: 'arjun.n@university.edu', phone: '+91 98440 55678', regNo: '20BCA088', role: 'Firmware Specialist', status: 'Accepted', attendanceRate: '90%' }
       ],
       tasks: [
         { id: 'TASK-301', description: 'Optimize FFT bandpass filter for 50Hz mains hum reduction', assignedStudent: 'Rahul Verma', dateAssigned: '2026-09-28', deadline: '2026-10-06', status: 'In Progress', mentorRemarks: 'Test with synthetic noise samples.' },
@@ -213,9 +298,9 @@ export const initialData = {
       mentorStatus: 'Accepted',
       currentSemester: '7th Semester',
       members: [
-        { name: 'Kartik Deshmukh', email: 'kartik.deshmukh@university.edu', regNo: '20BCA029', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Meera Iyer', email: 'meera.i@university.edu', regNo: '20BCA051', role: 'Smart Contract Developer', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Devendra Joshi', email: 'devendra.j@university.edu', regNo: '20BCA077', role: 'IoT Firmware Developer', status: 'Accepted', attendanceRate: '85%' }
+        { name: 'Kartik Deshmukh', email: 'kartik.deshmukh@university.edu', phone: '+91 97412 88990', regNo: '20BCA029', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Meera Iyer', email: 'meera.i@university.edu', phone: '+91 98801 67234', regNo: '20BCA051', role: 'Smart Contract Developer', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Devendra Joshi', email: 'devendra.j@university.edu', phone: '+91 99805 12389', regNo: '20BCA077', role: 'IoT Firmware Developer', status: 'Accepted', attendanceRate: '85%' }
       ],
       tasks: [
         { id: 'TASK-401', description: 'Verify MQTT packet latency under 50 concurrent smart meters', assignedStudent: 'Devendra Joshi', dateAssigned: '2026-09-25', deadline: '2026-10-05', status: 'In Progress', mentorRemarks: 'Ensure TLS encryption on broker.' }
@@ -257,10 +342,10 @@ export const initialData = {
       mentorStatus: 'Accepted',
       currentSemester: '8th Semester',
       members: [
-        { name: 'Tanvi Kulkarni', email: 'tanvi.kulkarni@university.edu', regNo: '19BCA008', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Vikramaditya Sen', email: 'vikram.sen@university.edu', regNo: '19BCA033', role: 'Computer Vision Engineer', status: 'Accepted', attendanceRate: '100%' },
-        { name: 'Ritu Ganguly', email: 'ritu.g@university.edu', regNo: '19BCA057', role: 'Embedded Systems Lead', status: 'Accepted', attendanceRate: '95%' },
-        { name: 'Pranav Menon', email: 'pranav.m@university.edu', regNo: '19BCA091', role: 'Flight Operations & QA', status: 'Accepted', attendanceRate: '100%' }
+        { name: 'Tanvi Kulkarni', email: 'tanvi.kulkarni@university.edu', phone: '+91 98455 90123', regNo: '19BCA008', role: 'Team Leader', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Vikramaditya Sen', email: 'vikram.sen@university.edu', phone: '+91 98450 67890', regNo: '19BCA033', role: 'Computer Vision Engineer', status: 'Accepted', attendanceRate: '100%' },
+        { name: 'Ritu Ganguly', email: 'ritu.g@university.edu', phone: '+91 97410 34567', regNo: '19BCA057', role: 'Embedded Systems Lead', status: 'Accepted', attendanceRate: '95%' },
+        { name: 'Pranav Menon', email: 'pranav.m@university.edu', phone: '+91 99000 89012', regNo: '19BCA091', role: 'Flight Operations & QA', status: 'Accepted', attendanceRate: '100%' }
       ],
       tasks: [
         { id: 'TASK-501', description: 'Prepare 15-minute final defense slide deck and video demonstration', assignedStudent: 'Tanvi Kulkarni', dateAssigned: '2026-09-29', deadline: '2026-10-10', status: 'In Progress', mentorRemarks: 'Include benchmarking against satellite latency.' },
@@ -1098,6 +1183,85 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const assignReviewerToTeam = (teamId, reviewerId, reviewDeadline = null) => {
+    const team = data.teams.find(t => t.id === teamId);
+    const reviewerObj = data.reviewers.find(r => r.id === reviewerId);
+    if (!team || !reviewerObj) {
+      return { success: false, error: 'Team or reviewer not found.' };
+    }
+
+    // STRICT CONFLICT PREVENTION: Same mentor and reviewer cannot happen
+    if (
+      (team.mentorName && team.mentorName.trim().toLowerCase() === reviewerObj.name.trim().toLowerCase()) ||
+      (team.mentorId && team.mentorId === reviewerId)
+    ) {
+      return {
+        success: false,
+        error: `Conflict of Interest: ${reviewerObj.name} is already the mentor for ${team.name}. A mentor cannot be assigned as the reviewer.`
+      };
+    }
+
+    setData(prev => {
+      const updatedTeams = prev.teams.map(t =>
+        t.id === teamId
+          ? {
+              ...t,
+              reviewerId,
+              reviewerName: reviewerObj.name,
+              reviewDeadline: reviewDeadline || '2026-11-15'
+            }
+          : t
+      );
+
+      const updatedReviewers = prev.reviewers.map(r => {
+        if (r.id === reviewerId) {
+          const current = r.assignedTeams || [];
+          return {
+            ...r,
+            assignedTeams: current.includes(teamId) ? current : [...current, teamId]
+          };
+        } else {
+          return {
+            ...r,
+            assignedTeams: (r.assignedTeams || []).filter(id => id !== teamId)
+          };
+        }
+      });
+
+      return {
+        ...prev,
+        teams: updatedTeams,
+        reviewers: updatedReviewers,
+        notifications: [
+          {
+            id: `N-${Date.now()}`,
+            text: `⚖️ Reviewer ${reviewerObj.name} assigned to ${team.name}.`,
+            time: 'Just now',
+            read: false,
+            role: 'coordinator'
+          },
+          ...prev.notifications
+        ]
+      };
+    });
+
+    return { success: true };
+  };
+
+  const unassignReviewerFromTeam = (teamId) => {
+    setData(prev => ({
+      ...prev,
+      teams: prev.teams.map(t =>
+        t.id === teamId ? { ...t, reviewerId: null, reviewerName: null } : t
+      ),
+      reviewers: prev.reviewers.map(r => ({
+        ...r,
+        assignedTeams: (r.assignedTeams || []).filter(id => id !== teamId)
+      }))
+    }));
+    return { success: true };
+  };
+
   const scheduleReview = (reviewData) => {
     const newReview = { id: `REV-EVENT-${Date.now()}`, ...reviewData };
     setData(prev => ({
@@ -1174,6 +1338,8 @@ export const AppProvider = ({ children }) => {
       toggleRegisterLock,
       approveTeamStatus,
       assignMentorToTeam,
+      assignReviewerToTeam,
+      unassignReviewerFromTeam,
       scheduleReview,
       updateMarksStatus,
       publishNotice,
